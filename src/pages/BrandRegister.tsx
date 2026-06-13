@@ -114,7 +114,8 @@ const BrandRegister = () => {
           formData.contactName && formData.contactPhone && formData.contactEmail
         );
       case 3:
-        return formData.logo && formData.themeColor;
+        // return formData.logo && formData.themeColor;
+        return true; // Make assets optional for now
       case 4:
         return true;
       default:

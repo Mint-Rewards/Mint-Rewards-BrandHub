@@ -32,7 +32,7 @@ interface FetchBrandsResponse {
 
 const getApiBaseUrl = () =>
   import.meta.env.VITE_API_URL ??
-  "https://mint-rewards-mern-next-js.vercel.app/api";
+  "https://mint-rewards-backend.vercel.app/api";
 
 export const fetchBrands = async (): Promise<Brand[]> => {
   const response = await fetch(`${getApiBaseUrl()}/brands`);
