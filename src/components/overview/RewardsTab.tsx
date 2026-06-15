@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { BarChart, ResponsiveContainer, XAxis, YAxis, Bar } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { cn } from "@/lib/utils";
 import { mockAnalyticsData } from "./data";
 
 const REWARD_CATEGORIES = [
@@ -16,28 +17,28 @@ const REWARD_CATEGORIES = [
     name: "Discount Coupons",
     redemptions: "1,240 redemptions",
     usageRate: "89%",
-    gradientClassName: "from-green-500 to-emerald-500",
+    badgeClassName: "bg-green-500/10 text-green-600 dark:text-green-400",
   },
   {
     rank: 2,
     name: "Free Products",
     redemptions: "680 redemptions",
     usageRate: "76%",
-    gradientClassName: "from-blue-500 to-cyan-500",
+    badgeClassName: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
   },
   {
     rank: 3,
     name: "Exclusive Deals",
     redemptions: "420 redemptions",
     usageRate: "82%",
-    gradientClassName: "from-orange-500 to-red-500",
+    badgeClassName: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
   },
   {
     rank: 4,
     name: "Gift Cards",
     redemptions: "290 redemptions",
     usageRate: "71%",
-    gradientClassName: "from-purple-500 to-pink-500",
+    badgeClassName: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
   },
 ];
 
@@ -109,7 +110,10 @@ const RewardsTab = () => {
               >
                 <div className="flex items-center space-x-3">
                   <div
-                    className={`w-8 h-8 bg-gradient-to-r ${category.gradientClassName} rounded-full flex items-center justify-center text-white font-bold text-sm`}
+                    className={cn(
+                      "flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold",
+                      category.badgeClassName
+                    )}
                   >
                     {category.rank}
                   </div>

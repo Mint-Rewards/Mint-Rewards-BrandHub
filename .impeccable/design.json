@@ -1,0 +1,178 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-16T00:00:00.000Z",
+  "title": "Design System: Mint Rewards Brand Hub",
+  "extensions": {
+    "colorMeta": {
+      "primary": {
+        "role": "primary",
+        "displayName": "Ledger Teal",
+        "canonical": "hsl(186 100% 19%)",
+        "tonalRamp": ["#00454d", "#007380", "#00a1b3", "#00cfe6", "#1ae8ff", "#4dedff", "#99f5ff", "#e5fcff"]
+      },
+      "primary-glow": {
+        "role": "primary",
+        "displayName": "Ledger Teal Glow",
+        "canonical": "hsl(186 100% 33%)",
+        "tonalRamp": ["#00454d", "#007380", "#00a1b3", "#00cfe6", "#1ae8ff", "#4dedff", "#99f5ff", "#e5fcff"]
+      },
+      "accent": {
+        "role": "secondary",
+        "displayName": "Signal Violet",
+        "canonical": "hsl(264 89% 58%)",
+        "tonalRamp": ["#1f0448", "#340778", "#490aa9", "#5e0dd9", "#7826f2", "#9656f5", "#c39ff9", "#f0e7fe"]
+      },
+      "success": {
+        "role": "status",
+        "displayName": "Success Green",
+        "canonical": "hsl(142 76% 36%)"
+      },
+      "warning": {
+        "role": "status",
+        "displayName": "Warning Amber",
+        "canonical": "hsl(38 92% 50%)"
+      },
+      "destructive": {
+        "role": "status",
+        "displayName": "Destructive Red",
+        "canonical": "hsl(0 84% 60%)"
+      },
+      "background": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "hsl(0 0% 99%)"
+      },
+      "card": {
+        "role": "neutral",
+        "displayName": "Card White",
+        "canonical": "hsl(0 0% 100%)"
+      },
+      "foreground": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "hsl(224 15% 15%)"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Mist",
+        "canonical": "hsl(210 20% 96%)"
+      },
+      "muted-foreground": {
+        "role": "neutral",
+        "displayName": "Slate",
+        "canonical": "hsl(215 15% 55%)"
+      },
+      "border": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "hsl(186 20% 90%)"
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display (Metric Value)", "purpose": "The hero number in StatCard, TrendStatCard, and CenteredStat. The largest, boldest text on any screen." },
+      "headline": { "displayName": "Headline", "purpose": "CardTitle — section and tab headers." },
+      "title": { "displayName": "Title", "purpose": "Sub-labels needing emphasis without competing with metric values: tier names, callout headings." },
+      "body": { "displayName": "Body", "purpose": "CardDescription and general copy, typically in Slate." },
+      "label": { "displayName": "Label", "purpose": "Stat labels, badge text, captions." }
+    },
+    "shadows": [
+      { "name": "card-rest", "value": "0 1px 2px 0 rgb(0 0 0 / 0.05)", "purpose": "The only shadow in the system. Applied at rest to all cards and surfaces (Tailwind's default shadow-sm)." },
+      { "name": "button-hover", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)", "purpose": "Hover state for buttons only (Tailwind's default shadow-md). Data cards never gain shadow on hover." }
+    ],
+    "motion": [
+      { "name": "ease-standard", "value": "cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default easing for hover/focus state transitions (Tailwind's ease-in-out, matches the unused --transition-smooth token)." },
+      { "name": "duration-state", "value": "200ms", "purpose": "Default duration for button and tab state changes." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main call-to-action button — Ledger Teal fill, used for the primary action on any view.",
+      "html": "<button class=\"ds-btn-primary\">Generate Report</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #005761; color: #fafafa; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; padding: 8px 16px; height: 40px; border: none; border-radius: 10px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); cursor: pointer; transition: background 200ms cubic-bezier(0.4,0,0.2,1), box-shadow 200ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: rgba(0, 87, 97, 0.9); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px #fcfcfc, 0 0 0 4px #005761; }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action button — transparent fill with a hairline border.",
+      "html": "<button class=\"ds-btn-outline\">Admin Login</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: #fcfcfc; color: #21242c; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; padding: 8px 16px; height: 40px; border: 1px solid #e0eaeb; border-radius: 10px; cursor: pointer; transition: background 200ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-outline:hover { background: #f3f5f7; } .ds-btn-outline:focus-visible { outline: none; box-shadow: 0 0 0 2px #fcfcfc, 0 0 0 4px #005761; }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "icon-badge-primary",
+      "description": "The signature component: a tinted icon badge beside a label/value pair. Used across every overview tab.",
+      "html": "<div class=\"ds-stat-card\"><div class=\"ds-stat-icon\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z\"/><path d=\"M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12\"/></svg></div><div class=\"ds-stat-body\"><p class=\"ds-stat-label\">CO₂ Saved (3mo)</p><p class=\"ds-stat-value\">12.6 t</p></div></div>",
+      "css": ".ds-stat-card { display: flex; align-items: center; gap: 16px; background: #ffffff; border: 1px solid rgba(224, 234, 235, 0.6); border-radius: 10px; padding: 16px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); font-family: ui-sans-serif, system-ui, sans-serif; } .ds-stat-icon { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; background: rgba(0, 87, 97, 0.1); color: #005761; flex-shrink: 0; } .ds-stat-icon svg { width: 20px; height: 20px; } .ds-stat-body { display: flex; flex-direction: column; gap: 2px; } .ds-stat-label { font-size: 14px; color: #7b899d; margin: 0; } .ds-stat-value { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; color: #21242c; margin: 0; }"
+    },
+    {
+      "name": "Trend Badge",
+      "kind": "chip",
+      "refersTo": "badge-trend-positive",
+      "description": "Flat-tint pill marking a positive trend, paired with a directional icon. Never a gradient or border-stripe.",
+      "html": "<span class=\"ds-badge-trend\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polyline points=\"22 7 13.5 15.5 8.5 10.5 2 17\"/><polyline points=\"16 7 22 7 22 13\"/></svg>+12% vs last month</span>",
+      "css": ".ds-badge-trend { display: inline-flex; align-items: center; gap: 4px; border-radius: 9999px; background: #f0fdf4; color: #15803d; font-family: ui-sans-serif, system-ui, sans-serif; font-size: 12px; font-weight: 600; padding: 2px 10px; } .ds-badge-trend svg { width: 12px; height: 12px; }"
+    },
+    {
+      "name": "Section Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "A card with header — used to group a tab section (e.g. Sector Performance, Future Projections).",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Sector Performance</h3><p class=\"ds-card-desc\">Your brand vs. the Technology category average.</p></div>",
+      "css": ".ds-card { background: #ffffff; border: 1px solid #e0eaeb; border-radius: 10px; padding: 24px; box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); font-family: ui-sans-serif, system-ui, sans-serif; } .ds-card-title { font-size: 24px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; color: #21242c; margin: 0 0 6px; } .ds-card-desc { font-size: 14px; color: #7b899d; margin: 0; }"
+    },
+    {
+      "name": "Tab Navigation",
+      "kind": "nav",
+      "refersTo": "card",
+      "description": "Recessed track with a lifted active tab — the same flat-elevation language as cards, inverted.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab ds-tab-active\">Impact</button><button class=\"ds-tab\">Users</button><button class=\"ds-tab\">Sector</button><button class=\"ds-tab\">Projections</button></div>",
+      "css": ".ds-tabs { display: inline-flex; gap: 4px; background: #f3f5f7; border-radius: 10px; padding: 4px; font-family: ui-sans-serif, system-ui, sans-serif; } .ds-tab { border: none; background: transparent; color: #7b899d; font-size: 14px; font-weight: 500; padding: 6px 14px; border-radius: 8px; cursor: pointer; transition: background 200ms cubic-bezier(0.4,0,0.2,1), color 200ms cubic-bezier(0.4,0,0.2,1), box-shadow 200ms cubic-bezier(0.4,0,0.2,1); } .ds-tab:hover { color: #21242c; } .ds-tab-active { background: #ffffff; color: #21242c; box-shadow: 0 1px 2px rgb(0 0 0 / 0.05); } .ds-tab:focus-visible { outline: none; box-shadow: 0 0 0 2px #005761; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Ledger",
+    "overview": "The Field Ledger is the meeting point of two ideas: real environmental work happening in the field (waste collected, CO₂ saved, users recycling) and the calm, audited record-keeping of a ledger. Every screen should read like a trustworthy account of what actually happened — precise figures, restrained presentation, no embellishment. The brand managers reading this dashboard are deciding what to report to their own stakeholders; the design's job is to make that handoff feel effortless and credible.\n\nThis system explicitly rejects the generic SaaS-cream dashboard look — gradient hero stats, identical icon-and-gradient card grids, warm near-white \"paper\" backgrounds. The codebase is already mid-refactor away from that: two-stop gradient fills (bg-gradient-to-br from-green-50 to-green-100) on stat cards and tier containers are being replaced with flat tints (bg-green-50, bg-muted/40) and neutral whisper-thin borders (border-border/60). DESIGN.md codifies that direction as the standard, not an exception.",
+    "keyCharacteristics": [
+      "Numbers are the largest, boldest elements on any screen — everything else (labels, icons, badges) is quieter by design.",
+      "Flat, tonal color — no gradients on cards, icon badges, or containers.",
+      "A teal primary that reads as institutional and trustworthy, not playful.",
+      "One accent color (violet), used rarely, for deliberate emphasis only.",
+      "Whisper-thin borders (border-border/60) and shadow-sm are the entire elevation vocabulary — no heavy drop shadows or glow."
+    ],
+    "rules": [
+      { "name": "The Brand-Themable Primary Rule", "body": "--primary (and its derivatives --primary-glow, --ring, --primary-foreground) is the platform's override point. #005761 (Ledger Teal) is the Mint Rewards default when a brand has no custom theme. Each registered brand sets a theme_color during registration; when that wiring is connected, the brand's color should recompute --primary and its derivatives — never hardcode a brand color into individual components.", "section": "colors" },
+      { "name": "The Flat Tint Rule", "body": "No two-stop gradient fills (bg-gradient-to-X from-A to-B) on cards, icon badges, or containers. Use a single flat tint (bg-{color}-50, bg-primary/10, bg-muted/40) plus, if needed, a matching border-{color}-200 or border-border/60.", "section": "colors" },
+      { "name": "The One Accent Rule", "body": "Signal Violet (#8135f3) appears in at most one element per view, and only when that element is the single most important thing on the screen. If violet shows up on more than one card in the same tab, something else should carry the emphasis instead.", "section": "colors" },
+      { "name": "The Quiet Hierarchy Rule", "body": "Only metric values (Display) and section titles (Headline) use font-bold/font-semibold at larger sizes. Labels and captions stay at text-xs/text-sm and font-medium at most — the contrast between a 30px bold number and a 12px medium label is the hierarchy.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces sit at shadow-sm + border-border/60 and never change on hover unless the element is interactive. Cards displaying data are not interactive and should not gain shadow on hover.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do let metric values dominate — bold, text-2xl/text-3xl, tracking-tight, Ink color (#21242c).",
+      "Do use flat single-tint backgrounds for icon badges, trend badges, and tier containers (bg-primary/10, bg-green-50, bg-muted/40).",
+      "Do use border-border/60 (Hairline) as the default card border for data/stat cards, with shadow-sm only.",
+      "Do treat #005761 (Ledger Teal) as the default --primary and recompute --primary-glow/--ring from it if a brand's theme_color is ever wired in (the Brand-Themable Primary Rule).",
+      "Do keep Signal Violet (#8135f3) to a single emphasis element per view.",
+      "Do keep all individual-user data aggregated and anonymized in the UI — tier counts and community totals only, per PRODUCT.md's privacy-first principle."
+    ],
+    "donts": [
+      "Don't use two-stop gradient fills (bg-gradient-to-br from-X-50 to-X-100) on cards, icon badges, or containers — this is the generic SaaS-cream pattern PRODUCT.md explicitly rejects, and the codebase is already removing these.",
+      "Don't use the unused --gradient-* or --shadow-elegant/--shadow-card/--shadow-button custom properties in src/index.css — they're dead legacy tokens from the pre-refactor style.",
+      "Don't add drop shadows, glow, or glassmorphism for \"depth\" — shadow-sm + border-border/60 is the entire elevation vocabulary.",
+      "Don't use a colored border-left/border-right stripe as an accent on cards or list items — use a flat tint or leading icon instead.",
+      "Don't let Slate (#7b899d) drop below 4.5:1 contrast — it's already near the limit on #ffffff; never place it on a tinted card background without checking contrast again.",
+      "Don't hardcode a brand's color into a specific component — any brand-specific theming flows through --primary and its derivatives."
+    ]
+  }
+}

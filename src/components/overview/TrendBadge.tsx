@@ -7,9 +7,9 @@ interface TrendBadgeProps {
 }
 
 const PERFORMANCE_STYLES: Record<TrendBadgeProps["performance"], string> = {
-  above: "bg-green-100 text-green-700",
-  below: "bg-red-100 text-red-700",
-  average: "bg-gray-100 text-gray-700",
+  above: "bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-400",
+  below: "bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-400",
+  average: "bg-gray-100 text-gray-700 dark:bg-gray-800/50 dark:text-gray-400",
 };
 
 const PERFORMANCE_ARROWS: Record<TrendBadgeProps["performance"], string> = {

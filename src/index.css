@@ -17,9 +17,9 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 224 15% 15%;
 
-    --primary: 139 100% 31%;
+    --primary: 186 100% 19%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 139 100% 45%;
+    --primary-glow: 186 100% 33%;
 
     --secondary: 210 20% 96%;
     --secondary-foreground: 224 15% 25%;
@@ -39,9 +39,9 @@ All colors MUST be HSL.
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 139 20% 90%;
-    --input: 139 20% 94%;
-    --ring: 139 100% 31%;
+    --border: 186 20% 90%;
+    --input: 186 20% 94%;
+    --ring: 186 100% 19%;
 
     --radius: 0.625rem;
 

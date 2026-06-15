@@ -427,7 +427,6 @@ const ImpactTab = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <CenteredStat
-                  containerClassName="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20"
                   valueClassName="text-3xl font-bold mb-2 text-green-600"
                   value={mockAnalyticsData.userImpact.estimatedBreakdown
                     .reduce(
@@ -441,7 +440,6 @@ const ImpactTab = () => {
                 />
 
                 <CenteredStat
-                  containerClassName="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20"
                   valueClassName="text-3xl font-bold mb-2 text-blue-600"
                   value={mockAnalyticsData.kpis.activeUsers.toLocaleString()}
                   label="Active Contributors"
@@ -449,7 +447,6 @@ const ImpactTab = () => {
                 />
 
                 <CenteredStat
-                  containerClassName="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
                   valueClassName="text-3xl font-bold mb-2 text-purple-600"
                   value={(
                     (mockAnalyticsData.userImpact.totalUserWaste /

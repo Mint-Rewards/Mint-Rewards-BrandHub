@@ -13,9 +13,9 @@ import TrendBadge from "./TrendBadge";
 import ComparisonBar from "./ComparisonBar";
 
 const PERFORMANCE_CARD_CLASSES: Record<string, string> = {
-  above: "bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200",
-  below: "bg-gradient-to-br from-red-50 to-red-100 dark:from-red-900/20 dark:to-red-800/20 border-red-200",
-  average: "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20 border-gray-200",
+  above: "bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900",
+  below: "bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900",
+  average: "bg-muted/40 border-border/60",
 };
 
 const PERFORMANCE_TEXT_CLASSES: Record<string, string> = {
@@ -116,7 +116,6 @@ const SectorTab = () => {
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <CenteredStat
-                  containerClassName="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20"
                   valueClassName="text-green-600"
                   value={brandPerformance.wasteCollected.toLocaleString()}
                   label="kg Waste Collected"
@@ -125,7 +124,6 @@ const SectorTab = () => {
                 />
 
                 <CenteredStat
-                  containerClassName="bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20"
                   valueClassName="text-blue-600"
                   value={brandPerformance.co2Saved}
                   label="tons CO₂ Saved"
@@ -136,7 +134,6 @@ const SectorTab = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <CenteredStat
-                  containerClassName="bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20"
                   valueClassName="text-purple-600"
                   value={brandPerformance.userEngagement.toLocaleString()}
                   label="Active Users"
@@ -145,7 +142,6 @@ const SectorTab = () => {
                 />
 
                 <CenteredStat
-                  containerClassName="bg-gradient-to-br from-orange-50 to-red-50 dark:from-orange-900/20 dark:to-red-900/20"
                   valueClassName="text-orange-600"
                   value={`${brandPerformance.recyclingRate}%`}
                   label="Recycling Rate"
@@ -154,7 +150,7 @@ const SectorTab = () => {
                 />
               </div>
 
-              <div className="mt-4 p-4 bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900/20 dark:to-blue-900/20 rounded-lg border border-green-200">
+              <div className="mt-4 p-4 bg-muted/40 rounded-lg border border-border/60">
                 <div className="flex items-center space-x-2 mb-2">
                   <Trophy className="h-4 w-4 text-green-600" />
                   <span className="text-sm font-semibold text-green-700">Outstanding Performance</span>
@@ -190,7 +186,7 @@ const SectorTab = () => {
                   .map((metric, index) => (
                     <div
                       key={index}
-                      className="flex items-center space-x-2 p-3 bg-green-50 rounded-lg"
+                      className="flex items-center space-x-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg"
                     >
                       <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                       <p className="text-sm">
@@ -209,14 +205,14 @@ const SectorTab = () => {
                 Opportunities
               </h4>
               <div className="space-y-2">
-                <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <p className="text-sm">
                     <span className="font-medium">User Education:</span>{" "}
                     Implement programs to increase recycling awareness
                   </p>
                 </div>
-                <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <p className="text-sm">
                     <span className="font-medium">
@@ -225,7 +221,7 @@ const SectorTab = () => {
                     Expand collaborations with local waste management
                   </p>
                 </div>
-                <div className="flex items-center space-x-2 p-3 bg-blue-50 rounded-lg">
+                <div className="flex items-center space-x-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg">
                   <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                   <p className="text-sm">
                     <span className="font-medium">
@@ -238,7 +234,7 @@ const SectorTab = () => {
             </div>
           </div>
 
-          <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+          <div className="mt-6 p-4 bg-muted/40 rounded-lg border border-border/60">
             <div className="flex items-center space-x-3 mb-2">
               <Trophy className="h-5 w-5 text-green-600" />
               <h4 className="font-semibold text-green-700">

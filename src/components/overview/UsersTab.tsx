@@ -42,7 +42,7 @@ const USER_TIERS = [
   {
     icon: Trophy,
     iconBgClassName: "bg-yellow-500",
-    containerClassName: "bg-gradient-to-r from-yellow-50 to-yellow-100 border-yellow-200",
+    containerClassName: "bg-yellow-50 border-yellow-200 dark:bg-yellow-950/20 dark:border-yellow-900",
     title: "Platinum Tier",
     titleClassName: "text-yellow-800",
     description: "200+ kg recycled",
@@ -54,7 +54,7 @@ const USER_TIERS = [
   {
     icon: Award,
     iconBgClassName: "bg-amber-500",
-    containerClassName: "bg-gradient-to-r from-amber-50 to-amber-100 border-amber-200",
+    containerClassName: "bg-amber-50 border-amber-200 dark:bg-amber-950/20 dark:border-amber-900",
     title: "Gold Tier",
     titleClassName: "text-amber-800",
     description: "150-199 kg recycled",
@@ -66,7 +66,7 @@ const USER_TIERS = [
   {
     icon: "S",
     iconBgClassName: "bg-gray-500",
-    containerClassName: "bg-gradient-to-r from-gray-50 to-gray-100 border-gray-200",
+    containerClassName: "bg-gray-50 border-gray-200 dark:bg-gray-900/30 dark:border-gray-800",
     title: "Silver Tier",
     titleClassName: "text-gray-800",
     description: "100-149 kg recycled",
@@ -78,7 +78,7 @@ const USER_TIERS = [
   {
     icon: "B",
     iconBgClassName: "bg-orange-500",
-    containerClassName: "bg-gradient-to-r from-orange-50 to-orange-100 border-orange-200",
+    containerClassName: "bg-orange-50 border-orange-200 dark:bg-orange-950/20 dark:border-orange-900",
     title: "Bronze Tier",
     titleClassName: "text-orange-800",
     description: "50-99 kg recycled",
@@ -90,7 +90,7 @@ const USER_TIERS = [
   {
     icon: "ST",
     iconBgClassName: "bg-blue-500",
-    containerClassName: "bg-gradient-to-r from-blue-50 to-blue-100 border-blue-200",
+    containerClassName: "bg-blue-50 border-blue-200 dark:bg-blue-950/20 dark:border-blue-900",
     title: "Starter",
     titleClassName: "text-blue-800",
     description: "0-49 kg recycled",
@@ -163,7 +163,6 @@ const UsersTab = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <CenteredStat
-              containerClassName="bg-gradient-to-br from-green-50 to-emerald-50"
               valueClassName="text-green-600"
               value={mockAnalyticsData.userStatistics.averagePointsPerUser.toLocaleString()}
               label="Avg Points per User"
@@ -172,7 +171,6 @@ const UsersTab = () => {
             />
 
             <CenteredStat
-              containerClassName="bg-gradient-to-br from-blue-50 to-cyan-50"
               valueClassName="text-blue-600"
               value={`${mockAnalyticsData.userStatistics.topPerformerWaste} kg`}
               label="Top User Performance"
@@ -181,7 +179,6 @@ const UsersTab = () => {
             />
 
             <CenteredStat
-              containerClassName="bg-gradient-to-br from-purple-50 to-pink-50"
               valueClassName="text-purple-600"
               value={`${(
                 (mockAnalyticsData.userStatistics.userTiers.platinum +
@@ -195,7 +192,7 @@ const UsersTab = () => {
             />
           </div>
 
-          <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
+          <div className="mt-6 p-4 bg-muted/40 rounded-lg border border-border/60">
             <h4 className="font-semibold text-indigo-700 mb-2">Community Growth Insights</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>

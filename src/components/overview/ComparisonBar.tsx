@@ -9,7 +9,7 @@ const ComparisonBar = ({ yourBrand, categoryAvg }: ComparisonBarProps) => {
 
   return (
     <div className="relative">
-      <div className="w-full bg-gray-200 rounded-full h-3">
+      <div className="w-full bg-secondary rounded-full h-3">
         <div
           className="bg-primary h-3 rounded-full transition-all duration-300"
           style={{ width: `${Math.min((yourBrand / max) * 100, 100)}%` }}

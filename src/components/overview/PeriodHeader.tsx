@@ -14,10 +14,10 @@ const PeriodHeader = () => {
   });
 
   return (
-    <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-lg p-4 border border-primary/20">
+    <div className="rounded-lg border border-border/60 bg-card p-4">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex items-center space-x-3">
-          <div className="p-2 bg-primary/20 rounded-lg">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
             <CalendarIcon className="h-5 w-5 text-primary" />
           </div>
           <div>

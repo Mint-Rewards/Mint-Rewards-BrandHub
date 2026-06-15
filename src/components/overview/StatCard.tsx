@@ -6,13 +6,13 @@ interface StatCardProps {
   icon: LucideIcon;
   label: string;
   value: React.ReactNode;
-  cardClassName: string;
+  cardClassName?: string;
   iconWrapperClassName: string;
-  labelClassName: string;
-  valueClassName: string;
+  labelClassName?: string;
+  valueClassName?: string;
 }
 
-// Gradient card with an icon badge alongside a label/value pair.
+// Card with a tinted icon badge alongside a label/value pair.
 const StatCard = ({
   icon: Icon,
   label,
@@ -23,16 +23,14 @@ const StatCard = ({
   valueClassName,
 }: StatCardProps) => {
   return (
-    <Card className={cardClassName}>
-      <CardContent className="p-4">
-        <div className="flex items-center space-x-3">
-          <div className={cn("p-2 rounded-lg", iconWrapperClassName)}>
-            <Icon className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <p className={cn("text-sm", labelClassName)}>{label}</p>
-            <p className={cn("text-2xl font-bold", valueClassName)}>{value}</p>
-          </div>
+    <Card className={cn("border-border/60", cardClassName)}>
+      <CardContent className="flex items-center gap-4 p-4">
+        <div className={cn("flex h-11 w-11 shrink-0 items-center justify-center rounded-xl", iconWrapperClassName)}>
+          <Icon className="h-5 w-5" />
+        </div>
+        <div className="space-y-0.5">
+          <p className={cn("text-sm text-muted-foreground", labelClassName)}>{label}</p>
+          <p className={cn("text-2xl font-bold tracking-tight text-foreground", valueClassName)}>{value}</p>
         </div>
       </CardContent>
     </Card>

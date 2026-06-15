@@ -30,30 +30,21 @@ const AnalyticsDashboard = () => {
           icon={Recycle}
           label="Total Wastage Collected"
           value={`${(mockAnalyticsData.kpis.totalWastageCollected / 1000).toFixed(1)}K kg`}
-          cardClassName="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200"
-          iconWrapperClassName="bg-green-500"
-          labelClassName="text-green-700 dark:text-green-300"
-          valueClassName="text-green-800 dark:text-green-100"
+          iconWrapperClassName="bg-green-500/10 text-green-600 dark:text-green-400"
         />
 
         <StatCard
           icon={Leaf}
           label="CO₂ Emissions Saved"
           value={`${mockAnalyticsData.kpis.co2EmissionsSaved} tons`}
-          cardClassName="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border-blue-200"
-          iconWrapperClassName="bg-blue-500"
-          labelClassName="text-blue-700 dark:text-blue-300"
-          valueClassName="text-blue-800 dark:text-blue-100"
+          iconWrapperClassName="bg-blue-500/10 text-blue-600 dark:text-blue-400"
         />
 
         <StatCard
           icon={Target}
           label="Waste Recycled"
           value={`${(mockAnalyticsData.kpis.totalWasteRecycled / 1000).toFixed(1)}K kg`}
-          cardClassName="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border-purple-200"
-          iconWrapperClassName="bg-purple-500"
-          labelClassName="text-purple-700 dark:text-purple-300"
-          valueClassName="text-purple-800 dark:text-purple-100"
+          iconWrapperClassName="bg-purple-500/10 text-purple-600 dark:text-purple-400"
         />
 
         {/* <StatCard
