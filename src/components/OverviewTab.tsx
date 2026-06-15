@@ -1,8 +1,9 @@
+import { useState } from "react";
 import {
   Award,
   BarChart3,
   Building2,
-  Calendar,
+  Calendar as CalendarIcon,
   Leaf,
   Recycle,
   Target,
@@ -32,6 +33,11 @@ import {
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { type DateRange } from "react-day-picker";
+import { format, startOfMonth } from "date-fns";
 
 // CO2 savings per kg for different materials (in kg CO2 saved per kg of material)
 const CO2_SAVINGS_PER_KG = {
@@ -220,10 +226,10 @@ const mockAnalyticsData = {
 };
 
 const AnalyticsDashboard = () => {
-  // Get current month and year for period display
-  const currentDate = new Date();
-  const currentMonth = currentDate.toLocaleString("default", { month: "long" });
-  const currentYear = currentDate.getFullYear();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfMonth(new Date()),
+    to: new Date(),
+  });
 
   return (
     <div className="space-y-6">
@@ -237,10 +243,10 @@ const AnalyticsDashboard = () => {
 
       {/* Period Information */}
       <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-lg p-4 border border-primary/20">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-primary/20 rounded-lg">
-              <Calendar className="h-5 w-5 text-primary" />
+              <CalendarIcon className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
@@ -249,20 +255,53 @@ const AnalyticsDashboard = () => {
               <p className="text-sm text-muted-foreground">
                 The following metrics represent data for{" "}
                 <span className="font-medium text-primary">
-                  {currentMonth} {currentYear}
+                  {dateRange?.from
+                    ? format(dateRange.from, "MMM d, yyyy")
+                    : "—"}
+                  {dateRange?.to
+                    ? ` - ${format(dateRange.to, "MMM d, yyyy")}`
+                    : ""}
                 </span>
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-primary">{currentMonth}</p>
-            <p className="text-sm text-muted-foreground">{currentYear}</p>
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                className="justify-start text-left font-normal"
+              >
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {dateRange?.from ? (
+                  dateRange.to ? (
+                    <>
+                      {format(dateRange.from, "LLL dd, y")} -{" "}
+                      {format(dateRange.to, "LLL dd, y")}
+                    </>
+                  ) : (
+                    format(dateRange.from, "LLL dd, y")
+                  )
+                ) : (
+                  <span>Pick a date range</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={dateRange?.from}
+                selected={dateRange}
+                onSelect={setDateRange}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
       {/* Top KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
@@ -323,7 +362,7 @@ const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200">
+        {/* <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-orange-500 rounded-lg">
@@ -357,28 +396,28 @@ const AnalyticsDashboard = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Analytics Tabs */}
       <Tabs defaultValue="impact" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="impact">Impact</TabsTrigger>
           <TabsTrigger value="rewards">Rewards</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
+          {/* <TabsTrigger value="users">Users</TabsTrigger> */}
           <TabsTrigger value="brands">Brands</TabsTrigger>
-          <TabsTrigger value="sector">Sector</TabsTrigger>
-          <TabsTrigger value="projections">Projections</TabsTrigger>
+          {/* <TabsTrigger value="sector">Sector</TabsTrigger> */}
+          {/* <TabsTrigger value="projections">Projections</TabsTrigger> */}
         </TabsList>
 
         {/* Impact Tab */}
         <TabsContent value="impact" className="space-y-4">
           {/* Sub-tabs for Company and User Impact */}
           <Tabs defaultValue="company" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="company">Impact Company</TabsTrigger>
-              <TabsTrigger value="users">Impact Users</TabsTrigger>
-            </TabsList>
+            {/* <TabsList className="grid w-full grid-cols-2"> */}
+              {/* <TabsTrigger value="company">Impact Company</TabsTrigger> */}
+              {/* <TabsTrigger value="users">Impact Users</TabsTrigger> */}
+            {/* </TabsList> */}
 
             {/* Company Impact Tab */}
             <TabsContent value="company" className="space-y-4">
@@ -636,7 +675,7 @@ const AnalyticsDashboard = () => {
                           )}
                         </div>
                       </div>
-                    </div>
+                    </div>  
                   </CardContent>
                 </Card>
               </div>
@@ -1657,7 +1696,7 @@ const AnalyticsDashboard = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <CalendarIcon className="h-5 w-5 text-blue-600" />
                     <span>3-Month Forecast</span>
                   </CardTitle>
                   <CardDescription>
