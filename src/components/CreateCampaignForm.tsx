@@ -36,17 +36,17 @@ const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
 const campaignSchema = z.object({
   badge: z.string().optional(),
-  title: z.string().min(1, "Title is required"),
+  name: z.string().min(1, "Title is required"),
   subtitle: z.string().optional(),
   description: z
     .string()
     .min(10, "Description is required")
     .max(400, "Keep the description under 400 characters"),
   budget: z.string().optional(),
-  start_date: z.date().optional(),
-  end_date: z.date().optional(),
-  target_audience: z.string().optional(),
-  campaign_type: z.string().min(1, "Campaign type is required"),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  targetAudience: z.string().optional(),
+  campaignType: z.string().min(1, "Campaign type is required"),
   backgroundColor: z
     .string()
     .regex(hexColorRegex, "Use a valid hex color (e.g. #0EA5E9)"),
@@ -87,22 +87,22 @@ export function CreateCampaignForm({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
       badge: "",
-      title: "",
+      name: "",
       subtitle: "",
       description: "",
       budget: "",
-      target_audience: "",
-      campaign_type: "general",
+      targetAudience: "",
+      campaignType: "general",
       backgroundColor: "#0F172A",
     },
   });
 
   const badgePreview = form.watch("badge")?.trim() || "";
-  const titlePreview = form.watch("title")?.trim() || "";
+  const namePreview = form.watch("name")?.trim() || "";
   const subtitlePreview = form.watch("subtitle")?.trim() || "";
   const showPreviewContent =
     badgePreview.length > 0 ||
-    titlePreview.length > 0 ||
+    namePreview.length > 0 ||
     subtitlePreview.length > 0;
   const backgroundPreview = form.watch("backgroundColor") || "#0F172A";
   const logoPreview = logoUrl?.trim() || "";
@@ -112,21 +112,21 @@ export function CreateCampaignForm({
     setIsSubmitting(true);
     try {
       const campaignData = {
-        brand_id: brandId,
-        title: data.title,
+        brand: brandId,
+        name: data.name,
         subtitle: data.subtitle,
         badge: data.badge,
         budget: data.budget ? parseFloat(data.budget) : null,
-        start_date: data.start_date
-          ? format(data.start_date, "yyyy-MM-dd")
-          : null,
-        end_date: data.end_date ? format(data.end_date, "yyyy-MM-dd") : null,
-        target_audience: data.target_audience,
-        campaign_type: data.campaign_type,
+        startDate: data.startDate ? format(data.startDate, "yyyy-MM-dd") : null,
+        endDate: data.endDate ? format(data.endDate, "yyyy-MM-dd") : null,
+        targetAudience: data.targetAudience,
+        campaignType: data.campaignType,
         description: data.description,
-        background_color: data.backgroundColor,
+        backgroundColor: data.backgroundColor,
         status: "draft",
       };
+
+      console.log("campaignData", campaignData);
 
       toast({
         title: "Success",
@@ -181,12 +181,12 @@ export function CreateCampaignForm({
                         {badgePreview}
                       </Badge>
                     )}
-                    {titlePreview && (
+                    {namePreview && (
                       <h2
                         className="text-2xl font-semibold"
                         style={{ color: previewTextColor }}
                       >
-                        {titlePreview}
+                        {namePreview}
                       </h2>
                     )}
                     {subtitlePreview && (
@@ -231,7 +231,7 @@ export function CreateCampaignForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="title"
+            name="name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Campaign Title</FormLabel>
@@ -245,7 +245,7 @@ export function CreateCampaignForm({
 
           <FormField
             control={form.control}
-            name="campaign_type"
+            name="campaignType"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Campaign Type</FormLabel>
@@ -260,10 +260,10 @@ export function CreateCampaignForm({
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="general">General</SelectItem>
-                    <SelectItem value="product_launch">
+                    <SelectItem value="productLaunch">
                       Product Launch
                     </SelectItem>
-                    <SelectItem value="brand_awareness">
+                    <SelectItem value="brandAwareness">
                       Brand Awareness
                     </SelectItem>
                     <SelectItem value="seasonal">Seasonal</SelectItem>
@@ -367,7 +367,7 @@ export function CreateCampaignForm({
 
           <FormField
             control={form.control}
-            name="start_date"
+            name="startDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Start Date</FormLabel>
@@ -408,7 +408,7 @@ export function CreateCampaignForm({
 
           <FormField
             control={form.control}
-            name="end_date"
+            name="endDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>End Date</FormLabel>
@@ -450,7 +450,7 @@ export function CreateCampaignForm({
 
         <FormField
           control={form.control}
-          name="target_audience"
+          name="targetAudience"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Target Audience</FormLabel>

@@ -28,14 +28,6 @@ const CampaignsTab: React.FC<{
 
   const [campaignDialogOpen, setCampaignDialogOpen] = useState(false);
 
-  // Debug: Log campaigns data
-  console.log(
-    "CampaignsTab - campaigns:",
-    campaigns,
-    "length:",
-    campaigns.length
-  );
-
   const handleCampaignSuccess = async () => {
     setCampaignDialogOpen(false);
     if (onCampaignCreated) {
@@ -78,7 +70,7 @@ const CampaignsTab: React.FC<{
               <Card key={campaign.id} className="hover:bg-muted/10">
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>{campaign.title}</CardTitle>
+                    <CardTitle>{campaign.name}</CardTitle>
                     <Badge
                       variant={
                         campaign.status === "active"
@@ -95,10 +87,10 @@ const CampaignsTab: React.FC<{
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
                     Start Date:{" "}
-                    {new Date(campaign.start_date).toLocaleDateString()}
+                    {new Date(campaign.startDate ?? "").toLocaleDateString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    End Date: {new Date(campaign.end_date).toLocaleDateString()}
+                    End Date: {new Date(campaign.endDate ?? "").toLocaleDateString()}
                   </p>
                 </CardContent>
               </Card>

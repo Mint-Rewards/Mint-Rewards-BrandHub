@@ -163,9 +163,9 @@ const AdminDashboard = () => {
 
   const filteredApplications = brands.filter((brand) => {
     const normalizedSearchTerm = searchTerm.toLowerCase();
-    const brandName = brand.brand_name ?? brand.brandName ?? "";
-    const companyName = brand.company_name ?? brand.companyName ?? "";
-    const contactEmail = brand.contact_email ?? brand.email ?? "";
+    const brandName = brand.brandName ?? "";
+    const companyName = brand.companyName ?? "";
+    const contactEmail = brand.email ?? "";
     const matchesSearch =
       brandName.toLowerCase().includes(normalizedSearchTerm) ||
       companyName.toLowerCase().includes(normalizedSearchTerm) ||
@@ -345,7 +345,7 @@ const AdminDashboard = () => {
                               <div className="flex items-center space-x-3 mb-2">
                                 <Building2 className="h-5 w-5 text-muted-foreground" />
                                 <h3 className="text-lg font-semibold">
-                                  {app.brand_name ?? app.brandName}
+                                  {app.brandName}
                                 </h3>
                                 <Badge
                                   variant={
@@ -365,7 +365,7 @@ const AdminDashboard = () => {
                                   <p className="font-medium text-foreground">
                                     Company
                                   </p>
-                                  <p>{app.company_name ?? app.companyName}</p>
+                                  <p>{app.companyName}</p>
                                 </div>
                                 <div>
                                   <p className="font-medium text-foreground">
@@ -378,9 +378,9 @@ const AdminDashboard = () => {
                                     Submitted
                                   </p>
                                   <p>
-                                    {app.created_at
+                                    {app.createdAt
                                       ? new Date(
-                                          app.created_at,
+                                          app.createdAt ?? "",
                                         ).toLocaleDateString()
                                       : "-"}
                                   </p>
@@ -391,7 +391,7 @@ const AdminDashboard = () => {
                                   <span className="font-medium text-foreground">
                                     Contact:
                                   </span>{" "}
-                                  {app.contact_email ?? app.email ?? "-"}
+                                  {app.email}
                                 </p>
                               </div>
                             </div>

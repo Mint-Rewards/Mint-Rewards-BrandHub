@@ -124,19 +124,19 @@ const BrandDashboard = () => {
 
   const isApproved = brandData.status?.toLowerCase() === "approved";
   const formattedData = {
-    name: brandData.brand_name,
-    companyName: brandData.company_name,
+    name: brandData.brandName,
+    companyName: brandData.companyName,
     category: brandData.category,
     status: brandData.status,
-    submissionDate: new Date(brandData.created_at).toLocaleDateString(),
+    submissionDate: new Date(brandData.createdAt ?? "").toLocaleDateString(),
     estimatedApproval: "2-3 business days",
     referenceNumber: `REF-${(brandData.id ?? brandData._id ?? "").substring(0, 8).toUpperCase()}`,
-    contactEmail: brandData?.contact_email || "N/A",
-    contactPhone: brandData?.contact_phone || "N/A",
+    contactEmail: brandData.email || "N/A",
+    contactPhone: brandData.phone || "N/A",
     website: brandData.website,
     description: brandData.description,
-    logoUrl: brandData?.logo_url,
-    themeColor: brandData?.theme_color || "#3B82F6",
+    logoUrl: brandData.logo,
+    themeColor: brandData.themeColor || "#3B82F6",
   };
 
   const PendingApprovalView = () => (

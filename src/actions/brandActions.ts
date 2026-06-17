@@ -78,30 +78,20 @@ export const fetchBrandById = async (id: string): Promise<Brand> => {
   return {
     id: docId,
     _id: docId,
-    // camelCase (backend schema)
     brandName: raw.brandName as string,
     companyName: raw.companyName as string,
     email: raw.email as string,
     logo: raw.logo as string,
     themeColor: raw.themeColor as string,
     phone: raw.phone as string,
-    // snake_case aliases (component reads these)
-    brand_name: ((raw.brandName ?? raw.brand_name) as string) ?? "",
-    company_name: ((raw.companyName ?? raw.company_name) as string) ?? "",
-    contact_email: ((raw.email ?? raw.contact_email) as string) ?? "",
-    contact_phone: ((raw.phone ?? raw.contact_phone) as string) ?? "",
-    logo_url: ((raw.logo ?? raw.logo_url) as string) ?? "",
-    theme_color: ((raw.themeColor ?? raw.theme_color) as string) ?? "#3B82F6",
     website: ((raw.webLink ?? raw.website) as string) ?? "",
-    app_link: ((raw.appLink ?? raw.app_link) as string) ?? "",
-    // shared
+    appLink: (raw.appLink as string) ?? "",
     category: raw.category as string,
     description: raw.description as string,
     address: raw.address as string,
     domain: raw.domain as string,
     status,
-    created_at:
-      ((raw.created_at ?? raw.createdAt) as string) ?? new Date().toISOString(),
+    createdAt: ((raw.createdAt ?? raw.created_at) as string) ?? new Date().toISOString(),
   };
 };
 

@@ -71,10 +71,10 @@ const DealsTab: React.FC<{ deals: Deal[] }> = ({ deals }) => {
                 </CardHeader>
                 <CardContent>
                   <p className="text-sm text-muted-foreground">
-                    Valid From: {new Date(deal.start_date).toLocaleDateString()}
+                    Valid From: {new Date(deal.startDate ?? "").toLocaleDateString()}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    Valid Until: {new Date(deal.end_date).toLocaleDateString()}
+                    Valid Until: {new Date(deal.endDate ?? "").toLocaleDateString()}
                   </p>
                 </CardContent>
               </Card>
