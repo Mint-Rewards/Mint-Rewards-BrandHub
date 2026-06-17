@@ -71,33 +71,31 @@ const AdminDashboard = () => {
     fetchDeals();
   }, [fetchApplications]);
 
-  const handleApproval = async (id: string, action: "approve" | "reject") => {
-    const newStatus = action === "approve" ? "approved" : "rejected";
+  const handleApproval = async (brandId: string, status: "APPROVED" | "REJECTED", reason?: string) => {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/brands/${brandId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${import.meta.env.VITE_ADMIN_SECRET}`,
+      },
+      body: JSON.stringify({ status, reason }),
+    });
 
-    try {
-      setBrands((prev) =>
-        prev.map((brand) =>
-          (brand.id ?? brand._id) === id
-            ? { ...brand, status: newStatus }
-            : brand,
-        ),
-      );
-
-      toast({
-        title: `Brand ${action === "approve" ? "Approved" : "Rejected"}`,
-        description: `Brand has been ${
-          action === "approve" ? "approved" : "rejected"
-        } successfully.`,
-        variant: action === "approve" ? "default" : "destructive",
-      });
-    } catch (error) {
-      console.error("Error updating brand:", error);
+    if (!res.ok) {
       toast({
         title: "Error",
         description: "Failed to update brand status",
         variant: "destructive",
       });
+      return;
     }
+
+    const { brand } = await res.json();
+    setBrands(prev => prev.map(b => b._id === brandId ? brand : b));
+    toast({
+      title: `Brand ${status === "APPROVED" ? "Approved" : "Rejected"}`, 
+      description: `Brand has been ${status === "APPROVED" ? "approved" : "rejected"} successfully.` 
+    });
   };
 
   const handleCampaignApproval = async (
@@ -411,7 +409,7 @@ const AdminDashboard = () => {
                                     onClick={() =>
                                       handleApproval(
                                         (app.id ?? app._id) as string,
-                                        "approve",
+                                        "APPROVED",
                                       )
                                     }
                                   >
@@ -424,7 +422,7 @@ const AdminDashboard = () => {
                                     onClick={() =>
                                       handleApproval(
                                         (app.id ?? app._id) as string,
-                                        "reject",
+                                        "REJECTED",
                                       )
                                     }
                                   >
