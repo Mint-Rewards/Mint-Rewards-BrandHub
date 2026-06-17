@@ -31,6 +31,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { createCampaign } from "@/actions/brandActions";
 
 const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -111,34 +112,32 @@ export function CreateCampaignForm({
   const onSubmit = async (data: CampaignFormData) => {
     setIsSubmitting(true);
     try {
-      const campaignData = {
-        brand: brandId,
+      await createCampaign(brandId, {
         name: data.name,
-        subtitle: data.subtitle,
-        badge: data.badge,
-        budget: data.budget ? parseFloat(data.budget) : null,
         startDate: data.startDate ? format(data.startDate, "yyyy-MM-dd") : null,
         endDate: data.endDate ? format(data.endDate, "yyyy-MM-dd") : null,
-        targetAudience: data.targetAudience,
-        campaignType: data.campaignType,
         description: data.description,
+        campaignType: data.campaignType,
+        targetAudience: data.targetAudience || undefined,
+        budget: data.budget ? parseFloat(data.budget) : null,
         backgroundColor: data.backgroundColor,
-        status: "draft",
-      };
-
-      console.log("campaignData", campaignData);
+        badge: data.badge || undefined,
+        subtitle: data.subtitle || undefined,
+      });
 
       toast({
-        title: "Success",
-        description: "Campaign created successfully!",
+        title: "Campaign submitted",
+        description: "Your campaign is pending admin approval.",
       });
 
       onSuccess();
     } catch (error) {
-      console.error("Error creating campaign:", error);
       toast({
         title: "Error",
-        description: "Failed to create campaign. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create campaign. Please try again.",
         variant: "destructive",
       });
     } finally {

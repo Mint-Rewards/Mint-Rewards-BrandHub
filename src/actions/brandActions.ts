@@ -112,6 +112,43 @@ export const fetchCampaignsForBrand = async (
   return data.campaigns ?? [];
 };
 
+export const createCampaign = async (
+  brandId: string,
+  payload: {
+    name: string;
+    startDate: string | null;
+    endDate: string | null;
+    description?: string;
+    campaignType?: string;
+    targetAudience?: string;
+    budget?: number | null;
+    backgroundColor?: string;
+    badge?: string;
+    subtitle?: string;
+  },
+): Promise<Campaign> => {
+  const response = await fetch(
+    `${getApiBaseUrl()}/brands/${brandId}/campaigns`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+  );
+
+  const data = (await response.json()) as {
+    success?: boolean;
+    campaign?: Campaign;
+    message?: string;
+  };
+
+  if (!response.ok || !data.campaign) {
+    throw new Error(data.message ?? "Failed to create campaign");
+  }
+
+  return data.campaign;
+};
+
 export const registerBrand = async (
   payload: RegisterBrandPayload,
 ): Promise<RegisterBrandResponse> => {
