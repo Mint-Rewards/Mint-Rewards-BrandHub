@@ -1,4 +1,4 @@
-import { Brand } from "@/types";
+import { Brand, BrandStatus, Campaign } from "@/types";
 
 export interface RegisterBrandPayload {
   companyName: string;
@@ -56,6 +56,70 @@ export const fetchBrands = async (): Promise<Brand[]> => {
   }
 
   return [];
+};
+
+export const fetchBrandById = async (id: string): Promise<Brand> => {
+  const response = await fetch(`${getApiBaseUrl()}/brands/${id}`);
+
+  const data = (await response.json()) as {
+    success?: boolean;
+    brand?: Record<string, unknown>;
+    message?: string;
+  };
+
+  if (!response.ok || !data.brand) {
+    throw new Error(data.message ?? "Brand not found");
+  }
+
+  const raw = data.brand;
+  const docId = String(raw._id ?? raw.id ?? "");
+  const status = String(raw.status ?? "pending").toLowerCase() as BrandStatus;
+
+  return {
+    id: docId,
+    _id: docId,
+    // camelCase (backend schema)
+    brandName: raw.brandName as string,
+    companyName: raw.companyName as string,
+    email: raw.email as string,
+    logo: raw.logo as string,
+    themeColor: raw.themeColor as string,
+    phone: raw.phone as string,
+    // snake_case aliases (component reads these)
+    brand_name: ((raw.brandName ?? raw.brand_name) as string) ?? "",
+    company_name: ((raw.companyName ?? raw.company_name) as string) ?? "",
+    contact_email: ((raw.email ?? raw.contact_email) as string) ?? "",
+    contact_phone: ((raw.phone ?? raw.contact_phone) as string) ?? "",
+    logo_url: ((raw.logo ?? raw.logo_url) as string) ?? "",
+    theme_color: ((raw.themeColor ?? raw.theme_color) as string) ?? "#3B82F6",
+    website: ((raw.webLink ?? raw.website) as string) ?? "",
+    app_link: ((raw.appLink ?? raw.app_link) as string) ?? "",
+    // shared
+    category: raw.category as string,
+    description: raw.description as string,
+    address: raw.address as string,
+    domain: raw.domain as string,
+    status,
+    created_at:
+      ((raw.created_at ?? raw.createdAt) as string) ?? new Date().toISOString(),
+  };
+};
+
+export const fetchCampaignsForBrand = async (
+  brandId: string,
+): Promise<Campaign[]> => {
+  const response = await fetch(
+    `${getApiBaseUrl()}/brands/${brandId}/campaigns`,
+  );
+
+  if (!response.ok) return [];
+
+  const data = (await response.json()) as {
+    success?: boolean;
+    campaigns?: Campaign[];
+  };
+
+  return data.campaigns ?? [];
 };
 
 export const registerBrand = async (

@@ -21,6 +21,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
+import { fetchBrandById, fetchCampaignsForBrand } from "@/actions/brandActions";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -49,25 +50,8 @@ const BrandDashboard = () => {
 
       try {
         // Fetch brand data
-        //set dummy data
-        setBrandData({
-          id: "1",
-          brand_name: "Dummy Brand",
-          company_name: "Dummy Company",
-          category: "Technology",
-          status: "approved",
-          created_at: new Date().toISOString(),
-          website: "https://dummybrand.com",
-          description: "This is a dummy brand.",
-          logo_url: "https://dummybrand.com/logo.png",
-          theme_color: "#3B82F6",
-          contact_email: "contact@dummybrand.com",
-          contact_phone: "+1234567890",
-          address: "123 Dummy St, Dummy City",
-          app_link: "https://dummybrand.com/app",
-          custom_emails: "support@dummybrand.com",
-          domain: "dummybrand.com",
-        });
+        const brand = await fetchBrandById(brandId);
+        setBrandData(brand);
       } catch (error) {
         console.error("Unexpected error:", error);
         toast({
@@ -83,20 +67,26 @@ const BrandDashboard = () => {
 
     const fetchCampaigns = async () => {
       if (!brandId) return;
-    };
-
-    const fetchDeals = async () => {
-      if (!brandId) return;
+      try {
+        const data = await fetchCampaignsForBrand(brandId);
+        setCampaigns(data);
+      } catch {
+        // campaigns endpoint may not exist yet — silently ignore
+      }
     };
 
     fetchBrandData();
     fetchCampaigns();
-    fetchDeals();
   }, [brandId, navigate, toast]);
 
-  // Function to refresh campaigns data
   const refreshCampaigns = async () => {
     if (!brandId) return;
+    try {
+      const data = await fetchCampaignsForBrand(brandId);
+      setCampaigns(data);
+    } catch {
+      // silently ignore
+    }
   };
 
   // Function to handle campaign creation success
@@ -132,7 +122,7 @@ const BrandDashboard = () => {
     );
   }
 
-  const isApproved = brandData.status === "approved";
+  const isApproved = brandData.status?.toLowerCase() === "approved";
   const formattedData = {
     name: brandData.brand_name,
     companyName: brandData.company_name,
@@ -140,7 +130,7 @@ const BrandDashboard = () => {
     status: brandData.status,
     submissionDate: new Date(brandData.created_at).toLocaleDateString(),
     estimatedApproval: "2-3 business days",
-    referenceNumber: `REF-${brandData.id.substring(0, 8).toUpperCase()}`,
+    referenceNumber: `REF-${(brandData.id ?? brandData._id ?? "").substring(0, 8).toUpperCase()}`,
     contactEmail: brandData?.contact_email || "N/A",
     contactPhone: brandData?.contact_phone || "N/A",
     website: brandData.website,
@@ -391,7 +381,7 @@ const BrandDashboard = () => {
             </div>
             <div className="flex items-center space-x-3">
               <Badge variant={isApproved ? "default" : "secondary"}>
-                {brandData.status === "approved" ? "Active" : "Pending"}
+                {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
               </Badge>
               <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
