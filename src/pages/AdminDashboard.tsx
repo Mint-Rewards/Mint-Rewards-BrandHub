@@ -476,7 +476,7 @@ const AdminDashboard = () => {
                               <div className="flex items-center space-x-3 mb-2">
                                 <Building2 className="h-5 w-5 text-muted-foreground" />
                                 <h3 className="text-lg font-semibold">
-                                  {campaign.title}
+                                  {campaign.name}
                                 </h3>
                                 <Badge
                                   variant={
@@ -495,7 +495,7 @@ const AdminDashboard = () => {
                                   <p className="font-medium text-foreground">
                                     Brand
                                   </p>
-                                  <p>{campaign.brand_id}</p>
+                                  <p>{campaign.id}</p>
                                 </div>
                                 <div>
                                   <p className="font-medium text-foreground">
@@ -503,7 +503,7 @@ const AdminDashboard = () => {
                                   </p>
                                   <p>
                                     {new Date(
-                                      campaign.start_date,
+                                      campaign.startDate,
                                     ).toLocaleDateString()}
                                   </p>
                                 </div>
@@ -513,7 +513,7 @@ const AdminDashboard = () => {
                                   </p>
                                   <p>
                                     {new Date(
-                                      campaign.end_date,
+                                      campaign.endDate,
                                     ).toLocaleDateString()}
                                   </p>
                                 </div>
@@ -523,7 +523,7 @@ const AdminDashboard = () => {
                                   <span className="font-medium text-foreground">
                                     Contact:
                                   </span>{" "}
-                                  {campaign.brand_id}
+                                  {campaign.id}
                                 </p>
                               </div>
                             </div>
@@ -603,7 +603,7 @@ const AdminDashboard = () => {
                               <div className="flex items-center space-x-3 mb-2">
                                 <Building2 className="h-5 w-5 text-muted-foreground" />
                                 <h3 className="text-lg font-semibold">
-                                  {deal.brand_id}
+                                  {deal.brandId}
                                 </h3>
                                 <Badge
                                   variant={
@@ -628,7 +628,7 @@ const AdminDashboard = () => {
                                   <p className="font-medium text-foreground">
                                     Discount Amount
                                   </p>
-                                  <p>${deal.discount_amount} %</p>
+                                  <p>${deal.discountAmount} %</p>
                                 </div>
                                 <div>
                                   <p className="font-medium text-foreground">
@@ -636,7 +636,7 @@ const AdminDashboard = () => {
                                   </p>
                                   <p>
                                     {new Date(
-                                      deal.created_at,
+                                      deal.createdAt,
                                     ).toLocaleDateString()}
                                   </p>
                                 </div>
@@ -646,7 +646,7 @@ const AdminDashboard = () => {
                                   <span className="font-medium text-foreground">
                                     Contact:
                                   </span>{" "}
-                                  {deal.brand_id}
+                                  {deal.brandId}
                                 </p>
                               </div>
                             </div>
