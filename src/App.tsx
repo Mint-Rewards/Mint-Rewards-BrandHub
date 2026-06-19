@@ -8,6 +8,7 @@ import BrandRegister from "./pages/BrandRegister";
 import AdminLogin from "./pages/AdminLogin";
 import BrandDashboard from "./pages/BrandDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import AddCollection from "./pages/AddCollection";
 import TransitCollections from "./pages/TransitCollections";
@@ -23,6 +24,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/demo" element={<Demo />} />
           <Route path="/register" element={<BrandRegister />} />
           <Route path="/admin/login" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
@@ -34,13 +36,12 @@ const App = () => (
             path="/admin/dashboard/transit-collections/"
             element={<TransitCollections />}
           />
-
           <Route
             path="/admin/dashboard/finalized-collections/"
             element={<FinalizedCollections />}
           />
           <Route path="/dashboard/:brandId" element={<BrandDashboard />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL '*' ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
