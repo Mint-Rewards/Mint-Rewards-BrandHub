@@ -40,6 +40,7 @@ const BrandDashboard = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
     const fetchBrandData = async () => {
@@ -282,16 +283,7 @@ const BrandDashboard = () => {
             </p>
             <Button
               variant="outline"
-              onClick={async () => {
-                // Update brand status to approved in database
-                // if () {
-                //   setBrandData((prev) => ({ ...prev, status: "approved" }));
-                //   toast({
-                //     title: "Preview Mode",
-                //     description: "Showing approved dashboard preview",
-                //   });
-                // }
-              }}
+              onClick={() => setIsPreviewMode(true)}
             >
               <Eye className="h-4 w-4 mr-2" />
               Preview Dashboard
@@ -304,6 +296,14 @@ const BrandDashboard = () => {
 
   const ApprovedDashboardView = () => (
     <div className="space-y-6">
+      {isPreviewMode && !isApproved && (
+        <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
+          <span className="font-medium">Preview mode — this is how your dashboard will look once approved.</span>
+          <Button variant="ghost" size="sm" className="text-warning hover:text-warning hover:bg-warning/20 h-auto py-1" onClick={() => setIsPreviewMode(false)}>
+            Exit Preview
+          </Button>
+        </div>
+      )}
       {/* Success Header */}
       <Card className="border-success/20 bg-success/5">
         <CardHeader>
@@ -396,7 +396,7 @@ const BrandDashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {isApproved ? <ApprovedDashboardView /> : <PendingApprovalView />}
+        {isApproved || isPreviewMode ? <ApprovedDashboardView /> : <PendingApprovalView />}
       </main>
     </div>
   );
