@@ -150,7 +150,7 @@ const BrandDashboard = () => {
               <Clock className="h-6 w-6 text-warning" />
             </div>
             <div>
-              <CardTitle className="text-xl text-warning">
+              <CardTitle className="text-xl text-amber-700">
                 Pending Approval
               </CardTitle>
               <CardDescription>
@@ -190,7 +190,7 @@ const BrandDashboard = () => {
                 </p>
                 <Badge
                   variant="secondary"
-                  className="bg-warning/10 text-warning"
+                  className="bg-warning/10 text-amber-700"
                 >
                   Under Review
                 </Badge>
@@ -297,9 +297,9 @@ const BrandDashboard = () => {
   const ApprovedDashboardView = () => (
     <div className="space-y-6">
       {isPreviewMode && !isApproved && (
-        <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-warning">
+        <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-amber-700">
           <span className="font-medium">Preview mode — this is how your dashboard will look once approved.</span>
-          <Button variant="ghost" size="sm" className="text-warning hover:text-warning hover:bg-warning/20 h-auto py-1" onClick={() => setIsPreviewMode(false)}>
+          <Button variant="ghost" size="sm" className="text-amber-700 hover:text-amber-800 hover:bg-warning/20 h-auto py-1" onClick={() => setIsPreviewMode(false)}>
             Exit Preview
           </Button>
         </div>
@@ -383,7 +383,7 @@ const BrandDashboard = () => {
               <Badge variant={isApproved ? "default" : "secondary"}>
                 {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
               </Badge>
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" aria-label="Notifications">
                 <Bell className="h-4 w-4" />
               </Button>
               <Button variant="outline" onClick={() => navigate("/")}>
