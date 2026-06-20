@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2,
   Clock,
-  CheckCircle,
   AlertCircle,
   Eye,
   Bell,
@@ -296,16 +295,15 @@ const BrandDashboard = () => {
 
   const ApprovedDashboardView = () => (
     <div className="space-y-6">
-      {isPreviewMode && !isApproved && (
+      {/* {isPreviewMode && !isApproved && (
         <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-amber-700">
           <span className="font-medium">Preview mode — this is how your dashboard will look once approved.</span>
           <Button variant="ghost" size="sm" className="text-amber-700 hover:text-amber-800 hover:bg-warning/20 h-auto py-1" onClick={() => setIsPreviewMode(false)}>
             Exit Preview
           </Button>
         </div>
-      )}
-      {/* Success Header */}
-      <Card className="border-success/20 bg-success/5">
+      )} */}
+      {/* <Card className="border-success/20 bg-success/5">
         <CardHeader>
           <div className="flex items-center space-x-3">
             <div className="h-12 w-12 rounded-full bg-success/20 flex items-center justify-center">
@@ -321,7 +319,7 @@ const BrandDashboard = () => {
             </div>
           </div>
         </CardHeader>
-      </Card>
+      </Card> */}
 
       {/* Dashboard Tabs */}
       <Tabs
