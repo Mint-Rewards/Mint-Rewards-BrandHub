@@ -1,8 +1,11 @@
+import { useState } from "react";
+import { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import {
   Award,
   BarChart3,
   Building2,
-  Calendar,
+  Calendar as CalendarIcon,
   Leaf,
   Recycle,
   Target,
@@ -10,6 +13,9 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -220,10 +226,17 @@ const mockAnalyticsData = {
 };
 
 const AnalyticsDashboard = () => {
-  // Get current month and year for period display
-  const currentDate = new Date();
-  const currentMonth = currentDate.toLocaleString("default", { month: "long" });
-  const currentYear = currentDate.getFullYear();
+  const today = new Date();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(today.getFullYear(), today.getMonth(), 1),
+    to: today,
+  });
+
+  const rangeLabel = dateRange?.from
+    ? dateRange.to
+      ? `${format(dateRange.from, "MMM d, yyyy")} – ${format(dateRange.to, "MMM d, yyyy")}`
+      : format(dateRange.from, "MMM d, yyyy")
+    : "Select a period";
 
   return (
     <div className="space-y-6">
@@ -240,29 +253,40 @@ const AnalyticsDashboard = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-primary/20 rounded-lg">
-              <Calendar className="h-5 w-5 text-primary" />
+              <CalendarIcon className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
                 Statistics Period
               </h3>
               <p className="text-sm text-muted-foreground">
-                The following metrics represent data for{" "}
-                <span className="font-medium text-primary">
-                  {currentMonth} {currentYear}
-                </span>
+                Showing metrics for{" "}
+                <span className="font-medium text-primary">{rangeLabel}</span>
               </p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-2xl font-bold text-primary">{currentMonth}</p>
-            <p className="text-sm text-muted-foreground">{currentYear}</p>
-          </div>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" className="gap-2">
+                <CalendarIcon className="h-4 w-4" />
+                {rangeLabel}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={setDateRange}
+                numberOfMonths={2}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
       {/* Top KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border-green-200">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
@@ -323,7 +347,7 @@ const AnalyticsDashboard = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200">
+        {/* <Card className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 border-orange-200">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-orange-500 rounded-lg">
@@ -339,9 +363,9 @@ const AnalyticsDashboard = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
-        <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200">
+        {/* <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border-emerald-200">
           <CardContent className="p-4">
             <div className="flex items-center space-x-3">
               <div className="p-2 bg-emerald-500 rounded-lg">
@@ -357,28 +381,28 @@ const AnalyticsDashboard = () => {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       {/* Analytics Tabs */}
       <Tabs defaultValue="impact" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="impact">Impact</TabsTrigger>
           <TabsTrigger value="rewards">Rewards</TabsTrigger>
-          <TabsTrigger value="users">Users</TabsTrigger>
+          {/* <TabsTrigger value="users">Users</TabsTrigger> */}
           <TabsTrigger value="brands">Brands</TabsTrigger>
-          <TabsTrigger value="sector">Sector</TabsTrigger>
-          <TabsTrigger value="projections">Projections</TabsTrigger>
+          {/* <TabsTrigger value="sector">Sector</TabsTrigger> */}
+          {/* <TabsTrigger value="projections">Projections</TabsTrigger> */}
         </TabsList>
 
         {/* Impact Tab */}
         <TabsContent value="impact" className="space-y-4">
           {/* Sub-tabs for Company and User Impact */}
           <Tabs defaultValue="company" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-2">
+            {/* <TabsList className="grid w-full grid-cols-1">
               <TabsTrigger value="company">Impact Company</TabsTrigger>
               <TabsTrigger value="users">Impact Users</TabsTrigger>
-            </TabsList>
+            </TabsList> */}
 
             {/* Company Impact Tab */}
             <TabsContent value="company" className="space-y-4">
