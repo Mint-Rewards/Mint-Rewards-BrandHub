@@ -93,6 +93,10 @@ export interface Campaign {
   description?: string | null;
   targetAudience?: string | null;
   status: CampaignStatus | string;
+  backgroundColor?: string | null;
+  badge?: string | null;
+  subtitle?: string | null;
+  banner?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }
