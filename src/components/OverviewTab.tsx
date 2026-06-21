@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
+import type { BrandAnalytics } from "@/actions/brandActions";
 import { format } from "date-fns";
 import {
   Award,
@@ -225,7 +226,7 @@ const mockAnalyticsData = {
   },
 };
 
-const AnalyticsDashboard = () => {
+const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ analytics }) => {
   const today = new Date();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(today.getFullYear(), today.getMonth(), 1),
@@ -1172,106 +1173,69 @@ const AnalyticsDashboard = () => {
               <CardContent>
                 <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden mb-6">
                   <div className="p-4 text-center">
-                    <p className="text-2xl font-bold text-foreground">12</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {analytics?.summary.activeCampaigns ?? "—"}
+                    </p>
                     <p className="text-sm text-muted-foreground">Active Campaigns</p>
                   </div>
                   <div className="p-4 text-center">
-                    <p className="text-2xl font-bold text-foreground">78%</p>
-                    <p className="text-sm text-muted-foreground">Coupon Usage Rate</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {analytics?.summary.totalCampaigns
+                        ? `${Math.round((analytics.summary.activeCampaigns / analytics.summary.totalCampaigns) * 100)}%`
+                        : "—"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Active Rate</p>
                   </div>
                   <div className="p-4 text-center">
-                    <p className="text-2xl font-bold text-foreground">2,630</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {analytics?.summary.totalRedemptions.toLocaleString() ?? "—"}
+                    </p>
                     <p className="text-sm text-muted-foreground">Total Redemptions</p>
                   </div>
                   <div className="p-4 text-center">
-                    <p className="text-2xl font-bold text-foreground">4.6</p>
-                    <p className="text-sm text-muted-foreground">Customer Rating</p>
+                    <p className="text-2xl font-bold text-foreground">
+                      {analytics?.summary.uniqueUsers.toLocaleString() ?? "—"}
+                    </p>
+                    <p className="text-sm text-muted-foreground">Unique Users</p>
                   </div>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <h4 className="font-semibold">Campaign Performance</h4>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
-                        <Award className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Summer Eco Sale</p>
-                        <p className="text-sm text-muted-foreground">
-                          850 redemptions this month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">89%</span>
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-primary h-2 rounded-full"
-                            style={{ width: "89%" }}
-                          />
+                  {analytics && analytics.campaigns.list.length > 0 ? (
+                    analytics.campaigns.list.slice(0, 5).map((campaign) => (
+                      <div key={campaign.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <Award className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <p className="font-medium">{campaign.name}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {campaign.redemptions.toLocaleString()} redemptions
+                            </p>
+                          </div>
                         </div>
+                        <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                          campaign.status === "APPROVED"
+                            ? "bg-success/10 text-success"
+                            : campaign.status === "PENDING"
+                            ? "bg-warning/10 text-amber-700"
+                            : campaign.status === "REJECTED"
+                            ? "bg-destructive/10 text-destructive"
+                            : "bg-muted text-muted-foreground"
+                        }`}>
+                          {campaign.status.charAt(0) + campaign.status.slice(1).toLowerCase()}
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Success Rate
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                        <Award className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Green Friday Deals</p>
-                        <p className="text-sm text-muted-foreground">
-                          680 redemptions this month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">76%</span>
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-primary h-2 rounded-full"
-                            style={{ width: "76%" }}
-                          />
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Success Rate
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between p-4 border rounded-lg">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <Award className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-medium">Sustainability Rewards</p>
-                        <p className="text-sm text-muted-foreground">
-                          1,100 redemptions this month
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right space-y-1">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-sm font-medium">82%</span>
-                        <div className="w-16 bg-gray-200 rounded-full h-2">
-                          <div
-                            className="bg-primary h-2 rounded-full"
-                            style={{ width: "82%" }}
-                          />
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Success Rate
-                      </p>
-                    </div>
-                  </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground py-6 text-center">
+                      {analytics
+                        ? "No campaigns yet — create your first campaign to see performance data."
+                        : "Loading campaign data…"}
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -1820,7 +1784,10 @@ const AnalyticsDashboard = () => {
   );
 };
 
-const OverviewTab: React.FC<{ campaigns: number }> = ({ campaigns }) => {
+const OverviewTab: React.FC<{
+  campaigns: number;
+  analytics?: BrandAnalytics | null;
+}> = ({ campaigns, analytics }) => {
   return (
     <Card>
       <CardHeader>
@@ -1839,36 +1806,42 @@ const OverviewTab: React.FC<{ campaigns: number }> = ({ campaigns }) => {
                 <span className="text-xs font-medium text-muted-foreground">Active Campaigns</span>
               </div>
               <p className="text-2xl font-bold text-foreground">{campaigns}</p>
-              <p className="text-xs text-success mt-1">+1 from last month</p>
             </div>
             <div className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Eco Users Reached</span>
+                <span className="text-xs font-medium text-muted-foreground">Unique Users</span>
               </div>
-              <p className="text-2xl font-bold text-foreground">3.2K</p>
-              <p className="text-xs text-success mt-1">+15% from last month</p>
+              <p className="text-2xl font-bold text-foreground">
+                {analytics
+                  ? analytics.summary.uniqueUsers >= 1000
+                    ? `${(analytics.summary.uniqueUsers / 1000).toFixed(1)}K`
+                    : analytics.summary.uniqueUsers
+                  : "—"}
+              </p>
             </div>
             <div className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <Recycle className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Reward Redemptions</span>
+                <span className="text-xs font-medium text-muted-foreground">Total Redemptions</span>
               </div>
-              <p className="text-2xl font-bold text-foreground">2,630</p>
-              <p className="text-xs text-success mt-1">+28% from last month</p>
+              <p className="text-2xl font-bold text-foreground">
+                {analytics?.summary.totalRedemptions.toLocaleString() ?? "—"}
+              </p>
             </div>
             <div className="p-4">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Growth Rate</span>
+                <span className="text-xs font-medium text-muted-foreground">Total Campaigns</span>
               </div>
-              <p className="text-2xl font-bold text-foreground">+24%</p>
-              <p className="text-xs text-success mt-1">+4% from last month</p>
+              <p className="text-2xl font-bold text-foreground">
+                {analytics?.summary.totalCampaigns ?? "—"}
+              </p>
             </div>
           </div>
 
           {/* Analytics Dashboard Section */}
-          <AnalyticsDashboard />
+          <AnalyticsDashboard analytics={analytics} />
         </div>
       </CardContent>
     </Card>
