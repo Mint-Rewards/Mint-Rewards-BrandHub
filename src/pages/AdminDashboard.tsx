@@ -28,7 +28,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { Brand, Campaign, Deal, User } from "@/types";
-import { fetchBrands } from "@/actions/brandActions";
+import {
+  fetchBrands,
+  fetchAllCampaigns,
+  fetchAllDeals,
+  updateCampaign,
+  updateDeal,
+} from "@/actions/brandActions";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -59,17 +65,30 @@ const AdminDashboard = () => {
     }
   }, [toast]);
 
-  const fetchCampaigns = async () => {};
+  const fetchCampaigns = useCallback(async () => {
+    try {
+      const data = await fetchAllCampaigns();
+      setCampaigns(data);
+    } catch (error) {
+      console.error("Error fetching campaigns:", error);
+    }
+  }, []);
 
-  const fetchDeals = async () => {};
+  const fetchDeals = useCallback(async () => {
+    try {
+      const data = await fetchAllDeals();
+      setDeals(data);
+    } catch (error) {
+      console.error("Error fetching deals:", error);
+    }
+  }, []);
 
-  // Check authentication and fetch data on initial mount.
   useEffect(() => {
     checkAuth();
     fetchApplications();
     fetchCampaigns();
     fetchDeals();
-  }, [fetchApplications]);
+  }, [fetchApplications, fetchCampaigns, fetchDeals]);
 
   const handleApproval = async (brandId: string, status: "APPROVED" | "REJECTED", reason?: string) => {
     const res = await fetch(`${import.meta.env.VITE_API_URL}/brands/${brandId}`, {
@@ -99,23 +118,25 @@ const AdminDashboard = () => {
   };
 
   const handleCampaignApproval = async (
-    id: string,
+    campaign: Campaign,
     action: "approve" | "reject",
   ) => {
-    const newStatus = action === "approve" ? "approved" : "rejected";
+    const newStatus = action === "approve" ? "APPROVED" : "REJECTED";
+    const brandId = String(campaign.brand ?? "");
 
     try {
-      setCampaigns((prev) =>
-        prev.map((campaign) =>
-          campaign.id === id ? { ...campaign, status: newStatus } : campaign,
-        ),
+      await updateCampaign(
+        brandId,
+        campaign.id,
+        { status: newStatus },
+        import.meta.env.VITE_ADMIN_SECRET,
       );
-
+      setCampaigns((prev) =>
+        prev.map((c) => (c.id === campaign.id ? { ...c, status: newStatus } : c)),
+      );
       toast({
-        title: `Campaign ${action === "approve" ? "Approved" : "Rejected"}`,
-        description: `Campaign has been ${
-          action === "approve" ? "approved" : "rejected"
-        } successfully.`,
+        title: `Campaign ${action === "approve" ? "approved" : "rejected"}`,
+        description: `"${campaign.name}" has been ${action === "approve" ? "approved" : "rejected"}.`,
         variant: action === "approve" ? "default" : "destructive",
       });
     } catch (error) {
@@ -129,23 +150,19 @@ const AdminDashboard = () => {
   };
 
   const handleDealApproval = async (
-    id: string,
+    deal: Deal,
     action: "approve" | "reject",
   ) => {
-    const newStatus = action === "approve" ? "approved" : "rejected";
+    const newStatus = action === "approve" ? "active" : "inactive";
 
     try {
+      await updateDeal(deal.brandId ?? "", deal.id, { status: newStatus as "active" | "inactive" });
       setDeals((prev) =>
-        prev.map((deal) =>
-          deal.id === id ? { ...deal, status: newStatus } : deal,
-        ),
+        prev.map((d) => (d.id === deal.id ? { ...d, status: newStatus } : d)),
       );
-
       toast({
-        title: `Deal ${action === "approve" ? "Approved" : "Rejected"}`,
-        description: `Deal has been ${
-          action === "approve" ? "approved" : "rejected"
-        } successfully.`,
+        title: `Deal ${action === "approve" ? "activated" : "deactivated"}`,
+        description: `"${deal.title}" has been ${action === "approve" ? "set to active" : "deactivated"}.`,
         variant: action === "approve" ? "default" : "destructive",
       });
     } catch (error) {
@@ -337,7 +354,7 @@ const AdminDashboard = () => {
                     {filteredApplications.map((app) => (
                       <Card
                         key={app.id ?? app._id}
-                        className="border-l-4 border-l-transparent hover:border-l-primary transition-colors"
+                        className="hover:bg-muted/40 transition-colors"
                       >
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between">
@@ -468,7 +485,7 @@ const AdminDashboard = () => {
                     campaigns.map((campaign) => (
                       <Card
                         key={campaign.id}
-                        className="border-l-4 border-l-transparent hover:border-l-primary transition-colors mb-4"
+                        className="hover:bg-muted/40 transition-colors mb-4"
                       >
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between">
@@ -533,16 +550,13 @@ const AdminDashboard = () => {
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </Button>
-                              {campaign.status === "draft" && (
+                              {campaign.status === "PENDING" && (
                                 <>
                                   <Button
                                     variant="success"
                                     size="sm"
                                     onClick={() =>
-                                      handleCampaignApproval(
-                                        campaign.id,
-                                        "approve",
-                                      )
+                                      handleCampaignApproval(campaign, "approve")
                                     }
                                   >
                                     <CheckCircle className="h-4 w-4 mr-2" />
@@ -552,10 +566,7 @@ const AdminDashboard = () => {
                                     variant="destructive"
                                     size="sm"
                                     onClick={() =>
-                                      handleCampaignApproval(
-                                        campaign.id,
-                                        "reject",
-                                      )
+                                      handleCampaignApproval(campaign, "reject")
                                     }
                                   >
                                     <XCircle className="h-4 w-4 mr-2" />
@@ -595,7 +606,7 @@ const AdminDashboard = () => {
                     deals.map((deal) => (
                       <Card
                         key={deal.id}
-                        className="border-l-4 border-l-transparent hover:border-l-primary transition-colors mb-4"
+                        className="hover:bg-muted/40 transition-colors mb-4"
                       >
                         <CardContent className="p-6">
                           <div className="flex items-center justify-between">
@@ -655,23 +666,23 @@ const AdminDashboard = () => {
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </Button>
-                              {deal.status === "draft" && (
+                              {deal.status === "inactive" && (
                                 <>
                                   <Button
                                     variant="success"
                                     size="sm"
                                     onClick={() =>
-                                      handleDealApproval(deal.id, "approve")
+                                      handleDealApproval(deal, "approve")
                                     }
                                   >
                                     <CheckCircle className="h-4 w-4 mr-2" />
-                                    Approve
+                                    Activate
                                   </Button>
                                   <Button
                                     variant="destructive"
                                     size="sm"
                                     onClick={() =>
-                                      handleDealApproval(deal.id, "reject")
+                                      handleDealApproval(deal, "reject")
                                     }
                                   >
                                     <XCircle className="h-4 w-4 mr-2" />
