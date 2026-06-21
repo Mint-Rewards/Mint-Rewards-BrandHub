@@ -20,7 +20,13 @@ import {
   Loader2,
 } from "lucide-react";
 import { useParams, useNavigate } from "react-router-dom";
-import { fetchBrandById, fetchCampaignsForBrand } from "@/actions/brandActions";
+import {
+  fetchBrandById,
+  fetchCampaignsForBrand,
+  fetchDealsForBrand,
+  fetchBrandAnalytics,
+  type BrandAnalytics,
+} from "@/actions/brandActions";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -38,6 +44,7 @@ const BrandDashboard = () => {
   const [brandData, setBrandData] = useState<Brand>();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [isPreviewMode, setIsPreviewMode] = useState(false);
 
@@ -49,7 +56,6 @@ const BrandDashboard = () => {
       }
 
       try {
-        // Fetch brand data
         const brand = await fetchBrandById(brandId);
         setBrandData(brand);
       } catch (error) {
@@ -71,12 +77,26 @@ const BrandDashboard = () => {
         const data = await fetchCampaignsForBrand(brandId);
         setCampaigns(data);
       } catch {
-        // campaigns endpoint may not exist yet — silently ignore
+        // silently ignore
       }
+    };
+
+    const fetchDeals = async () => {
+      if (!brandId) return;
+      const data = await fetchDealsForBrand(brandId);
+      setDeals(data);
+    };
+
+    const fetchAnalytics = async () => {
+      if (!brandId) return;
+      const data = await fetchBrandAnalytics(brandId);
+      setAnalytics(data);
     };
 
     fetchBrandData();
     fetchCampaigns();
+    fetchDeals();
+    fetchAnalytics();
   }, [brandId, navigate, toast]);
 
   const refreshCampaigns = async () => {
@@ -84,6 +104,22 @@ const BrandDashboard = () => {
     try {
       const data = await fetchCampaignsForBrand(brandId);
       setCampaigns(data);
+    } catch {
+      // silently ignore
+    }
+  };
+
+  const refreshDeals = async () => {
+    if (!brandId) return;
+    const data = await fetchDealsForBrand(brandId);
+    setDeals(data);
+  };
+
+  const refreshBrand = async () => {
+    if (!brandId) return;
+    try {
+      const brand = await fetchBrandById(brandId);
+      setBrandData(brand);
     } catch {
       // silently ignore
     }
@@ -335,27 +371,38 @@ const BrandDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Recent Activity */}
-          <OverviewTab campaigns={campaigns.length} />
+          <OverviewTab
+            campaigns={analytics?.summary.activeCampaigns ?? campaigns.length}
+            analytics={analytics}
+          />
         </TabsContent>
 
         <TabsContent value="campaigns">
           <CampaignsTab
             campaigns={campaigns}
+            logoUrl={formattedData.logoUrl}
             onCampaignCreated={handleCampaignCreated}
           />
         </TabsContent>
 
         <TabsContent value="deals">
-          <DealsTab deals={deals} />
+          <DealsTab deals={deals} onDealCreated={refreshDeals} />
         </TabsContent>
 
         <TabsContent value="settings">
           <SettingsTab
+            brandId={brandData.id ?? brandData._id ?? ""}
             name={formattedData.name}
+            companyName={brandData.companyName}
             category={formattedData.category}
             contactEmail={formattedData.contactEmail}
             contactPhone={formattedData.contactPhone}
+            webLink={brandData.webLink ?? brandData.website}
+            appLink={brandData.appLink}
+            description={brandData.description}
+            address={brandData.address}
+            themeColor={brandData.themeColor}
+            onSettingsUpdated={refreshBrand}
           />
         </TabsContent>
       </Tabs>
