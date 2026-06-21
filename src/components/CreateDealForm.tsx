@@ -30,6 +30,7 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { createDeal } from "@/actions/brandActions";
 
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -74,40 +75,37 @@ export function CreateDealForm({
   const onSubmit = async (data: DealFormData) => {
     setIsSubmitting(true);
     try {
-      const dealData = {
-        brandId,
+      await createDeal(brandId, {
         title: data.title,
-        description: data.description,
+        description: data.description || undefined,
         discountPercentage: data.discountPercentage
           ? parseInt(data.discountPercentage)
           : null,
         discountAmount: data.discountAmount
           ? parseFloat(data.discountAmount)
           : null,
-        promoCode: data.promoCode,
+        promoCode: data.promoCode || null,
         startDate: data.startDate ? format(data.startDate, "yyyy-MM-dd") : null,
         endDate: data.endDate ? format(data.endDate, "yyyy-MM-dd") : null,
         maxUses: data.maxUses ? parseInt(data.maxUses) : null,
         minimumPurchase: data.minimumPurchase
           ? parseFloat(data.minimumPurchase)
           : null,
-        status: "active",
-        currentUses: 0,
-      };
-
-      console.log("dealData", dealData);
+      });
 
       toast({
-        title: "Success",
-        description: "Deal created successfully!",
+        title: "Deal submitted",
+        description: "Your deal is now live.",
       });
 
       onSuccess();
     } catch (error) {
-      console.error("Error creating deal:", error);
       toast({
         title: "Error",
-        description: "Failed to create deal. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create deal. Please try again.",
         variant: "destructive",
       });
     } finally {
