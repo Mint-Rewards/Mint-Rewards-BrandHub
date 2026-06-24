@@ -17,8 +17,8 @@ import {
   Bell,
   Mail,
   Phone,
-  Loader2,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchBrandById,
@@ -133,13 +133,44 @@ const BrandDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <Card className="p-8">
-          <div className="flex items-center space-x-3">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Loading brand dashboard...</span>
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card/50 sticky top-0 z-50">
+          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-9 w-9 rounded-md" />
+              <Skeleton className="h-9 w-32 rounded-md" />
+            </div>
           </div>
-        </Card>
+        </header>
+        <main className="container mx-auto px-6 py-8 space-y-6">
+          <div className="grid grid-cols-4 gap-2">
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-6 space-y-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-3 w-32" />
+              </Card>
+            ))}
+          </div>
+          <Card className="p-6 space-y-4">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-64 w-full rounded-md" />
+          </Card>
+        </main>
       </div>
     );
   }

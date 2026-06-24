@@ -93,28 +93,24 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Features Grid */}
+      {/* Features */}
       <section className="py-16 px-6 bg-muted/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">Powerful Features</h2>
-            <p className="text-muted-foreground text-lg">Everything you need to manage your brand effectively</p>
+        <div className="container mx-auto max-w-4xl">
+          <div className="mb-10">
+            <h2 className="text-3xl font-bold mb-2">What's included</h2>
+            <p className="text-muted-foreground">A complete toolkit for brand managers and sustainability teams.</p>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
             {features.map((feature, index) => (
-              <Card key={index} className="border-0 bg-card/60 backdrop-blur-sm hover:shadow-lg transition-all duration-300">
-                <CardHeader className="pb-4">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mb-3">
-                    {feature.icon}
-                  </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-sm leading-relaxed">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>
+              <div key={index} className="flex items-start gap-4">
+                <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/10 flex items-center justify-center text-primary mt-0.5">
+                  {feature.icon}
+                </div>
+                <div>
+                  <p className="font-semibold mb-1">{feature.title}</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -167,7 +163,7 @@ const Index = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-6 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5">
+      <section className="py-16 px-6 bg-muted/30">
         <div className="container mx-auto text-center max-w-3xl">
           <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
           <p className="text-muted-foreground mb-8 text-lg">
@@ -190,7 +186,7 @@ const Index = () => {
             <span className="font-semibold">MintRewards Brand Management</span>
           </div>
           <p className="text-muted-foreground text-sm">
-            © 2024 MintRewards Brand Management. Professional brand management made simple.
+            © 2025 MintRewards Brand Management. Professional brand management made simple.
           </p>
         </div>
       </footer>
