@@ -8,6 +8,7 @@ import BrandRegister from "./pages/BrandRegister";
 import AdminLogin from "./pages/AdminLogin";
 import BrandDashboard from "./pages/BrandDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import NotFound from "./pages/NotFound";
 import DemoPage from "./pages/DemoPage";
 import AddCollection from "./pages/AddCollection";
@@ -26,19 +27,37 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/register" element={<BrandRegister />} />
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <AdminProtectedRoute>
+                <AdminDashboard />
+              </AdminProtectedRoute>
+            }
+          />
           <Route
             path="/admin/dashboard/add-collection/"
-            element={<AddCollection />}
+            element={
+              <AdminProtectedRoute>
+                <AddCollection />
+              </AdminProtectedRoute>
+            }
           />
           <Route
             path="/admin/dashboard/transit-collections/"
-            element={<TransitCollections />}
+            element={
+              <AdminProtectedRoute>
+                <TransitCollections />
+              </AdminProtectedRoute>
+            }
           />
-
           <Route
             path="/admin/dashboard/finalized-collections/"
-            element={<FinalizedCollections />}
+            element={
+              <AdminProtectedRoute>
+                <FinalizedCollections />
+              </AdminProtectedRoute>
+            }
           />
           <Route path="/demo" element={<DemoPage />} />
           <Route path="/dashboard/:brandId" element={<BrandDashboard />} />

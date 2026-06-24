@@ -33,7 +33,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { Brand, Campaign, Deal, User } from "@/types";
+import { Brand, Campaign, Deal } from "@/types";
+import { adminAuth } from "@/lib/adminAuth";
 import {
   fetchBrands,
   fetchAllCampaigns,
@@ -49,7 +50,6 @@ const AdminDashboard = () => {
   const [filterStatus, setFilterStatus] = useState("all");
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User>(null);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
 
@@ -57,11 +57,11 @@ const AdminDashboard = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
 
-  const checkAuth = async () => {
-    if (!import.meta.env.VITE_ADMIN_SECRET) {
+  useEffect(() => {
+    if (!adminAuth.isLoggedIn()) {
       navigate("/admin/login");
     }
-  };
+  }, [navigate]);
 
   const resolveBrandName = (brandId?: string) => {
     if (!brandId) return "-";
@@ -104,7 +104,6 @@ const AdminDashboard = () => {
   }, []);
 
   useEffect(() => {
-    checkAuth();
     fetchApplications();
     fetchCampaigns();
     fetchDeals();
@@ -115,10 +114,16 @@ const AdminDashboard = () => {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${import.meta.env.VITE_ADMIN_SECRET}`,
+        ...adminAuth.authHeaders(),
       },
       body: JSON.stringify({ status, reason }),
     });
+
+    if (res.status === 401) {
+      adminAuth.clearToken();
+      navigate("/admin/login");
+      return;
+    }
 
     if (!res.ok) {
       toast({
@@ -133,7 +138,7 @@ const AdminDashboard = () => {
     setBrands(prev => prev.map(b => b._id === brandId ? brand : b));
     toast({
       title: `Brand ${status === "APPROVED" ? "Approved" : "Rejected"}`,
-      description: `Brand has been ${status === "APPROVED" ? "approved" : "rejected"} successfully.`
+      description: `Brand has been ${status === "APPROVED" ? "approved" : "rejected"} successfully.`,
     });
   };
 
@@ -151,12 +156,7 @@ const AdminDashboard = () => {
     const brandId = String(campaign.brand ?? "");
 
     try {
-      await updateCampaign(
-        brandId,
-        campaign.id,
-        { status: newStatus },
-        import.meta.env.VITE_ADMIN_SECRET,
-      );
+      await updateCampaign(brandId, campaign.id, { status: newStatus });
       setCampaigns((prev) =>
         prev.map((c) => (c.id === campaign.id ? { ...c, status: newStatus } : c)),
       );
@@ -230,20 +230,9 @@ const AdminDashboard = () => {
     totalDeals: deals.length,
   };
 
-  const handleLogout = async () => {
-    try {
-      setUser(null);
-      setBrands([]);
-      setCampaigns([]);
-      setDeals([]);
-      toast({
-        title: "Logged Out",
-        description: "You have been successfully logged out.",
-      });
-      navigate("/admin/login");
-    } catch (error) {
-      console.error("Error signing out:", error);
-    }
+  const handleLogout = () => {
+    adminAuth.clearToken();
+    navigate("/admin/login");
   };
 
   if (isLoading) {

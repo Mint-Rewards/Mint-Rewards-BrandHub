@@ -1,4 +1,5 @@
 import { Brand, BrandStatus, Campaign, Deal } from "@/types";
+import { adminAuth } from "@/lib/adminAuth";
 
 export interface BrandAnalytics {
   summary: {
@@ -62,7 +63,9 @@ const getApiBaseUrl = () =>
   "https://mint-rewards-mern-next-js.vercel.app/api";
 
 export const fetchBrands = async (): Promise<Brand[]> => {
-  const response = await fetch(`${getApiBaseUrl()}/brands`);
+  const response = await fetch(`${getApiBaseUrl()}/brands`, {
+    headers: adminAuth.authHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error("Failed to fetch brands");
@@ -314,6 +317,7 @@ export const fetchAllDeals = async (filters?: {
 
   const response = await fetch(
     `${getApiBaseUrl()}/brands/deals${qs ? `?${qs}` : ""}`,
+    { headers: adminAuth.authHeaders() },
   );
   if (!response.ok) return [];
   const data = (await response.json()) as {
@@ -396,10 +400,9 @@ export const updateCampaign = async (
     subtitle: string;
     banner: File | null;
   }>,
-  adminSecret?: string,
 ): Promise<Campaign> => {
   let body: BodyInit;
-  let headers: Record<string, string> | undefined;
+  let headers: Record<string, string>;
 
   if (payload.banner instanceof File) {
     const fd = new FormData();
@@ -409,15 +412,17 @@ export const updateCampaign = async (
     }
     fd.append("banner", banner);
     body = fd;
-    if (adminSecret) headers = { Authorization: `Bearer ${adminSecret}` };
+    headers = { ...adminAuth.authHeaders() } as Record<string, string>;
   } else {
     const { banner: _b, ...rest } = payload;
     const clean = Object.fromEntries(
       Object.entries(rest).filter(([, v]) => v !== null && v !== undefined),
     );
     body = JSON.stringify(clean);
-    headers = { "Content-Type": "application/json" };
-    if (adminSecret) headers["Authorization"] = `Bearer ${adminSecret}`;
+    headers = {
+      "Content-Type": "application/json",
+      ...adminAuth.authHeaders(),
+    } as Record<string, string>;
   }
 
   const response = await fetch(
@@ -460,6 +465,7 @@ export const fetchAllCampaigns = async (filters?: {
 
   const response = await fetch(
     `${getApiBaseUrl()}/brands/campaigns${qs ? `?${qs}` : ""}`,
+    { headers: adminAuth.authHeaders() },
   );
   if (!response.ok) return [];
   const data = (await response.json()) as {
