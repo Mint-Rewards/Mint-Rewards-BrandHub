@@ -106,7 +106,7 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center p-6">
+    <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <div className="w-full max-w-md">
         {/* Header */}
         <div className="text-center mb-8">
@@ -120,7 +120,7 @@ const AdminLogin = () => {
           </Button>
 
           <div className="flex items-center justify-center space-x-3 mb-6">
-            <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
               <Shield className="h-7 w-7 text-primary-foreground" />
             </div>
             <div>
@@ -188,6 +188,7 @@ const AdminLogin = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                       >
@@ -263,6 +264,7 @@ const AdminLogin = () => {
                         type="button"
                         variant="ghost"
                         size="sm"
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                       >
@@ -294,6 +296,7 @@ const AdminLogin = () => {
                         variant="ghost"
                         size="sm"
                         className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                         onClick={() =>
                           setShowConfirmPassword(!showConfirmPassword)
                         }

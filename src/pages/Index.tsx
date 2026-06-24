@@ -41,13 +41,13 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
                 <Building2 className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
@@ -73,12 +73,9 @@ const Index = () => {
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
             Professional Brand Management Platform
           </Badge>
-          <h1 className="text-5xl font-bold mb-6 bg-gradient-to-r from-foreground to-muted-foreground bg-clip-text text-transparent">
-            Manage Your Brand
-            <br />
-            <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              Like a Pro
-            </span>
+          <h1 className="text-5xl font-bold mb-6 text-foreground" style={{ textWrap: "balance" }}>
+            Manage Your Brand{" "}
+            <span className="text-primary">Like a Pro</span>
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
             Complete brand management solution with registration, campaign management, 
@@ -187,7 +184,7 @@ const Index = () => {
       <footer className="border-t bg-card/30 py-8 px-6">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
               <Building2 className="h-5 w-5 text-primary-foreground" />
             </div>
             <span className="font-semibold">MintRewards Brand Management</span>
