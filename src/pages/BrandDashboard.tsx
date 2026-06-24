@@ -452,7 +452,7 @@ const BrandDashboard = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold">{formattedData.name}</h1>
-                <p className="text-xs text-muted-foreground">Brand Dashboard</p>
+                <p className="text-xs text-muted-foreground">{formattedData.category || "Brand Dashboard"}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">

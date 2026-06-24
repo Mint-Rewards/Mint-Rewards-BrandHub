@@ -322,16 +322,6 @@ const AdminLogin = () => {
               </TabsContent>
             </Tabs>
 
-            {/* Info */}
-            {activeTab === "login" && (
-              <div className="mt-6 p-4 bg-muted/50 rounded-lg">
-                <h4 className="text-sm font-medium mb-2">First time here?</h4>
-                <p className="text-xs text-muted-foreground">
-                  Create an admin account using the Sign Up tab to get started.
-                </p>
-              </div>
-            )}
-
             {activeTab === "signup" && (
               <div className="mt-6 p-4 bg-muted/50 rounded-lg">
                 <h4 className="text-sm font-medium mb-2">

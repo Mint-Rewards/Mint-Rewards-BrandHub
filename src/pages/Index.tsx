@@ -51,8 +51,8 @@ const Index = () => {
                 <Building2 className="h-6 w-6 text-primary-foreground" />
               </div>
               <div>
-                <h1 className="text-xl font-bold">MintRewards Brand Management</h1>
-                <p className="text-xs text-muted-foreground">Professional Brand Management</p>
+                <p className="text-xl font-bold">MintRewards</p>
+                <p className="text-xs text-muted-foreground">Brand Management</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
