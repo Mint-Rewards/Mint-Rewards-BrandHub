@@ -9,6 +9,7 @@ import AdminLogin from "./pages/AdminLogin";
 import BrandDashboard from "./pages/BrandDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import NotFound from "./pages/NotFound";
+import DemoPage from "./pages/DemoPage";
 import AddCollection from "./pages/AddCollection";
 import TransitCollections from "./pages/TransitCollections";
 import FinalizedCollections from "./pages/FinalizedCollections";
@@ -39,6 +40,7 @@ const App = () => (
             path="/admin/dashboard/finalized-collections/"
             element={<FinalizedCollections />}
           />
+          <Route path="/demo" element={<DemoPage />} />
           <Route path="/dashboard/:brandId" element={<BrandDashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

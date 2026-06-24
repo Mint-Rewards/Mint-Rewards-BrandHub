@@ -11,6 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Shield,
   Users,
   Clock,
@@ -21,9 +27,9 @@ import {
   Eye,
   Building2,
   TrendingUp,
-  AlertTriangle,
   LogOut,
   Loader2,
+  BarChart3,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
@@ -47,7 +53,21 @@ const AdminDashboard = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
 
-  const checkAuth = async () => {};
+  const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+
+  const checkAuth = async () => {
+    if (!import.meta.env.VITE_ADMIN_SECRET) {
+      navigate("/admin/login");
+    }
+  };
+
+  const resolveBrandName = (brandId?: string) => {
+    if (!brandId) return "-";
+    const match = brands.find((b) => (b._id ?? b.id) === brandId);
+    return match?.brandName ?? match?.companyName ?? brandId;
+  };
 
   const fetchApplications = useCallback(async () => {
     try {
@@ -112,9 +132,15 @@ const AdminDashboard = () => {
     const { brand } = await res.json();
     setBrands(prev => prev.map(b => b._id === brandId ? brand : b));
     toast({
-      title: `Brand ${status === "APPROVED" ? "Approved" : "Rejected"}`, 
-      description: `Brand has been ${status === "APPROVED" ? "approved" : "rejected"} successfully.` 
+      title: `Brand ${status === "APPROVED" ? "Approved" : "Rejected"}`,
+      description: `Brand has been ${status === "APPROVED" ? "approved" : "rejected"} successfully.`
     });
+  };
+
+  const handleRejectBrand = (brandId: string) => {
+    const reason = window.prompt("Rejection reason (optional):");
+    if (reason === null) return;
+    handleApproval(brandId, "REJECTED", reason || undefined);
   };
 
   const handleCampaignApproval = async (
@@ -178,6 +204,9 @@ const AdminDashboard = () => {
   const getBrandStatus = (status?: string) =>
     (status ?? "pending").toLowerCase();
 
+  const isPending = (status?: string) =>
+    (status ?? "").toLowerCase() === "pending";
+
   const filteredApplications = brands.filter((brand) => {
     const normalizedSearchTerm = searchTerm.toLowerCase();
     const brandName = brand.brandName ?? "";
@@ -194,19 +223,19 @@ const AdminDashboard = () => {
 
   const stats = {
     total: brands.length,
-    pending: brands.filter(
-      (brand) => getBrandStatus(brand.status) === "pending",
-    ).length,
-    approved: brands.filter(
-      (brand) => getBrandStatus(brand.status) === "approved",
-    ).length,
-    rejected: brands.filter(
-      (brand) => getBrandStatus(brand.status) === "rejected",
-    ).length,
+    pending: brands.filter((b) => isPending(b.status)).length,
+    approved: brands.filter((b) => getBrandStatus(b.status) === "approved").length,
+    rejected: brands.filter((b) => getBrandStatus(b.status) === "rejected").length,
+    totalCampaigns: campaigns.length,
+    totalDeals: deals.length,
   };
 
   const handleLogout = async () => {
     try {
+      setUser(null);
+      setBrands([]);
+      setCampaigns([]);
+      setDeals([]);
       toast({
         title: "Logged Out",
         description: "You have been successfully logged out.",
@@ -260,7 +289,7 @@ const AdminDashboard = () => {
       <main className="container mx-auto px-6 py-8">
         <div className="space-y-6">
           {/* Stats Overview */}
-          <div className="grid md:grid-cols-4 gap-4">
+          <div className="grid md:grid-cols-6 gap-4">
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center space-x-2">
@@ -275,12 +304,10 @@ const AdminDashboard = () => {
               <CardContent className="p-6">
                 <div className="flex items-center space-x-2">
                   <Clock className="h-4 w-4 text-warning" />
-                  <span className="text-sm font-medium">Pending Review</span>
+                  <span className="text-sm font-medium">Pending</span>
                 </div>
                 <p className="text-2xl font-bold mt-2">{stats.pending}</p>
-                <p className="text-xs text-muted-foreground">
-                  Awaiting approval
-                </p>
+                <p className="text-xs text-muted-foreground">Awaiting approval</p>
               </CardContent>
             </Card>
             <Card>
@@ -303,6 +330,26 @@ const AdminDashboard = () => {
                 <p className="text-xs text-muted-foreground">Declined</p>
               </CardContent>
             </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-2">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Campaigns</span>
+                </div>
+                <p className="text-2xl font-bold mt-2">{stats.totalCampaigns}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center space-x-2">
+                  <BarChart3 className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Deals</span>
+                </div>
+                <p className="text-2xl font-bold mt-2">{stats.totalDeals}</p>
+                <p className="text-xs text-muted-foreground">Total</p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Management Tabs */}
@@ -314,8 +361,8 @@ const AdminDashboard = () => {
               <TabsTrigger value="analytics">Analytics</TabsTrigger>
             </TabsList>
 
+            {/* ── Brands Tab ── */}
             <TabsContent value="brands" className="space-y-6">
-              {/* Search and Filters */}
               <Card>
                 <CardHeader>
                   <CardTitle>Brands</CardTitle>
@@ -349,7 +396,6 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  {/* Brands List */}
                   <div className="space-y-4">
                     {filteredApplications.map((app) => (
                       <Card
@@ -368,8 +414,7 @@ const AdminDashboard = () => {
                                   variant={
                                     getBrandStatus(app.status) === "approved"
                                       ? "default"
-                                      : getBrandStatus(app.status) ===
-                                          "rejected"
+                                      : getBrandStatus(app.status) === "rejected"
                                         ? "destructive"
                                         : "secondary"
                                   }
@@ -379,55 +424,46 @@ const AdminDashboard = () => {
                               </div>
                               <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    Company
-                                  </p>
+                                  <p className="font-medium text-foreground">Company</p>
                                   <p>{app.companyName}</p>
                                 </div>
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    Category
-                                  </p>
+                                  <p className="font-medium text-foreground">Category</p>
                                   <p>{app.category ?? "-"}</p>
                                 </div>
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    Submitted
-                                  </p>
+                                  <p className="font-medium text-foreground">Submitted</p>
                                   <p>
                                     {app.createdAt
-                                      ? new Date(
-                                          app.createdAt ?? "",
-                                        ).toLocaleDateString()
+                                      ? new Date(app.createdAt).toLocaleDateString()
                                       : "-"}
                                   </p>
                                 </div>
                               </div>
                               <div className="mt-2">
                                 <p className="text-sm text-muted-foreground">
-                                  <span className="font-medium text-foreground">
-                                    Contact:
-                                  </span>{" "}
+                                  <span className="font-medium text-foreground">Contact:</span>{" "}
                                   {app.email}
                                 </p>
                               </div>
                             </div>
 
                             <div className="flex items-center space-x-2">
-                              <Button variant="outline" size="sm">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedBrand(app)}
+                              >
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </Button>
-                              {getBrandStatus(app.status) === "pending" && (
+                              {isPending(app.status) && (
                                 <>
                                   <Button
                                     variant="success"
                                     size="sm"
                                     onClick={() =>
-                                      handleApproval(
-                                        (app.id ?? app._id) as string,
-                                        "APPROVED",
-                                      )
+                                      handleApproval((app.id ?? app._id) as string, "APPROVED")
                                     }
                                   >
                                     <CheckCircle className="h-4 w-4 mr-2" />
@@ -437,10 +473,7 @@ const AdminDashboard = () => {
                                     variant="destructive"
                                     size="sm"
                                     onClick={() =>
-                                      handleApproval(
-                                        (app.id ?? app._id) as string,
-                                        "REJECTED",
-                                      )
+                                      handleRejectBrand((app.id ?? app._id) as string)
                                     }
                                   >
                                     <XCircle className="h-4 w-4 mr-2" />
@@ -457,9 +490,7 @@ const AdminDashboard = () => {
                     {filteredApplications.length === 0 && (
                       <div className="text-center py-8">
                         <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">
-                          No brands found
-                        </h3>
+                        <h3 className="text-lg font-semibold mb-2">No brands found</h3>
                         <p className="text-muted-foreground">
                           {searchTerm || filterStatus !== "all"
                             ? "Try adjusting your search or filter criteria"
@@ -472,13 +503,12 @@ const AdminDashboard = () => {
               </Card>
             </TabsContent>
 
+            {/* ── Campaigns Tab ── */}
             <TabsContent value="campaigns">
               <Card>
                 <CardHeader>
                   <CardTitle>Campaign Reviews</CardTitle>
-                  <CardDescription>
-                    Review and approve marketing campaigns
-                  </CardDescription>
+                  <CardDescription>Review and approve marketing campaigns</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {campaigns.length > 0 ? (
@@ -497,9 +527,9 @@ const AdminDashboard = () => {
                                 </h3>
                                 <Badge
                                   variant={
-                                    campaign.status === "approved"
+                                    campaign.status?.toUpperCase() === "APPROVED"
                                       ? "default"
-                                      : campaign.status === "rejected"
+                                      : campaign.status?.toUpperCase() === "REJECTED"
                                         ? "destructive"
                                         : "secondary"
                                   }
@@ -509,55 +539,43 @@ const AdminDashboard = () => {
                               </div>
                               <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    Brand
-                                  </p>
-                                  <p>{campaign.id}</p>
+                                  <p className="font-medium text-foreground">Brand</p>
+                                  <p>{resolveBrandName(String(campaign.brand ?? ""))}</p>
                                 </div>
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    Start Date
-                                  </p>
+                                  <p className="font-medium text-foreground">Start Date</p>
                                   <p>
-                                    {new Date(
-                                      campaign.startDate,
-                                    ).toLocaleDateString()}
+                                    {campaign.startDate
+                                      ? new Date(campaign.startDate).toLocaleDateString()
+                                      : "-"}
                                   </p>
                                 </div>
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    End Date
-                                  </p>
+                                  <p className="font-medium text-foreground">End Date</p>
                                   <p>
-                                    {new Date(
-                                      campaign.endDate,
-                                    ).toLocaleDateString()}
+                                    {campaign.endDate
+                                      ? new Date(campaign.endDate).toLocaleDateString()
+                                      : "-"}
                                   </p>
                                 </div>
-                              </div>
-                              <div className="mt-2">
-                                <p className="text-sm text-muted-foreground">
-                                  <span className="font-medium text-foreground">
-                                    Contact:
-                                  </span>{" "}
-                                  {campaign.id}
-                                </p>
                               </div>
                             </div>
 
                             <div className="flex items-center space-x-2">
-                              <Button variant="outline" size="sm">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedCampaign(campaign)}
+                              >
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </Button>
-                              {campaign.status === "PENDING" && (
+                              {campaign.status?.toUpperCase() === "PENDING" && (
                                 <>
                                   <Button
                                     variant="success"
                                     size="sm"
-                                    onClick={() =>
-                                      handleCampaignApproval(campaign, "approve")
-                                    }
+                                    onClick={() => handleCampaignApproval(campaign, "approve")}
                                   >
                                     <CheckCircle className="h-4 w-4 mr-2" />
                                     Approve
@@ -565,9 +583,7 @@ const AdminDashboard = () => {
                                   <Button
                                     variant="destructive"
                                     size="sm"
-                                    onClick={() =>
-                                      handleCampaignApproval(campaign, "reject")
-                                    }
+                                    onClick={() => handleCampaignApproval(campaign, "reject")}
                                   >
                                     <XCircle className="h-4 w-4 mr-2" />
                                     Reject
@@ -582,24 +598,20 @@ const AdminDashboard = () => {
                   ) : (
                     <div className="text-center py-8">
                       <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">
-                        No campaigns pending
-                      </h3>
-                      <p className="text-muted-foreground">
-                        All campaigns are currently up to date
-                      </p>
+                      <h3 className="text-lg font-semibold mb-2">No campaigns pending</h3>
+                      <p className="text-muted-foreground">All campaigns are currently up to date</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
+
+            {/* ── Deals Tab ── */}
             <TabsContent value="deals">
               <Card>
                 <CardHeader>
                   <CardTitle>Deal Reviews</CardTitle>
-                  <CardDescription>
-                    Review and approve marketing deals
-                  </CardDescription>
+                  <CardDescription>Review and approve marketing deals</CardDescription>
                 </CardHeader>
                 <CardContent>
                   {deals.length > 0 ? (
@@ -614,13 +626,13 @@ const AdminDashboard = () => {
                               <div className="flex items-center space-x-3 mb-2">
                                 <Building2 className="h-5 w-5 text-muted-foreground" />
                                 <h3 className="text-lg font-semibold">
-                                  {deal.brandId}
+                                  {deal.title}
                                 </h3>
                                 <Badge
                                   variant={
-                                    deal.status === "approved"
+                                    deal.status?.toLowerCase() === "active"
                                       ? "default"
-                                      : deal.status === "rejected"
+                                      : deal.status?.toLowerCase() === "rejected"
                                         ? "destructive"
                                         : "secondary"
                                   }
@@ -630,50 +642,45 @@ const AdminDashboard = () => {
                               </div>
                               <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    Deal Name
-                                  </p>
-                                  <p>{deal.title}</p>
+                                  <p className="font-medium text-foreground">Brand</p>
+                                  <p>{resolveBrandName(deal.brandId)}</p>
                                 </div>
                                 <div>
-                                  <p className="font-medium text-foreground">
-                                    Discount Amount
-                                  </p>
-                                  <p>${deal.discountAmount} %</p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">
-                                    Created At
-                                  </p>
+                                  <p className="font-medium text-foreground">Discount</p>
                                   <p>
-                                    {new Date(
-                                      deal.createdAt,
-                                    ).toLocaleDateString()}
+                                    {deal.discountAmount != null
+                                      ? `$${deal.discountAmount}`
+                                      : deal.discountPercentage != null
+                                        ? `${deal.discountPercentage}%`
+                                        : "-"}
                                   </p>
                                 </div>
-                              </div>
-                              <div className="mt-2">
-                                <p className="text-sm text-muted-foreground">
-                                  <span className="font-medium text-foreground">
-                                    Contact:
-                                  </span>{" "}
-                                  {deal.brandId}
-                                </p>
+                                <div>
+                                  <p className="font-medium text-foreground">Created At</p>
+                                  <p>
+                                    {deal.createdAt
+                                      ? new Date(deal.createdAt).toLocaleDateString()
+                                      : "-"}
+                                  </p>
+                                </div>
                               </div>
                             </div>
                             <div className="flex items-center space-x-2">
-                              <Button variant="outline" size="sm">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedDeal(deal)}
+                              >
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
                               </Button>
-                              {deal.status === "inactive" && (
+                              {(deal.status?.toLowerCase() === "inactive" ||
+                                deal.status?.toUpperCase() === "PENDING") && (
                                 <>
                                   <Button
                                     variant="success"
                                     size="sm"
-                                    onClick={() =>
-                                      handleDealApproval(deal, "approve")
-                                    }
+                                    onClick={() => handleDealApproval(deal, "approve")}
                                   >
                                     <CheckCircle className="h-4 w-4 mr-2" />
                                     Activate
@@ -681,12 +688,10 @@ const AdminDashboard = () => {
                                   <Button
                                     variant="destructive"
                                     size="sm"
-                                    onClick={() =>
-                                      handleDealApproval(deal, "reject")
-                                    }
+                                    onClick={() => handleDealApproval(deal, "reject")}
                                   >
                                     <XCircle className="h-4 w-4 mr-2" />
-                                    Reject
+                                    Deactivate
                                   </Button>
                                 </>
                               )}
@@ -698,35 +703,105 @@ const AdminDashboard = () => {
                   ) : (
                     <div className="text-center py-8">
                       <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">
-                        No deals found
-                      </h3>
-                      <p className="text-muted-foreground">
-                        All deals are currently up to date
-                      </p>
+                      <h3 className="text-lg font-semibold mb-2">No deals found</h3>
+                      <p className="text-muted-foreground">All deals are currently up to date</p>
                     </div>
                   )}
                 </CardContent>
               </Card>
             </TabsContent>
 
+            {/* ── Analytics Tab ── */}
             <TabsContent value="analytics">
               <Card>
                 <CardHeader>
                   <CardTitle>Platform Analytics</CardTitle>
                   <CardDescription>
-                    Monitor platform performance and usage statistics
+                    Summary of platform activity across brands, campaigns, and deals
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8">
-                    <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold mb-2">
-                      Analytics Dashboard
-                    </h3>
-                    <p className="text-muted-foreground">
-                      Detailed analytics and reporting features coming soon
-                    </p>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    {/* Brands */}
+                    <Card className="bg-muted/30">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Building2 className="h-4 w-4" /> Brands
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Total Brands</span>
+                          <span className="font-semibold">{stats.total}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Approved</span>
+                          <span className="font-semibold text-green-600">{stats.approved}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Pending</span>
+                          <span className="font-semibold text-yellow-600">{stats.pending}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Rejected</span>
+                          <span className="font-semibold text-red-600">{stats.rejected}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Campaigns */}
+                    <Card className="bg-muted/30">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <TrendingUp className="h-4 w-4" /> Campaigns
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Total Campaigns</span>
+                          <span className="font-semibold">{campaigns.length}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Approved</span>
+                          <span className="font-semibold text-green-600">
+                            {campaigns.filter((c) => c.status?.toUpperCase() === "APPROVED").length}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Pending</span>
+                          <span className="font-semibold text-yellow-600">
+                            {campaigns.filter((c) => c.status?.toUpperCase() === "PENDING").length}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Deals */}
+                    <Card className="bg-muted/30">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <BarChart3 className="h-4 w-4" /> Deals
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Total Deals</span>
+                          <span className="font-semibold">{deals.length}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Active</span>
+                          <span className="font-semibold text-green-600">
+                            {deals.filter((d) => d.status?.toLowerCase() === "active").length}
+                          </span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span className="text-muted-foreground">Inactive</span>
+                          <span className="font-semibold text-red-600">
+                            {deals.filter((d) => d.status?.toLowerCase() === "inactive").length}
+                          </span>
+                        </div>
+                      </CardContent>
+                    </Card>
                   </div>
                 </CardContent>
               </Card>
@@ -734,6 +809,142 @@ const AdminDashboard = () => {
           </Tabs>
         </div>
       </main>
+
+      {/* ── Brand Details Dialog ── */}
+      <Dialog open={!!selectedBrand} onOpenChange={() => setSelectedBrand(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Brand Details</DialogTitle>
+          </DialogHeader>
+          {selectedBrand && (
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {[
+                ["Company Name", selectedBrand.companyName],
+                ["Brand Name", selectedBrand.brandName],
+                ["Category", selectedBrand.category],
+                ["Email", selectedBrand.email],
+                ["Phone", selectedBrand.phone],
+                ["Website", selectedBrand.website],
+                ["App Link", selectedBrand.appLink],
+                ["Address", selectedBrand.address],
+                ["Registration No.", selectedBrand.registrationNumber],
+                [
+                  "Submitted",
+                  selectedBrand.createdAt
+                    ? new Date(selectedBrand.createdAt).toLocaleDateString()
+                    : undefined,
+                ],
+              ].map(([label, value]) => (
+                <div key={label as string}>
+                  <p className="font-medium text-foreground">{label}</p>
+                  <p className="text-muted-foreground">{value || "-"}</p>
+                </div>
+              ))}
+              <div className="col-span-2">
+                <p className="font-medium text-foreground">Description</p>
+                <p className="text-muted-foreground">{selectedBrand.description || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Campaign Details Dialog ── */}
+      <Dialog open={!!selectedCampaign} onOpenChange={() => setSelectedCampaign(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Campaign Details</DialogTitle>
+          </DialogHeader>
+          {selectedCampaign && (
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {[
+                ["Name", selectedCampaign.name],
+                ["Status", selectedCampaign.status],
+                [
+                  "Start Date",
+                  selectedCampaign.startDate
+                    ? new Date(selectedCampaign.startDate).toLocaleDateString()
+                    : undefined,
+                ],
+                [
+                  "End Date",
+                  selectedCampaign.endDate
+                    ? new Date(selectedCampaign.endDate).toLocaleDateString()
+                    : undefined,
+                ],
+                ["Campaign Type", selectedCampaign.campaignType],
+                ["Budget", selectedCampaign.budget != null ? `$${selectedCampaign.budget}` : undefined],
+                ["Target Audience", selectedCampaign.targetAudience],
+              ].map(([label, value]) => (
+                <div key={label as string}>
+                  <p className="font-medium text-foreground">{label}</p>
+                  <p className="text-muted-foreground">{(value as string) || "-"}</p>
+                </div>
+              ))}
+              <div className="col-span-2">
+                <p className="font-medium text-foreground">Description</p>
+                <p className="text-muted-foreground">{selectedCampaign.description || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Deal Details Dialog ── */}
+      <Dialog open={!!selectedDeal} onOpenChange={() => setSelectedDeal(null)}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Deal Details</DialogTitle>
+          </DialogHeader>
+          {selectedDeal && (
+            <div className="grid grid-cols-2 gap-3 text-sm">
+              {[
+                ["Title", selectedDeal.title],
+                ["Promo Code", selectedDeal.promoCode],
+                [
+                  "Discount Amount",
+                  selectedDeal.discountAmount != null ? `$${selectedDeal.discountAmount}` : undefined,
+                ],
+                [
+                  "Discount %",
+                  selectedDeal.discountPercentage != null
+                    ? `${selectedDeal.discountPercentage}%`
+                    : undefined,
+                ],
+                [
+                  "Start Date",
+                  selectedDeal.startDate
+                    ? new Date(selectedDeal.startDate).toLocaleDateString()
+                    : undefined,
+                ],
+                [
+                  "End Date",
+                  selectedDeal.endDate
+                    ? new Date(selectedDeal.endDate).toLocaleDateString()
+                    : undefined,
+                ],
+                ["Max Uses", selectedDeal.maxUses?.toString()],
+                ["Current Uses", selectedDeal.currentUses?.toString()],
+                [
+                  "Minimum Purchase",
+                  selectedDeal.minimumPurchase != null
+                    ? `$${selectedDeal.minimumPurchase}`
+                    : undefined,
+                ],
+              ].map(([label, value]) => (
+                <div key={label as string}>
+                  <p className="font-medium text-foreground">{label}</p>
+                  <p className="text-muted-foreground">{(value as string) || "-"}</p>
+                </div>
+              ))}
+              <div className="col-span-2">
+                <p className="font-medium text-foreground">Description</p>
+                <p className="text-muted-foreground">{selectedDeal.description || "-"}</p>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -426,8 +426,8 @@ while true; do
 
     # Brief pause between iterations
     echo ""
-    echo -e "${BLUE}Waiting 2s before next iteration...${NC}"
-    sleep 2
+    echo -e "${BLUE}Waiting 65s before next iteration (rate limit)...${NC}"
+    sleep 65
 done
 
 echo ""
