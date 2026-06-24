@@ -270,14 +270,14 @@ const BrandDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-primary" />
+            <AlertCircle className="h-5 w-5" style={{ color: brandColor }} />
             What's Next?
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-start space-x-3">
-              <div className="h-2 w-2 rounded-full bg-primary mt-2"></div>
+              <div className="h-2 w-2 rounded-full mt-2" style={{ backgroundColor: brandColor }}></div>
               <div>
                 <p className="font-medium">Marketing Team Review</p>
                 <p className="text-sm text-muted-foreground">
@@ -340,7 +340,7 @@ const BrandDashboard = () => {
       </Card>
 
       {/* Demo Button */}
-      <Card className="bg-gradient-to-r from-primary/5 to-accent/5">
+      <Card style={{ backgroundColor: brandColor + "0d" }}>
         <CardContent className="p-6">
           <div className="text-center space-y-3">
             <h3 className="font-semibold">Want to see what's coming?</h3>
@@ -440,15 +440,22 @@ const BrandDashboard = () => {
     </div>
   );
 
+  const brandColor = formattedData.themeColor;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        {/* Brand color accent line */}
+        <div className="h-0.5 w-full" style={{ backgroundColor: brandColor }} />
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-primary-foreground" />
+              <div
+                className="h-10 w-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: brandColor }}
+              >
+                <Building2 className="h-6 w-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">{formattedData.name}</h1>
@@ -456,9 +463,15 @@ const BrandDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Badge variant={isApproved ? "default" : "secondary"}>
+              <span
+                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                style={{
+                  backgroundColor: brandColor + "1a",
+                  color: brandColor,
+                }}
+              >
                 {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
-              </Badge>
+              </span>
               <Button variant="ghost" size="sm" aria-label="Notifications">
                 <Bell className="h-4 w-4" />
               </Button>
