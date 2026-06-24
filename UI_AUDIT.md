@@ -109,4 +109,18 @@ Generated: 2026-06-24
 
 ## Post-improvement scores (Phase 9 — after fixes)
 
-*To be filled in after Phase 9 re-audit.*
+| Page | Accessibility | Theming | Responsive | Anti-patterns | Notes |
+|------|:---:|:---:|:---:|:---:|-------|
+| Index (landing) | 9/10 | 9/10 | 8/10 | 9/10 | Single H1, flat bg, feature list layout, no gradient text |
+| AdminLogin | 9/10 | 9/10 | 8/10 | 9/10 | All aria-labels added, redundant info box removed |
+| BrandRegister | 8/10 | 9/10 | 8/10 | 9/10 | Step indicator with completed/current/upcoming states |
+| BrandDashboard | 8/10 | 9/10 | 8/10 | 9/10 | Skeleton loading, category subtitle, flat bg |
+| OverviewTab (analytics) | 7/10 | 9/10 | 7/10 | 9/10 | All hardcoded rainbow colors replaced with tokens |
+| AdminDashboard | 6/10 | 9/10 | 6/10 | 9/10 | 6-col grid overflow risk remains (P2) |
+| CampaignsTab | 8/10 | 9/10 | 7/10 | 9/10 | Unchanged — already clean |
+| DealsTab | 8/10 | 8/10 | 7/10 | 9/10 | Unchanged — already clean |
+
+### Remaining open items
+- **P2-1**: OverviewTab 3-level nested Tabs — future refactor
+- **P2-5**: AdminDashboard 6-col grid too narrow on laptop — future layout pass
+- **P2-2/3**: B2C tone of landing page and preview mode clarity — content/UX work
