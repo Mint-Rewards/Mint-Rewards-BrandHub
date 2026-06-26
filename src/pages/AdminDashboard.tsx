@@ -13,9 +13,12 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Shield,
   Users,
@@ -56,6 +59,7 @@ const AdminDashboard = () => {
   const [selectedBrand, setSelectedBrand] = useState<Brand | null>(null);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
+  const [rejectDialog, setRejectDialog] = useState<{ brandId: string; reason: string } | null>(null);
 
   useEffect(() => {
     if (!adminAuth.isLoggedIn()) {
@@ -143,9 +147,13 @@ const AdminDashboard = () => {
   };
 
   const handleRejectBrand = (brandId: string) => {
-    const reason = window.prompt("Rejection reason (optional):");
-    if (reason === null) return;
-    handleApproval(brandId, "REJECTED", reason || undefined);
+    setRejectDialog({ brandId, reason: "" });
+  };
+
+  const confirmRejectBrand = () => {
+    if (!rejectDialog) return;
+    handleApproval(rejectDialog.brandId, "REJECTED", rejectDialog.reason.trim() || undefined);
+    setRejectDialog(null);
   };
 
   const handleCampaignApproval = async (
@@ -876,6 +884,38 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Reject Brand Dialog ── */}
+      <Dialog open={!!rejectDialog} onOpenChange={(open) => !open && setRejectDialog(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Reject Brand Application</DialogTitle>
+            <DialogDescription>
+              Provide a reason so the brand understands what needs to be corrected before reapplying. This is optional but strongly recommended.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="e.g. Logo resolution too low; website URL returned 404"
+            value={rejectDialog?.reason ?? ""}
+            onChange={(e) =>
+              setRejectDialog((prev) =>
+                prev ? { ...prev, reason: e.target.value } : prev,
+              )
+            }
+            className="resize-none"
+            rows={4}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectDialog(null)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmRejectBrand}>
+              <XCircle className="h-4 w-4 mr-2" />
+              Reject Brand
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 

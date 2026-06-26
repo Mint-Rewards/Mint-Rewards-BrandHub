@@ -692,7 +692,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                           <>
                             <div className="flex items-center space-x-3 p-3 bg-success/5 rounded-lg">
                               <div className="p-2 bg-success/20 rounded-lg">
-                                <span className="text-white text-lg">🌳</span>
+                                <span className="text-white text-lg" aria-hidden="true">🌳</span>
                               </div>
                               <div>
                                 <p className="font-medium">
@@ -707,7 +707,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
 
                             <div className="flex items-center space-x-3 p-3 bg-muted/40 rounded-lg">
                               <div className="p-2 bg-primary/20 rounded-lg">
-                                <span className="text-white text-lg">🚗</span>
+                                <span className="text-white text-lg" aria-hidden="true">🚗</span>
                               </div>
                               <div>
                                 <p className="font-medium">
@@ -722,7 +722,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
 
                             <div className="flex items-center space-x-3 p-3 bg-muted/40 rounded-lg">
                               <div className="p-2 bg-warning/20 rounded-lg">
-                                <span className="text-white text-lg">💡</span>
+                                <span className="text-white text-lg" aria-hidden="true">💡</span>
                               </div>
                               <div>
                                 <p className="font-medium">LED Bulb Hours</p>
@@ -1520,7 +1520,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-foreground" />
+                    <CalendarIcon className="h-5 w-5 text-foreground" />
                     <span>3-Month Forecast</span>
                   </CardTitle>
                   <CardDescription>
