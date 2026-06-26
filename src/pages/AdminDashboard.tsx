@@ -19,6 +19,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Shield,
   Users,
@@ -851,26 +852,35 @@ const AdminDashboard = () => {
           <DialogHeader>
             <DialogTitle>Reject Brand Application</DialogTitle>
             <DialogDescription>
-              Provide a reason so the brand understands what needs to be corrected before reapplying. This is optional but strongly recommended.
+              A specific reason helps the brand reapply correctly. Optional, but strongly recommended.
             </DialogDescription>
           </DialogHeader>
-          <Textarea
-            placeholder="e.g. Logo resolution too low; website URL returned 404"
-            value={rejectDialog?.reason ?? ""}
-            onChange={(e) =>
-              setRejectDialog((prev) =>
-                prev ? { ...prev, reason: e.target.value } : prev,
-              )
-            }
-            className="resize-none"
-            rows={4}
-          />
+
+          <div className="space-y-1.5 py-1">
+            <Label htmlFor="reject-reason">Rejection reason</Label>
+            <Textarea
+              id="reject-reason"
+              placeholder="e.g. Logo resolution too low; website URL returned 404"
+              value={rejectDialog?.reason ?? ""}
+              onChange={(e) =>
+                setRejectDialog((prev) =>
+                  prev ? { ...prev, reason: e.target.value } : prev,
+                )
+              }
+              className="resize-none"
+              rows={4}
+            />
+            <p className="text-xs text-muted-foreground">
+              This message will be visible to the brand partner.
+            </p>
+          </div>
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setRejectDialog(null)}>
               Cancel
             </Button>
             <Button variant="destructive" onClick={confirmRejectBrand}>
-              <XCircle className="h-4 w-4 mr-2" />
+              <XCircle className="h-4 w-4 mr-2" aria-hidden="true" />
               Reject Brand
             </Button>
           </DialogFooter>
