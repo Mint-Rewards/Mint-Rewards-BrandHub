@@ -286,67 +286,49 @@ const AdminDashboard = () => {
       <main className="container mx-auto px-6 py-8">
         <div className="space-y-6">
           {/* Stats Overview */}
-          <div className="grid md:grid-cols-6 gap-4">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2">
-                  <Users className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Total Brands</span>
-                </div>
-                <p className="text-2xl font-bold mt-2">{stats.total}</p>
-                <p className="text-xs text-muted-foreground">All time</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2">
-                  <Clock className="h-4 w-4 text-warning" />
-                  <span className="text-sm font-medium">Pending</span>
-                </div>
-                <p className="text-2xl font-bold mt-2">{stats.pending}</p>
-                <p className="text-xs text-muted-foreground">Awaiting approval</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-success" />
-                  <span className="text-sm font-medium">Approved</span>
-                </div>
-                <p className="text-2xl font-bold mt-2">{stats.approved}</p>
-                <p className="text-xs text-muted-foreground">Active brands</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2">
-                  <XCircle className="h-4 w-4 text-destructive" />
-                  <span className="text-sm font-medium">Rejected</span>
-                </div>
-                <p className="text-2xl font-bold mt-2">{stats.rejected}</p>
-                <p className="text-xs text-muted-foreground">Declined</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Campaigns</span>
-                </div>
-                <p className="text-2xl font-bold mt-2">{stats.totalCampaigns}</p>
-                <p className="text-xs text-muted-foreground">Total</p>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center space-x-2">
-                  <BarChart3 className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Deals</span>
-                </div>
-                <p className="text-2xl font-bold mt-2">{stats.totalDeals}</p>
-                <p className="text-xs text-muted-foreground">Total</p>
-              </CardContent>
-            </Card>
+          <div className="grid grid-cols-3 md:grid-cols-6 divide-x divide-border border border-border rounded-lg overflow-hidden bg-card">
+            <div className="p-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Users className="h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                <span className="text-xs font-medium text-muted-foreground">Total Brands</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{stats.total}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <Clock className="h-3.5 w-3.5 text-warning" aria-hidden="true" />
+                <span className="text-xs font-medium text-muted-foreground">Pending</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{stats.pending}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <CheckCircle className="h-3.5 w-3.5 text-success" aria-hidden="true" />
+                <span className="text-xs font-medium text-muted-foreground">Approved</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{stats.approved}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <XCircle className="h-3.5 w-3.5 text-destructive" aria-hidden="true" />
+                <span className="text-xs font-medium text-muted-foreground">Rejected</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{stats.rejected}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <TrendingUp className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                <span className="text-xs font-medium text-muted-foreground">Campaigns</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{stats.totalCampaigns}</p>
+            </div>
+            <div className="p-4">
+              <div className="flex items-center gap-1.5 mb-1">
+                <BarChart3 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
+                <span className="text-xs font-medium text-muted-foreground">Deals</span>
+              </div>
+              <p className="text-2xl font-bold text-foreground">{stats.totalDeals}</p>
+            </div>
           </div>
 
           {/* Management Tabs */}
@@ -393,105 +375,98 @@ const AdminDashboard = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="divide-y divide-border">
                     {filteredApplications.map((app) => (
-                      <Card
+                      <div
                         key={app.id ?? app._id}
-                        className="hover:bg-muted/40 transition-colors"
+                        className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                       >
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <Building2 className="h-5 w-5 text-muted-foreground" />
-                                <h3 className="text-lg font-semibold">
-                                  {app.brandName}
-                                </h3>
-                                <Badge
-                                  variant={
-                                    getBrandStatus(app.status) === "approved"
-                                      ? "default"
-                                      : getBrandStatus(app.status) === "rejected"
-                                        ? "destructive"
-                                        : "secondary"
-                                  }
-                                >
-                                  {getBrandStatus(app.status)}
-                                </Badge>
-                              </div>
-                              <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                                <div>
-                                  <p className="font-medium text-foreground">Company</p>
-                                  <p>{app.companyName}</p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">Category</p>
-                                  <p>{app.category ?? "-"}</p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">Submitted</p>
-                                  <p>
-                                    {app.createdAt
-                                      ? new Date(app.createdAt).toLocaleDateString()
-                                      : "-"}
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="mt-2">
-                                <p className="text-sm text-muted-foreground">
-                                  <span className="font-medium text-foreground">Contact:</span>{" "}
-                                  {app.email}
-                                </p>
-                              </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <h3 className="text-base font-semibold">
+                              {app.brandName}
+                            </h3>
+                            <Badge
+                              variant={
+                                getBrandStatus(app.status) === "approved"
+                                  ? "default"
+                                  : getBrandStatus(app.status) === "rejected"
+                                    ? "destructive"
+                                    : "secondary"
+                              }
+                            >
+                              {getBrandStatus(app.status)}
+                            </Badge>
+                          </div>
+                          <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
+                            <div>
+                              <span className="font-medium text-foreground">Company: </span>
+                              {app.companyName}
                             </div>
-
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedBrand(app)}
-                              >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </Button>
-                              {isPending(app.status) && (
-                                <>
-                                  <Button
-                                    variant="success"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleApproval((app.id ?? app._id) as string, "APPROVED")
-                                    }
-                                  >
-                                    <CheckCircle className="h-4 w-4 mr-2" />
-                                    Approve
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() =>
-                                      handleRejectBrand((app.id ?? app._id) as string)
-                                    }
-                                  >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Reject
-                                  </Button>
-                                </>
-                              )}
+                            <div>
+                              <span className="font-medium text-foreground">Category: </span>
+                              {app.category ?? "—"}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">Submitted: </span>
+                              {app.createdAt
+                                ? new Date(app.createdAt).toLocaleDateString()
+                                : "—"}
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            <span className="font-medium text-foreground">Contact: </span>
+                            {app.email}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedBrand(app)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                          {isPending(app.status) && (
+                            <>
+                              <Button
+                                variant="success"
+                                size="sm"
+                                onClick={() =>
+                                  handleApproval((app.id ?? app._id) as string, "APPROVED")
+                                }
+                              >
+                                <CheckCircle className="h-4 w-4 mr-2" />
+                                Approve
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() =>
+                                  handleRejectBrand((app.id ?? app._id) as string)
+                                }
+                              >
+                                <XCircle className="h-4 w-4 mr-2" />
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     ))}
 
                     {filteredApplications.length === 0 && (
-                      <div className="text-center py-8">
-                        <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-semibold mb-2">No brands found</h3>
-                        <p className="text-muted-foreground">
+                      <div className="text-center py-10">
+                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                          <Users className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                        </div>
+                        <h3 className="text-sm font-semibold mb-1">No brands found</h3>
+                        <p className="text-sm text-muted-foreground">
                           {searchTerm || filterStatus !== "all"
-                            ? "Try adjusting your search or filter criteria"
-                            : "No brands found in the system yet"}
+                            ? "Try adjusting your search or filter criteria."
+                            : "No brands have registered yet."}
                         </p>
                       </div>
                     )}
@@ -509,94 +484,87 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   {campaigns.length > 0 ? (
-                    campaigns.map((campaign) => (
-                      <Card
-                        key={campaign.id}
-                        className="hover:bg-muted/40 transition-colors mb-4"
-                      >
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <Building2 className="h-5 w-5 text-muted-foreground" />
-                                <h3 className="text-lg font-semibold">
-                                  {campaign.name}
-                                </h3>
-                                <Badge
-                                  variant={
-                                    campaign.status?.toUpperCase() === "APPROVED"
-                                      ? "default"
-                                      : campaign.status?.toUpperCase() === "REJECTED"
-                                        ? "destructive"
-                                        : "secondary"
-                                  }
-                                >
-                                  {campaign.status}
-                                </Badge>
-                              </div>
-                              <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                                <div>
-                                  <p className="font-medium text-foreground">Brand</p>
-                                  <p>{resolveBrandName(String(campaign.brand ?? ""))}</p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">Start Date</p>
-                                  <p>
-                                    {campaign.startDate
-                                      ? new Date(campaign.startDate).toLocaleDateString()
-                                      : "-"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">End Date</p>
-                                  <p>
-                                    {campaign.endDate
-                                      ? new Date(campaign.endDate).toLocaleDateString()
-                                      : "-"}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedCampaign(campaign)}
+                    <div className="divide-y divide-border">
+                      {campaigns.map((campaign) => (
+                        <div
+                          key={campaign.id}
+                          className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <h3 className="text-base font-semibold">{campaign.name}</h3>
+                              <Badge
+                                variant={
+                                  campaign.status?.toUpperCase() === "APPROVED"
+                                    ? "default"
+                                    : campaign.status?.toUpperCase() === "REJECTED"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
                               >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </Button>
-                              {campaign.status?.toUpperCase() === "PENDING" && (
-                                <>
-                                  <Button
-                                    variant="success"
-                                    size="sm"
-                                    onClick={() => handleCampaignApproval(campaign, "approve")}
-                                  >
-                                    <CheckCircle className="h-4 w-4 mr-2" />
-                                    Approve
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => handleCampaignApproval(campaign, "reject")}
-                                  >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Reject
-                                  </Button>
-                                </>
-                              )}
+                                {campaign.status}
+                              </Badge>
+                            </div>
+                            <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
+                              <div>
+                                <span className="font-medium text-foreground">Brand: </span>
+                                {resolveBrandName(String(campaign.brand ?? ""))}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">Start: </span>
+                                {campaign.startDate
+                                  ? new Date(campaign.startDate).toLocaleDateString()
+                                  : "—"}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">End: </span>
+                                {campaign.endDate
+                                  ? new Date(campaign.endDate).toLocaleDateString()
+                                  : "—"}
+                              </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))
+
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedCampaign(campaign)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </Button>
+                            {campaign.status?.toUpperCase() === "PENDING" && (
+                              <>
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  onClick={() => handleCampaignApproval(campaign, "approve")}
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Approve
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleCampaignApproval(campaign, "reject")}
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Reject
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <TrendingUp className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No campaigns pending</h3>
-                      <p className="text-muted-foreground">All campaigns are currently up to date</p>
+                    <div className="text-center py-10">
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                        <TrendingUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                      </div>
+                      <h3 className="text-sm font-semibold mb-1">No campaigns pending</h3>
+                      <p className="text-sm text-muted-foreground">All campaigns are currently up to date.</p>
                     </div>
                   )}
                 </CardContent>
@@ -612,96 +580,89 @@ const AdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   {deals.length > 0 ? (
-                    deals.map((deal) => (
-                      <Card
-                        key={deal.id}
-                        className="hover:bg-muted/40 transition-colors mb-4"
-                      >
-                        <CardContent className="p-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center space-x-3 mb-2">
-                                <Building2 className="h-5 w-5 text-muted-foreground" />
-                                <h3 className="text-lg font-semibold">
-                                  {deal.title}
-                                </h3>
-                                <Badge
-                                  variant={
-                                    deal.status?.toLowerCase() === "active"
-                                      ? "default"
-                                      : deal.status?.toLowerCase() === "rejected"
-                                        ? "destructive"
-                                        : "secondary"
-                                  }
-                                >
-                                  {deal.status}
-                                </Badge>
-                              </div>
-                              <div className="grid md:grid-cols-3 gap-4 text-sm text-muted-foreground">
-                                <div>
-                                  <p className="font-medium text-foreground">Brand</p>
-                                  <p>{resolveBrandName(deal.brandId)}</p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">Discount</p>
-                                  <p>
-                                    {deal.discountAmount != null
-                                      ? `$${deal.discountAmount}`
-                                      : deal.discountPercentage != null
-                                        ? `${deal.discountPercentage}%`
-                                        : "-"}
-                                  </p>
-                                </div>
-                                <div>
-                                  <p className="font-medium text-foreground">Created At</p>
-                                  <p>
-                                    {deal.createdAt
-                                      ? new Date(deal.createdAt).toLocaleDateString()
-                                      : "-"}
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setSelectedDeal(deal)}
+                    <div className="divide-y divide-border">
+                      {deals.map((deal) => (
+                        <div
+                          key={deal.id}
+                          className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
+                              <h3 className="text-base font-semibold">{deal.title}</h3>
+                              <Badge
+                                variant={
+                                  deal.status?.toLowerCase() === "active"
+                                    ? "default"
+                                    : deal.status?.toLowerCase() === "rejected"
+                                      ? "destructive"
+                                      : "secondary"
+                                }
                               >
-                                <Eye className="h-4 w-4 mr-2" />
-                                View Details
-                              </Button>
-                              {(deal.status?.toLowerCase() === "inactive" ||
-                                deal.status?.toUpperCase() === "PENDING") && (
-                                <>
-                                  <Button
-                                    variant="success"
-                                    size="sm"
-                                    onClick={() => handleDealApproval(deal, "approve")}
-                                  >
-                                    <CheckCircle className="h-4 w-4 mr-2" />
-                                    Activate
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() => handleDealApproval(deal, "reject")}
-                                  >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Deactivate
-                                  </Button>
-                                </>
-                              )}
+                                {deal.status}
+                              </Badge>
+                            </div>
+                            <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
+                              <div>
+                                <span className="font-medium text-foreground">Brand: </span>
+                                {resolveBrandName(deal.brandId)}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">Discount: </span>
+                                {deal.discountAmount != null
+                                  ? `$${deal.discountAmount}`
+                                  : deal.discountPercentage != null
+                                    ? `${deal.discountPercentage}%`
+                                    : "—"}
+                              </div>
+                              <div>
+                                <span className="font-medium text-foreground">Created: </span>
+                                {deal.createdAt
+                                  ? new Date(deal.createdAt).toLocaleDateString()
+                                  : "—"}
+                              </div>
                             </div>
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))
+                          <div className="flex items-center gap-2 shrink-0">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setSelectedDeal(deal)}
+                            >
+                              <Eye className="h-4 w-4 mr-2" />
+                              View Details
+                            </Button>
+                            {(deal.status?.toLowerCase() === "inactive" ||
+                              deal.status?.toUpperCase() === "PENDING") && (
+                              <>
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  onClick={() => handleDealApproval(deal, "approve")}
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Activate
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => handleDealApproval(deal, "reject")}
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Deactivate
+                                </Button>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   ) : (
-                    <div className="text-center py-8">
-                      <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold mb-2">No deals found</h3>
-                      <p className="text-muted-foreground">All deals are currently up to date</p>
+                    <div className="text-center py-10">
+                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                        <Users className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                      </div>
+                      <h3 className="text-sm font-semibold mb-1">No deals found</h3>
+                      <p className="text-sm text-muted-foreground">All deals are currently up to date.</p>
                     </div>
                   )}
                 </CardContent>
@@ -718,87 +679,84 @@ const AdminDashboard = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-3 gap-6">
+                  <div className="grid md:grid-cols-3 divide-x divide-border border border-border rounded-lg overflow-hidden">
                     {/* Brands */}
-                    <Card className="bg-muted/30">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base flex items-center gap-2">
-                          <Building2 className="h-4 w-4" /> Brands
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
+                    <div className="p-5">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 text-foreground">
+                        <Building2 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        Brands
+                      </h3>
+                      <dl className="space-y-2.5">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Total Brands</span>
-                          <span className="font-semibold">{stats.total}</span>
+                          <dt className="text-muted-foreground">Total</dt>
+                          <dd className="font-semibold text-foreground">{stats.total}</dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Approved</span>
-                          <span className="font-semibold text-green-600">{stats.approved}</span>
+                          <dt className="text-muted-foreground">Approved</dt>
+                          <dd className="font-semibold text-success">{stats.approved}</dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Pending</span>
-                          <span className="font-semibold text-yellow-600">{stats.pending}</span>
+                          <dt className="text-muted-foreground">Pending</dt>
+                          <dd className="font-semibold text-warning">{stats.pending}</dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Rejected</span>
-                          <span className="font-semibold text-red-600">{stats.rejected}</span>
+                          <dt className="text-muted-foreground">Rejected</dt>
+                          <dd className="font-semibold text-destructive">{stats.rejected}</dd>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </dl>
+                    </div>
 
                     {/* Campaigns */}
-                    <Card className="bg-muted/30">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base flex items-center gap-2">
-                          <TrendingUp className="h-4 w-4" /> Campaigns
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
+                    <div className="p-5">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 text-foreground">
+                        <TrendingUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        Campaigns
+                      </h3>
+                      <dl className="space-y-2.5">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Total Campaigns</span>
-                          <span className="font-semibold">{campaigns.length}</span>
+                          <dt className="text-muted-foreground">Total</dt>
+                          <dd className="font-semibold text-foreground">{campaigns.length}</dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Approved</span>
-                          <span className="font-semibold text-green-600">
+                          <dt className="text-muted-foreground">Approved</dt>
+                          <dd className="font-semibold text-success">
                             {campaigns.filter((c) => c.status?.toUpperCase() === "APPROVED").length}
-                          </span>
+                          </dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Pending</span>
-                          <span className="font-semibold text-yellow-600">
+                          <dt className="text-muted-foreground">Pending</dt>
+                          <dd className="font-semibold text-warning">
                             {campaigns.filter((c) => c.status?.toUpperCase() === "PENDING").length}
-                          </span>
+                          </dd>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </dl>
+                    </div>
 
                     {/* Deals */}
-                    <Card className="bg-muted/30">
-                      <CardHeader className="pb-2">
-                        <CardTitle className="text-base flex items-center gap-2">
-                          <BarChart3 className="h-4 w-4" /> Deals
-                        </CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-3">
+                    <div className="p-5">
+                      <h3 className="text-sm font-semibold flex items-center gap-2 mb-4 text-foreground">
+                        <BarChart3 className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                        Deals
+                      </h3>
+                      <dl className="space-y-2.5">
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Total Deals</span>
-                          <span className="font-semibold">{deals.length}</span>
+                          <dt className="text-muted-foreground">Total</dt>
+                          <dd className="font-semibold text-foreground">{deals.length}</dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Active</span>
-                          <span className="font-semibold text-green-600">
+                          <dt className="text-muted-foreground">Active</dt>
+                          <dd className="font-semibold text-success">
                             {deals.filter((d) => d.status?.toLowerCase() === "active").length}
-                          </span>
+                          </dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Inactive</span>
-                          <span className="font-semibold text-red-600">
+                          <dt className="text-muted-foreground">Inactive</dt>
+                          <dd className="font-semibold text-destructive">
                             {deals.filter((d) => d.status?.toLowerCase() === "inactive").length}
-                          </span>
+                          </dd>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </dl>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
