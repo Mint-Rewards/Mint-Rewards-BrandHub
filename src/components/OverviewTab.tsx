@@ -7,7 +7,6 @@ import {
   BarChart3,
   Building2,
   Calendar as CalendarIcon,
-  Leaf,
   Recycle,
   Target,
   TrendingUp,
@@ -395,7 +394,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Leaf className="h-5 w-5 text-primary" />
+                      <Recycle className="h-5 w-5 text-primary" />
                       <span>Company CO₂ Savings</span>
                     </CardTitle>
                     <CardDescription>
@@ -507,7 +506,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                         </h4>
                         <ChartContainer
                           config={{
-                            value: { label: "Weight (kg)", color: "#8B5CF6" },
+                            value: { label: "Weight (kg)", color: "hsl(var(--primary))" },
                           }}
                           className="h-[250px]"
                         >
@@ -743,7 +742,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <Card className="lg:col-span-2">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Leaf className="h-5 w-5 text-success" />
+                      <Users className="h-5 w-5 text-success" />
                       <span>User Community Impact Summary</span>
                     </CardTitle>
                     <CardDescription>
@@ -1057,12 +1056,12 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                       </div>
                       <div>
                         <p className="font-medium text-foreground">Silver Tier</p>
-                        <p className="text-sm text-gray-700">100-149 kg recycled</p>
+                        <p className="text-sm text-muted-foreground">100-149 kg recycled</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-lg font-bold text-foreground">{mockAnalyticsData.userStatistics.userTiers.silver}</p>
-                      <p className="text-xs text-gray-600">users</p>
+                      <p className="text-xs text-muted-foreground">users</p>
                     </div>
                   </div>
 
@@ -1329,7 +1328,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                             <span className="text-muted-foreground">Category Avg: {metric.categoryAvg} {metric.unit}</span>
                           </div>
                           <div className="relative">
-                            <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div className="w-full bg-muted rounded-full h-3">
                               <div 
                                 className="bg-primary h-3 rounded-full transition-all duration-300"
                                 style={{ 
@@ -1712,8 +1711,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                    <div className="flex items-start space-x-3 p-3 bg-accent/10 rounded-lg">
+                      <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                       <div>
                         <p className="font-medium text-foreground">Educational Campaigns</p>
                         <p className="text-sm text-muted-foreground">Increase recycling knowledge and participation</p>
@@ -1789,62 +1788,61 @@ const OverviewTab: React.FC<{
   analytics?: BrandAnalytics | null;
 }> = ({ campaigns, analytics }) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Sustainability Metrics & Recent Activity</CardTitle>
-        <CardDescription>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">
+          Sustainability Metrics & Recent Activity
+        </h2>
+        <p className="text-sm text-muted-foreground">
           Your brand's environmental impact and campaign performance
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {/* Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Active Campaigns</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">{campaigns}</p>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Unique Users</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {analytics
-                  ? analytics.summary.uniqueUsers >= 1000
-                    ? `${(analytics.summary.uniqueUsers / 1000).toFixed(1)}K`
-                    : analytics.summary.uniqueUsers
-                  : "—"}
-              </p>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Recycle className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Total Redemptions</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {analytics?.summary.totalRedemptions.toLocaleString() ?? "—"}
-              </p>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Total Campaigns</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {analytics?.summary.totalCampaigns ?? "—"}
-              </p>
-            </div>
-          </div>
+        </p>
+      </div>
 
-          {/* Analytics Dashboard Section */}
-          <AnalyticsDashboard analytics={analytics} />
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Active Campaigns</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">{campaigns}</p>
         </div>
-      </CardContent>
-    </Card>
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Unique Users</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {analytics
+              ? analytics.summary.uniqueUsers >= 1000
+                ? `${(analytics.summary.uniqueUsers / 1000).toFixed(1)}K`
+                : analytics.summary.uniqueUsers
+              : "—"}
+          </p>
+        </div>
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Recycle className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Total Redemptions</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {analytics?.summary.totalRedemptions.toLocaleString() ?? "—"}
+          </p>
+        </div>
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Total Campaigns</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {analytics?.summary.totalCampaigns ?? "—"}
+          </p>
+        </div>
+      </div>
+
+      {/* Analytics Dashboard Section */}
+      <AnalyticsDashboard analytics={analytics} />
+    </div>
   );
 };
 
