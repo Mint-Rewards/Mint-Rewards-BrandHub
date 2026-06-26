@@ -98,7 +98,7 @@ const Index = () => {
       <section className="py-16 px-6 bg-muted/30">
         <div className="container mx-auto max-w-4xl">
           <div className="mb-10">
-            <h2 className="text-3xl font-bold mb-2">What's included</h2>
+            <h2 className="text-3xl font-bold mb-2" style={{ textWrap: "balance" }}>What's included</h2>
             <p className="text-muted-foreground">A complete toolkit for brand managers and sustainability teams.</p>
           </div>
           <div className="grid md:grid-cols-2 gap-x-12 gap-y-8">
@@ -122,7 +122,7 @@ const Index = () => {
         <div className="container mx-auto max-w-4xl">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Everything your brand team needs</h2>
+              <h2 className="text-3xl font-bold mb-6" style={{ textWrap: "balance" }}>Everything your brand team needs</h2>
               <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
                 One login covers your full partner lifecycle — from first submission to
                 live campaign reporting. No separate tools, no spreadsheets.
@@ -166,7 +166,7 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-16 px-6 bg-muted/30">
         <div className="container mx-auto text-center max-w-3xl">
-          <h2 className="text-3xl font-bold mb-4">Apply to become a MintRewards partner</h2>
+          <h2 className="text-3xl font-bold mb-4" style={{ textWrap: "balance" }}>Apply to become a MintRewards partner</h2>
           <p className="text-muted-foreground mb-8 text-lg">
             Submit your brand registration and our team will review your application
             within 2–3 business days.

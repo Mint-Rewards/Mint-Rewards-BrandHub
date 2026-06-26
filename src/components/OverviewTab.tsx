@@ -232,6 +232,16 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
     to: today,
   });
 
+  const forecastMonth = (months: number) =>
+    new Date(today.getFullYear(), today.getMonth() + months).toLocaleDateString(
+      "en-US",
+      { month: "long", year: "numeric" }
+    );
+  const yearEndMonth = new Date(today.getFullYear(), 11).toLocaleDateString(
+    "en-US",
+    { month: "long", year: "numeric" }
+  );
+
   const rangeLabel = dateRange?.from
     ? dateRange.to
       ? `${format(dateRange.from, "MMM d, yyyy")} – ${format(dateRange.to, "MMM d, yyyy")}`
@@ -242,8 +252,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
     <div className="space-y-6">
       {/* Title */}
       <div className="flex items-center space-x-2">
-        <BarChart3 className="h-6 w-6 text-primary" />
-        <h2 className="text-2xl font-bold text-foreground">
+        <BarChart3 className="h-6 w-6 text-primary" aria-hidden="true" />
+        <h2 className="text-2xl font-bold text-foreground" style={{ textWrap: "balance" }}>
           Sustainability Analytics Dashboard
         </h2>
       </div>
@@ -1523,7 +1533,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                     <span>3-Month Forecast</span>
                   </CardTitle>
                   <CardDescription>
-                    December 2025 projections
+                    {forecastMonth(3)} projections
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -1562,7 +1572,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                     <span>6-Month Forecast</span>
                   </CardTitle>
                   <CardDescription>
-                    March 2026 projections
+                    {forecastMonth(6)} projections
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -1601,7 +1611,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                     <span>Year-End Forecast</span>
                   </CardTitle>
                   <CardDescription>
-                    September 2026 projections
+                    {yearEndMonth} projections
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -1790,7 +1800,7 @@ const OverviewTab: React.FC<{
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">
+        <h2 className="text-lg font-semibold text-foreground" style={{ textWrap: "balance" }}>
           Sustainability Metrics & Recent Activity
         </h2>
         <p className="text-sm text-muted-foreground">
