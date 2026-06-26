@@ -71,15 +71,16 @@ const Index = () => {
       <section className="py-20 px-6">
         <div className="container mx-auto text-center max-w-4xl">
           <Badge className="mb-6 bg-primary/10 text-primary border-primary/20">
-            Professional Brand Management Platform
+            MintRewards Partner Portal
           </Badge>
           <h1 className="text-5xl font-bold mb-6 text-foreground" style={{ textWrap: "balance" }}>
-            Manage Your Brand{" "}
-            <span className="text-primary">Like a Pro</span>
+            Your brand on{" "}
+            <span className="text-primary">MintRewards</span>, set up in minutes.
           </h1>
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Complete brand management solution with registration, campaign management, 
-            and admin approval workflows. Built for businesses that take their brand seriously.
+            Register your brand, submit campaigns for approval, create member deals, and
+            monitor performance — all from one dashboard. Once our team approves your
+            application, you're live.
           </p>
           <div className="flex items-center justify-center space-x-4">
             <Button size="lg" variant="gradient" onClick={() => navigate('/register')}>
@@ -121,10 +122,10 @@ const Index = () => {
         <div className="container mx-auto max-w-4xl">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Why Choose MintRewards Brand Management?</h2>
+              <h2 className="text-3xl font-bold mb-6">Everything your brand team needs</h2>
               <p className="text-muted-foreground mb-8 text-lg leading-relaxed">
-                Our platform combines powerful brand management tools with enterprise-grade 
-                security and approval workflows.
+                One login covers your full partner lifecycle — from first submission to
+                live campaign reporting. No separate tools, no spreadsheets.
               </p>
               <div className="space-y-4">
                 {benefits.map((benefit, index) => (
@@ -165,12 +166,13 @@ const Index = () => {
       {/* CTA Section */}
       <section className="py-16 px-6 bg-muted/30">
         <div className="container mx-auto text-center max-w-3xl">
-          <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
+          <h2 className="text-3xl font-bold mb-4">Apply to become a MintRewards partner</h2>
           <p className="text-muted-foreground mb-8 text-lg">
-            Join hundreds of brands already using MintRewards Brand Management to manage their presence.
+            Submit your brand registration and our team will review your application
+            within 2–3 business days.
           </p>
           <Button size="lg" variant="gradient" onClick={() => navigate('/register')}>
-            Register Your Brand Today
+            Register your brand
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         </div>

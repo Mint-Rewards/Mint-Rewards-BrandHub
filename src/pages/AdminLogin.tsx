@@ -99,9 +99,9 @@ const AdminLogin = () => {
         {/* Auth Card */}
         <Card className="border-0 bg-card/60 backdrop-blur-sm shadow-xl">
           <CardHeader className="text-center">
-            <CardTitle className="text-xl">Welcome Back</CardTitle>
+            <CardTitle className="text-xl">Sign in</CardTitle>
             <CardDescription>
-              Sign in to access the admin dashboard
+              Restricted to authorized MintRewards administrators.
             </CardDescription>
           </CardHeader>
           <CardContent>
