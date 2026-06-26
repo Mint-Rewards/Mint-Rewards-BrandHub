@@ -259,7 +259,11 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader
-        icon={<Shield className="h-6 w-6 text-primary-foreground" aria-hidden="true" />}
+        icon={
+          <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
+            <Shield className="h-6 w-6 text-primary-foreground" aria-hidden="true" />
+          </div>
+        }
         title="Admin Dashboard"
         titleAs="h1"
         subtitle="MintRewards Management Portal"

@@ -38,9 +38,7 @@ const SiteHeader = ({
           className="flex items-center space-x-3 min-w-0 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 hover:opacity-80 transition-opacity"
           aria-label={`${title} — go to home`}
         >
-          <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center shrink-0">
-            {icon}
-          </div>
+          <div className="shrink-0">{icon}</div>
           <div className="min-w-0">
             <Title className="text-xl font-bold">{title}</Title>
             {subtitle && (

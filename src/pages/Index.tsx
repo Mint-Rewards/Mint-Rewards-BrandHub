@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Building2, Users, TrendingUp, Shield, ArrowRight, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
+import mint_logo from "@/assets/mint_logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader
-        icon={<Building2 className="h-6 w-6 text-primary-foreground" aria-hidden="true" />}
+        icon={<img src={mint_logo} alt="" className="h-16 w-16 object-contain" />}
         title="MintRewards"
         subtitle="BrandHub"
         actions={
@@ -188,9 +189,7 @@ const Index = () => {
       <footer className="border-t bg-card/30 py-8 px-6">
         <div className="container mx-auto text-center">
           <div className="flex items-center justify-center space-x-3 mb-4">
-            <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
-              <Building2 className="h-5 w-5 text-primary-foreground" aria-hidden="true" />
-            </div>
+            <img src={mint_logo} alt="" className="h-8 w-8 object-contain" />
             <span className="font-semibold">MintRewards Brand Management</span>
           </div>
           <p className="text-muted-foreground text-sm">
