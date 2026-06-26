@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Building2, Users, TrendingUp, Shield, ArrowRight, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SiteHeader from "@/components/SiteHeader";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -41,30 +42,21 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-primary-foreground" aria-hidden="true" />
-              </div>
-              <div>
-                <p className="text-xl font-bold">MintRewards</p>
-                <p className="text-xs text-muted-foreground">BrandHub</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Button variant="ghost" onClick={() => navigate('/admin/login')}>
-                Admin Login
-              </Button>
-              <Button variant="gradient" onClick={() => navigate('/register')}>
-                Get Started
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <SiteHeader
+        icon={<Building2 className="h-6 w-6 text-primary-foreground" aria-hidden="true" />}
+        title="MintRewards"
+        subtitle="BrandHub"
+        actions={
+          <>
+            <Button variant="ghost" onClick={() => navigate('/admin/login')}>
+              Admin Login
+            </Button>
+            <Button variant="gradient" onClick={() => navigate('/register')}>
+              Get Started
+            </Button>
+          </>
+        }
+      />
 
       {/* Hero Section */}
       <section className="py-20 px-6">

@@ -36,6 +36,7 @@ import {
   BarChart3,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import SiteHeader from "@/components/SiteHeader";
 import { useToast } from "@/hooks/use-toast";
 import { Brand, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
@@ -257,31 +258,21 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center">
-                <Shield className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">Admin Dashboard</h1>
-                <p className="text-xs text-muted-foreground">
-                  MintRewards Management Portal
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Badge variant="secondary">Admin</Badge>
-              <Button variant="outline" onClick={handleLogout}>
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <SiteHeader
+        icon={<Shield className="h-6 w-6 text-primary-foreground" aria-hidden="true" />}
+        title="Admin Dashboard"
+        titleAs="h1"
+        subtitle="MintRewards Management Portal"
+        actions={
+          <>
+            <Badge variant="secondary">Admin</Badge>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </>
+        }
+      />
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
