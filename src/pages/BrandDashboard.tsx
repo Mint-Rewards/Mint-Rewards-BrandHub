@@ -14,7 +14,6 @@ import {
   Clock,
   AlertCircle,
   Eye,
-  Bell,
   Mail,
   Phone,
 } from "lucide-react";
@@ -455,7 +454,7 @@ const BrandDashboard = () => {
                 className="h-10 w-10 rounded-lg flex items-center justify-center"
                 style={{ backgroundColor: brandColor }}
               >
-                <Building2 className="h-6 w-6 text-white" />
+                <Building2 className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">{formattedData.name}</h1>
@@ -463,18 +462,16 @@ const BrandDashboard = () => {
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <span
-                className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold"
+              <Badge
+                variant="outline"
                 style={{
                   backgroundColor: brandColor + "1a",
                   color: brandColor,
+                  borderColor: brandColor + "33",
                 }}
               >
                 {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
-              </span>
-              <Button variant="ghost" size="sm" aria-label="Notifications">
-                <Bell className="h-4 w-4" />
-              </Button>
+              </Badge>
               <Button variant="outline" onClick={() => navigate("/")}>
                 Exit Dashboard
               </Button>
