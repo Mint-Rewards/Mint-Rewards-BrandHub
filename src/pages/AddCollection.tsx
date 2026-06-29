@@ -52,56 +52,56 @@ const AddCollection = () => {
         setBrands([
           {
             id: "1",
-            brand_name: "EcoStore",
-            company_name: "EcoStore Inc.",
+            brandName: "EcoStore",
+            companyName: "EcoStore Inc.",
             category: "Retail",
             status: "approved",
-            created_at: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
             website: "https://ecostore.com",
             description: "Sustainable retail store",
-            logo_url: "",
-            theme_color: "#10B981",
-            contact_email: "contact@ecostore.com",
-            contact_phone: "+1234567890",
+            logo: "",
+            themeColor: "#10B981",
+            email: "contact@ecostore.com",
+            phone: "+1234567890",
             address: "123 Green St",
-            app_link: "",
-            custom_emails: "",
+            appLink: "",
+            customEmails: "",
             domain: "ecostore.com",
           },
           {
             id: "2",
-            brand_name: "GreenCafe",
-            company_name: "GreenCafe LLC",
+            brandName: "GreenCafe",
+            companyName: "GreenCafe LLC",
             category: "Food & Beverage",
             status: "approved",
-            created_at: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
             website: "https://greencafe.com",
             description: "Eco-friendly cafe",
-            logo_url: "",
-            theme_color: "#059669",
-            contact_email: "info@greencafe.com",
-            contact_phone: "+1234567891",
+            logo: "",
+            themeColor: "#059669",
+            email: "info@greencafe.com",
+            phone: "+1234567891",
             address: "456 Eco Ave",
-            app_link: "",
-            custom_emails: "",
+            appLink: "",
+            customEmails: "",
             domain: "greencafe.com",
           },
           {
             id: "3",
-            brand_name: "TechCycle",
-            company_name: "TechCycle Corp",
+            brandName: "TechCycle",
+            companyName: "TechCycle Corp",
             category: "Technology",
             status: "approved",
-            created_at: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
             website: "https://techcycle.com",
             description: "E-waste recycling",
-            logo_url: "",
-            theme_color: "#3B82F6",
-            contact_email: "support@techcycle.com",
-            contact_phone: "+1234567892",
+            logo: "",
+            themeColor: "#3B82F6",
+            email: "support@techcycle.com",
+            phone: "+1234567892",
             address: "789 Tech Blvd",
-            app_link: "",
-            custom_emails: "",
+            appLink: "",
+            customEmails: "",
             domain: "techcycle.com",
           },
         ]);
@@ -130,15 +130,15 @@ const AddCollection = () => {
       const selectedBrand = brands.find((b) => b.id === formData.brand_id);
       const newCollection: Collection = {
         id: Date.now().toString(),
-        brand_id: formData.brand_id,
-        brand_name: selectedBrand?.brand_name,
+        brandId: formData.brand_id,
+        brandName: selectedBrand?.brandName,
         status: "transit",
-        total_weight: parseFloat(formData.total_weight),
-        collection_date: new Date().toISOString(),
-        pickup_location: formData.pickup_location,
+        totalWeight: parseFloat(formData.total_weight),
+        collectionDate: new Date().toISOString(),
+        pickupLocation: formData.pickup_location,
         notes: formData.notes,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
       };
 
       // Mock API call - replace with actual implementation
@@ -224,9 +224,9 @@ const AddCollection = () => {
                       <div className="flex items-center gap-2">
                         <div
                           className="h-3 w-3 rounded-full"
-                          style={{ backgroundColor: brand.theme_color }}
+                          style={{ backgroundColor: brand.themeColor }}
                         />
-                        {brand.brand_name} - {brand.category}
+                        {brand.brandName} - {brand.category}
                       </div>
                     </SelectItem>
                   ))}
