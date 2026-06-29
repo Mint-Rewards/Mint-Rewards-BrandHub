@@ -39,6 +39,9 @@ import {
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
 import { Progress } from "@/components/ui/progress";
 
+// Append two-digit hex alpha to a hex color string for opacity variants
+const hex = (color: string, alpha: string) => color + alpha;
+
 // CO2 savings per kg for different materials (in kg CO2 saved per kg of material)
 const CO2_SAVINGS_PER_KG = {
   paper: 3.3, // Paper recycling saves ~3.3 kg CO2 per kg
@@ -225,7 +228,7 @@ const mockAnalyticsData = {
   },
 };
 
-const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ analytics }) => {
+const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null; brandColor?: string }> = ({ analytics, brandColor = "#008081" }) => {
   const today = new Date();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: new Date(today.getFullYear(), today.getMonth(), 1),
@@ -252,18 +255,18 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
     <div className="space-y-6">
       {/* Title */}
       <div className="flex items-center space-x-2">
-        <BarChart3 className="h-6 w-6 text-primary" aria-hidden="true" />
+        <BarChart3 className="h-6 w-6" style={{ color: brandColor }} aria-hidden="true" />
         <h2 className="text-2xl font-bold text-foreground" style={{ textWrap: "balance" }}>
           Sustainability Analytics Dashboard
         </h2>
       </div>
 
       {/* Period Information */}
-      <div className="bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 rounded-lg p-4 border border-primary/20">
+      <div className="rounded-lg p-4 border" style={{ background: `linear-gradient(to right, ${hex(brandColor, "1a")}, ${hex(brandColor, "0d")}, ${hex(brandColor, "1a")})`, borderColor: hex(brandColor, "33") }}>
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="p-2 bg-primary/20 rounded-lg">
-              <CalendarIcon className="h-5 w-5 text-primary" />
+            <div className="p-2 rounded-lg" style={{ backgroundColor: hex(brandColor, "33") }}>
+              <CalendarIcon className="h-5 w-5" style={{ color: brandColor }} />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-foreground">
@@ -271,7 +274,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               </h3>
               <p className="text-sm text-muted-foreground">
                 Showing metrics for{" "}
-                <span className="font-medium text-primary">{rangeLabel}</span>
+                <span className="font-medium" style={{ color: brandColor }}>{rangeLabel}</span>
               </p>
             </div>
           </div>
@@ -404,7 +407,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Recycle className="h-5 w-5 text-primary" />
+                      <Recycle className="h-5 w-5" style={{ color: brandColor }} />
                       <span>Company CO₂ Savings</span>
                     </CardTitle>
                     <CardDescription>
@@ -449,7 +452,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                                 </span>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm font-semibold text-primary">
+                                <p className="text-sm font-semibold" style={{ color: brandColor }}>
                                   {co2Saved} kg CO₂
                                 </p>
                                 <p className="text-xs text-muted-foreground">
@@ -465,7 +468,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                           <span className="font-semibold">
                             Total CO₂ Savings:
                           </span>
-                          <span className="text-lg font-bold text-primary">
+                          <span className="text-lg font-bold" style={{ color: brandColor }}>
                             {mockAnalyticsData.companyWaste.breakdown
                               .reduce((total, item) => {
                                 const materialKey =
@@ -516,7 +519,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                         </h4>
                         <ChartContainer
                           config={{
-                            value: { label: "Weight (kg)", color: "hsl(var(--primary))" },
+                            value: { label: "Weight (kg)", color: brandColor },
                           }}
                           className="h-[250px]"
                         >
@@ -530,7 +533,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                               <Bar
                                 dataKey="value"
                                 radius={[4, 4, 0, 0]}
-                                fill="hsl(var(--primary))"
+                                fill={brandColor}
                               />
                             </BarChart>
                           </ResponsiveContainer>
@@ -715,7 +718,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                             </div>
 
                             <div className="flex items-center space-x-3 p-3 bg-muted/40 rounded-lg">
-                              <div className="p-2 bg-primary/20 rounded-lg">
+                              <div className="p-2 rounded-lg" style={{ backgroundColor: hex(brandColor, "33") }}>
                                 <span className="text-white text-lg" aria-hidden="true">🚗</span>
                               </div>
                               <div>
@@ -873,7 +876,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: hex(brandColor, "1a"), color: brandColor }}>
                         1
                       </div>
                       <div>
@@ -892,7 +895,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: hex(brandColor, "1a"), color: brandColor }}>
                         2
                       </div>
                       <div>
@@ -911,7 +914,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: hex(brandColor, "1a"), color: brandColor }}>
                         3
                       </div>
                       <div>
@@ -930,7 +933,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
+                      <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style={{ backgroundColor: hex(brandColor, "1a"), color: brandColor }}>
                         4
                       </div>
                       <div>
@@ -1215,8 +1218,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                     analytics.campaigns.list.slice(0, 5).map((campaign) => (
                       <div key={campaign.id} className="flex items-center justify-between p-4 border rounded-lg">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                            <Award className="h-5 w-5 text-primary" />
+                          <div className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: hex(brandColor, "1a") }}>
+                            <Award className="h-5 w-5" style={{ color: brandColor }} />
                           </div>
                           <div>
                             <p className="font-medium">{campaign.name}</p>
@@ -1334,15 +1337,16 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                         </div>
                         <div className="space-y-1">
                           <div className="flex justify-between text-sm">
-                            <span className="text-primary font-semibold">Your Brand: {metric.yourBrand} {metric.unit}</span>
+                            <span className="font-semibold" style={{ color: brandColor }}>Your Brand: {metric.yourBrand} {metric.unit}</span>
                             <span className="text-muted-foreground">Category Avg: {metric.categoryAvg} {metric.unit}</span>
                           </div>
                           <div className="relative">
                             <div className="w-full bg-muted rounded-full h-3">
                               <div 
-                                className="bg-primary h-3 rounded-full transition-all duration-300"
-                                style={{ 
-                                  width: `${Math.min((metric.yourBrand / Math.max(metric.yourBrand, metric.categoryAvg)) * 100, 100)}%` 
+                                className="h-3 rounded-full transition-all duration-300"
+                                style={{
+                                  backgroundColor: brandColor,
+                                  width: `${Math.min((metric.yourBrand / Math.max(metric.yourBrand, metric.categoryAvg)) * 100, 100)}%`
                                 }}
                               />
                             </div>
@@ -1633,10 +1637,10 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                     </div>
                     
                     <div className="text-center p-3 bg-muted/40 rounded-lg">
-                      <div className="text-2xl font-bold text-primary mb-1">
+                      <div className="text-2xl font-bold mb-1" style={{ color: brandColor }}>
                         {(mockAnalyticsData.projections.yearlyForecast.totalUsers / 1000).toFixed(0)}K
                       </div>
-                      <p className="text-sm text-primary">Total Users</p>
+                      <p className="text-sm" style={{ color: brandColor }}>Total Users</p>
                       <p className="text-xs text-muted-foreground">Growth target</p>
                     </div>
                   </div>
@@ -1713,7 +1717,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                     </div>
                     
                     <div className="flex items-start space-x-3 p-3 bg-muted/40 rounded-lg">
-                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
+                      <div className="w-2 h-2 rounded-full mt-2" style={{ backgroundColor: brandColor }}></div>
                       <div>
                         <p className="font-medium text-foreground">Mobile App Enhancement</p>
                         <p className="text-sm text-muted-foreground">Gamification features to boost engagement</p>
@@ -1796,7 +1800,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
 const OverviewTab: React.FC<{
   campaigns: number;
   analytics?: BrandAnalytics | null;
-}> = ({ campaigns, analytics }) => {
+  brandColor?: string;
+}> = ({ campaigns, analytics, brandColor = "#008081" }) => {
   return (
     <div className="space-y-6">
       <div>
@@ -1851,7 +1856,7 @@ const OverviewTab: React.FC<{
       </div>
 
       {/* Analytics Dashboard Section */}
-      <AnalyticsDashboard analytics={analytics} />
+      <AnalyticsDashboard analytics={analytics} brandColor={brandColor} />
     </div>
   );
 };

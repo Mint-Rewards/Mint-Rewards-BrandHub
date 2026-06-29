@@ -54,6 +54,7 @@ const SettingsTab: React.FC<{
   description?: string;
   address?: string;
   themeColor?: string;
+  brandColor?: string;
   onSettingsUpdated?: () => Promise<void>;
 }> = ({
   brandId,
@@ -67,6 +68,7 @@ const SettingsTab: React.FC<{
   description,
   address,
   themeColor,
+  brandColor = "hsl(var(--primary))",
   onSettingsUpdated,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -178,11 +180,11 @@ const SettingsTab: React.FC<{
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Website</p>
-                <p className="text-base">{webLink ? <a href={webLink} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline">{webLink}</a> : "—"}</p>
+                <p className="text-base">{webLink ? <a href={webLink} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{webLink}</a> : "—"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">App Link</p>
-                <p className="text-base">{appLink ? <a href={appLink} target="_blank" rel="noreferrer" className="text-primary underline-offset-4 hover:underline">{appLink}</a> : "—"}</p>
+                <p className="text-base">{appLink ? <a href={appLink} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{appLink}</a> : "—"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Address</p>
