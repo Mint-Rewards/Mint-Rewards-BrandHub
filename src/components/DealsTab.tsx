@@ -58,7 +58,8 @@ const STATUS_CONFIG = {
 const DealsTab: React.FC<{
   deals: Deal[];
   onDealCreated?: () => Promise<void>;
-}> = ({ deals, onDealCreated }) => {
+  brandColor?: string;
+}> = ({ deals, onDealCreated, brandColor = "hsl(var(--primary))" }) => {
   const { brandId } = useParams();
   const [createOpen, setCreateOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
@@ -185,8 +186,8 @@ const DealsTab: React.FC<{
                     className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                   >
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className="mt-0.5 h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                        <Tag className="h-4 w-4 text-primary" />
+                      <div className="mt-0.5 h-8 w-8 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: brandColor + "1a" }}>
+                        <Tag className="h-4 w-4" style={{ color: brandColor }} />
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">

@@ -404,6 +404,7 @@ const BrandDashboard = () => {
           <OverviewTab
             campaigns={analytics?.summary.activeCampaigns ?? campaigns.length}
             analytics={analytics}
+            brandColor={brandColor}
           />
         </TabsContent>
 
@@ -416,7 +417,7 @@ const BrandDashboard = () => {
         </TabsContent>
 
         <TabsContent value="deals">
-          <DealsTab deals={deals} onDealCreated={refreshDeals} />
+          <DealsTab deals={deals} onDealCreated={refreshDeals} brandColor={brandColor} />
         </TabsContent>
 
         <TabsContent value="settings">
@@ -432,6 +433,7 @@ const BrandDashboard = () => {
             description={brandData.description}
             address={brandData.address}
             themeColor={brandData.themeColor}
+            brandColor={brandColor}
             onSettingsUpdated={refreshBrand}
           />
         </TabsContent>
