@@ -17,8 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import {
   Building2,
   Upload,
@@ -549,7 +547,7 @@ const BrandRegister = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -561,7 +559,7 @@ const BrandRegister = () => {
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <Building2 className="h-5 w-5 text-primary-foreground" />
               </div>
               <span className="font-semibold">MintRewards Brand Management</span>
@@ -573,26 +571,39 @@ const BrandRegister = () => {
       <div className="container mx-auto px-6 py-8 max-w-4xl">
         {/* Progress Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Brand Registration</h1>
-            <Badge variant="secondary">
+            <span className="text-sm text-muted-foreground tabular-nums">
               Step {currentStep} of {totalSteps}
-            </Badge>
+            </span>
           </div>
-          <Progress value={progress} className="h-2" />
-          <div className="flex justify-between mt-2">
-            {stepTitles.map((title, index) => (
-              <span
-                key={index}
-                className={`text-xs ${
-                  index + 1 <= currentStep
-                    ? "text-primary font-medium"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {title}
-              </span>
-            ))}
+          <div className="flex items-center gap-0">
+            {stepTitles.map((title, index) => {
+              const stepNum = index + 1;
+              const isCompleted = stepNum < currentStep;
+              const isCurrent = stepNum === currentStep;
+              return (
+                <div key={index} className="flex items-center flex-1 last:flex-none">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      isCompleted
+                        ? "bg-primary text-primary-foreground"
+                        : isCurrent
+                        ? "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary/40"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      {isCompleted ? <CheckCircle className="h-4 w-4" /> : stepNum}
+                    </div>
+                    <span className={`text-xs whitespace-nowrap hidden sm:block ${isCurrent ? "text-primary font-medium" : "text-muted-foreground"}`}>
+                      {title}
+                    </span>
+                  </div>
+                  {index < stepTitles.length - 1 && (
+                    <div className={`h-0.5 flex-1 mx-2 mb-5 transition-colors ${stepNum < currentStep ? "bg-primary" : "bg-border"}`} />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 

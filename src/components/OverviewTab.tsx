@@ -7,7 +7,6 @@ import {
   BarChart3,
   Building2,
   Calendar as CalendarIcon,
-  Leaf,
   Recycle,
   Target,
   TrendingUp,
@@ -233,6 +232,16 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
     to: today,
   });
 
+  const forecastMonth = (months: number) =>
+    new Date(today.getFullYear(), today.getMonth() + months).toLocaleDateString(
+      "en-US",
+      { month: "long", year: "numeric" }
+    );
+  const yearEndMonth = new Date(today.getFullYear(), 11).toLocaleDateString(
+    "en-US",
+    { month: "long", year: "numeric" }
+  );
+
   const rangeLabel = dateRange?.from
     ? dateRange.to
       ? `${format(dateRange.from, "MMM d, yyyy")} – ${format(dateRange.to, "MMM d, yyyy")}`
@@ -243,8 +252,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
     <div className="space-y-6">
       {/* Title */}
       <div className="flex items-center space-x-2">
-        <BarChart3 className="h-6 w-6 text-primary" />
-        <h2 className="text-2xl font-bold text-foreground">
+        <BarChart3 className="h-6 w-6 text-primary" aria-hidden="true" />
+        <h2 className="text-2xl font-bold text-foreground" style={{ textWrap: "balance" }}>
           Sustainability Analytics Dashboard
         </h2>
       </div>
@@ -395,7 +404,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Leaf className="h-5 w-5 text-primary" />
+                      <Recycle className="h-5 w-5 text-primary" />
                       <span>Company CO₂ Savings</span>
                     </CardTitle>
                     <CardDescription>
@@ -507,7 +516,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                         </h4>
                         <ChartContainer
                           config={{
-                            value: { label: "Weight (kg)", color: "#8B5CF6" },
+                            value: { label: "Weight (kg)", color: "hsl(var(--primary))" },
                           }}
                           className="h-[250px]"
                         >
@@ -603,7 +612,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Users className="h-5 w-5 text-emerald-600" />
+                      <Users className="h-5 w-5 text-success" />
                       <span>User Collections</span>
                     </CardTitle>
                     <CardDescription>
@@ -612,7 +621,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </CardHeader>
                   <CardContent>
                     <div className="text-center mb-4">
-                      <p className="text-3xl font-bold text-emerald-600">
+                      <p className="text-3xl font-bold text-success">
                         {(
                           mockAnalyticsData.userImpact.totalUserWaste / 1000
                         ).toFixed(1)}
@@ -640,7 +649,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                                 </p>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm font-semibold text-green-600">
+                                <p className="text-sm font-semibold text-success">
                                   {totalCo2Saved} kg CO₂
                                 </p>
                                 <p className="text-xs text-muted-foreground">
@@ -659,7 +668,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Target className="h-5 w-5 text-blue-600" />
+                      <Target className="h-5 w-5 text-foreground" />
                       <span>Environmental Equivalents</span>
                     </CardTitle>
                     <CardDescription>
@@ -690,9 +699,9 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
 
                         return (
                           <>
-                            <div className="flex items-center space-x-3 p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                              <div className="p-2 bg-green-500 rounded-lg">
-                                <span className="text-white text-lg">🌳</span>
+                            <div className="flex items-center space-x-3 p-3 bg-success/5 rounded-lg">
+                              <div className="p-2 bg-success/20 rounded-lg">
+                                <span className="text-white text-lg" aria-hidden="true">🌳</span>
                               </div>
                               <div>
                                 <p className="font-medium">
@@ -705,9 +714,9 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                               </div>
                             </div>
 
-                            <div className="flex items-center space-x-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                              <div className="p-2 bg-blue-500 rounded-lg">
-                                <span className="text-white text-lg">🚗</span>
+                            <div className="flex items-center space-x-3 p-3 bg-muted/40 rounded-lg">
+                              <div className="p-2 bg-primary/20 rounded-lg">
+                                <span className="text-white text-lg" aria-hidden="true">🚗</span>
                               </div>
                               <div>
                                 <p className="font-medium">
@@ -720,9 +729,9 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                               </div>
                             </div>
 
-                            <div className="flex items-center space-x-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg">
-                              <div className="p-2 bg-yellow-500 rounded-lg">
-                                <span className="text-white text-lg">💡</span>
+                            <div className="flex items-center space-x-3 p-3 bg-muted/40 rounded-lg">
+                              <div className="p-2 bg-warning/20 rounded-lg">
+                                <span className="text-white text-lg" aria-hidden="true">💡</span>
                               </div>
                               <div>
                                 <p className="font-medium">LED Bulb Hours</p>
@@ -743,7 +752,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <Card className="lg:col-span-2">
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
-                      <Leaf className="h-5 w-5 text-green-600" />
+                      <Users className="h-5 w-5 text-success" />
                       <span>User Community Impact Summary</span>
                     </CardTitle>
                     <CardDescription>
@@ -752,8 +761,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="text-center p-4 bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 rounded-lg">
-                        <div className="text-3xl font-bold text-green-600 mb-2">
+                      <div className="text-center p-4 bg-success/5 rounded-lg">
+                        <div className="text-3xl font-bold text-success mb-2">
                           {mockAnalyticsData.userImpact.estimatedBreakdown
                             .reduce(
                               (total, item) =>
@@ -768,8 +777,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                         </p>
                       </div>
 
-                      <div className="text-center p-4 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 rounded-lg">
-                        <div className="text-3xl font-bold text-blue-600 mb-2">
+                      <div className="text-center p-4 bg-muted/40 rounded-lg">
+                        <div className="text-3xl font-bold text-foreground mb-2">
                           {mockAnalyticsData.kpis.activeUsers.toLocaleString()}
                         </div>
                         <p className="text-sm font-medium">
@@ -780,8 +789,8 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                         </p>
                       </div>
 
-                      <div className="text-center p-4 bg-gradient-to-br from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
-                        <div className="text-3xl font-bold text-purple-600 mb-2">
+                      <div className="text-center p-4 bg-muted/40 rounded-lg">
+                        <div className="text-3xl font-bold text-foreground mb-2">
                           {(
                             (mockAnalyticsData.userImpact.totalUserWaste /
                               mockAnalyticsData.kpis.activeUsers) *
@@ -808,7 +817,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Award className="h-5 w-5 text-yellow-600" />
+                  <Award className="h-5 w-5 text-warning" />
                   <span>Points Earned vs Redeemed</span>
                 </CardTitle>
                 <CardDescription>
@@ -864,7 +873,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <div className="space-y-4">
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
                         1
                       </div>
                       <div>
@@ -883,7 +892,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
                         2
                       </div>
                       <div>
@@ -902,7 +911,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
                         3
                       </div>
                       <div>
@@ -921,7 +930,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                   <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold text-sm">
                         4
                       </div>
                       <div>
@@ -951,7 +960,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Users className="h-5 w-5 text-indigo-600" />
+                  <Users className="h-5 w-5 text-foreground" />
                   <span>User Engagement</span>
                 </CardTitle>
                 <CardDescription>
@@ -1009,7 +1018,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Trophy className="h-5 w-5 text-yellow-600" />
+                  <Trophy className="h-5 w-5 text-warning" />
                   <span>User Performance Tiers</span>
                 </CardTitle>
                 <CardDescription>
@@ -1018,83 +1027,83 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-yellow-50 to-yellow-100 rounded-lg border border-yellow-200">
+                  <div className="flex items-center justify-between p-3 bg-muted/40 rounded-lg border border-border">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-yellow-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                         <Trophy className="h-4 w-4 text-white" />
                       </div>
                       <div>
-                        <p className="font-medium text-yellow-800">Platinum Tier</p>
-                        <p className="text-sm text-yellow-700">200+ kg recycled</p>
+                        <p className="font-medium text-foreground">Platinum Tier</p>
+                        <p className="text-sm text-muted-foreground">200+ kg recycled</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-yellow-800">{mockAnalyticsData.userStatistics.userTiers.platinum}</p>
-                      <p className="text-xs text-yellow-600">users</p>
+                      <p className="text-lg font-bold text-foreground">{mockAnalyticsData.userStatistics.userTiers.platinum}</p>
+                      <p className="text-xs text-warning">users</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-amber-50 to-amber-100 rounded-lg border border-amber-200">
+                  <div className="flex items-center justify-between p-3 bg-muted/40 rounded-lg border border-border">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                         <Award className="h-4 w-4 text-white" />
                       </div>
                       <div>
-                        <p className="font-medium text-amber-800">Gold Tier</p>
-                        <p className="text-sm text-amber-700">150-199 kg recycled</p>
+                        <p className="font-medium text-foreground">Gold Tier</p>
+                        <p className="text-sm text-warning">150-199 kg recycled</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-amber-800">{mockAnalyticsData.userStatistics.userTiers.gold}</p>
-                      <p className="text-xs text-amber-600">users</p>
+                      <p className="text-lg font-bold text-foreground">{mockAnalyticsData.userStatistics.userTiers.gold}</p>
+                      <p className="text-xs text-warning">users</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg border border-gray-200">
+                  <div className="flex items-center justify-between p-3 bg-muted/40 rounded-lg border border-border">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                         <span className="text-white font-bold text-sm">S</span>
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800">Silver Tier</p>
-                        <p className="text-sm text-gray-700">100-149 kg recycled</p>
+                        <p className="font-medium text-foreground">Silver Tier</p>
+                        <p className="text-sm text-muted-foreground">100-149 kg recycled</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-gray-800">{mockAnalyticsData.userStatistics.userTiers.silver}</p>
-                      <p className="text-xs text-gray-600">users</p>
+                      <p className="text-lg font-bold text-foreground">{mockAnalyticsData.userStatistics.userTiers.silver}</p>
+                      <p className="text-xs text-muted-foreground">users</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-orange-50 to-orange-100 rounded-lg border border-orange-200">
+                  <div className="flex items-center justify-between p-3 bg-muted/40 rounded-lg border border-border">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                         <span className="text-white font-bold text-sm">B</span>
                       </div>
                       <div>
-                        <p className="font-medium text-orange-800">Bronze Tier</p>
-                        <p className="text-sm text-orange-700">50-99 kg recycled</p>
+                        <p className="font-medium text-foreground">Bronze Tier</p>
+                        <p className="text-sm text-muted-foreground">50-99 kg recycled</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-orange-800">{mockAnalyticsData.userStatistics.userTiers.bronze}</p>
-                      <p className="text-xs text-orange-600">users</p>
+                      <p className="text-lg font-bold text-foreground">{mockAnalyticsData.userStatistics.userTiers.bronze}</p>
+                      <p className="text-xs text-foreground">users</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+                  <div className="flex items-center justify-between p-3 bg-muted/40 rounded-lg border border-border">
                     <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
                         <span className="text-white font-bold text-sm">ST</span>
                       </div>
                       <div>
-                        <p className="font-medium text-blue-800">Starter</p>
-                        <p className="text-sm text-blue-700">0-49 kg recycled</p>
+                        <p className="font-medium text-foreground">Starter</p>
+                        <p className="text-sm text-muted-foreground">0-49 kg recycled</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-bold text-blue-800">{mockAnalyticsData.userStatistics.userTiers.starter}</p>
-                      <p className="text-xs text-blue-600">users</p>
+                      <p className="text-lg font-bold text-foreground">{mockAnalyticsData.userStatistics.userTiers.starter}</p>
+                      <p className="text-xs text-foreground">users</p>
                     </div>
                   </div>
                 </div>
@@ -1139,16 +1148,16 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                 </div>
 
-                <div className="mt-6 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 rounded-lg border border-indigo-200">
-                  <h4 className="font-semibold text-indigo-700 mb-2">Community Growth Insights</h4>
+                <div className="mt-6 p-4 bg-muted/40 rounded-lg border border-border">
+                  <h4 className="font-semibold text-foreground mb-2">Community Growth Insights</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-indigo-600">• <strong>User Engagement:</strong> {mockAnalyticsData.userStatistics.engagementRate}% monthly active rate</p>
-                      <p className="text-indigo-600">• <strong>Growth Rate:</strong> {mockAnalyticsData.userStatistics.newUsersThisMonth} new users this month</p>
+                      <p className="text-foreground">• <strong>User Engagement:</strong> {mockAnalyticsData.userStatistics.engagementRate}% monthly active rate</p>
+                      <p className="text-foreground">• <strong>Growth Rate:</strong> {mockAnalyticsData.userStatistics.newUsersThisMonth} new users this month</p>
                     </div>
                     <div>
-                      <p className="text-indigo-600">• <strong>Retention:</strong> {mockAnalyticsData.userStatistics.retentionRate}% user retention rate</p>
-                      <p className="text-indigo-600">• <strong>Performance:</strong> Avg {mockAnalyticsData.userStatistics.averageWastePerUser} kg per user</p>
+                      <p className="text-foreground">• <strong>Retention:</strong> {mockAnalyticsData.userStatistics.retentionRate}% user retention rate</p>
+                      <p className="text-foreground">• <strong>Performance:</strong> Avg {mockAnalyticsData.userStatistics.averageWastePerUser} kg per user</p>
                     </div>
                   </div>
                 </div>
@@ -1220,7 +1229,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                           campaign.status === "APPROVED"
                             ? "bg-success/10 text-success"
                             : campaign.status === "PENDING"
-                            ? "bg-warning/10 text-amber-700"
+                            ? "bg-warning/10 text-warning"
                             : campaign.status === "REJECTED"
                             ? "bg-destructive/10 text-destructive"
                             : "bg-muted text-muted-foreground"
@@ -1249,7 +1258,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <Trophy className="h-5 w-5 text-amber-600" />
+                  <Trophy className="h-5 w-5 text-warning" />
                   <span>Sector Performance Overview</span>
                 </CardTitle>
                 <CardDescription>
@@ -1329,7 +1338,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                             <span className="text-muted-foreground">Category Avg: {metric.categoryAvg} {metric.unit}</span>
                           </div>
                           <div className="relative">
-                            <div className="w-full bg-gray-200 rounded-full h-3">
+                            <div className="w-full bg-muted rounded-full h-3">
                               <div 
                                 className="bg-primary h-3 rounded-full transition-all duration-300"
                                 style={{ 
@@ -1492,7 +1501,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                   </div>
                 </div>
 
-                <div className="mt-6 p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                <div className="mt-6 p-4 bg-success/5 rounded-lg border border-success/20">
                   <div className="flex items-center space-x-3 mb-2">
                     <Trophy className="h-5 w-5 text-success" />
                     <h4 className="font-semibold text-foreground">
@@ -1520,36 +1529,36 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <CalendarIcon className="h-5 w-5 text-foreground" />
                     <span>3-Month Forecast</span>
                   </CardTitle>
                   <CardDescription>
-                    December 2025 projections
+                    {forecastMonth(3)} projections
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 mb-1">
+                    <div className="text-center p-3 bg-success/5 rounded-lg">
+                      <div className="text-2xl font-bold text-success mb-1">
                         {mockAnalyticsData.projections.threeMonthForecast.co2Savings} tons
                       </div>
-                      <p className="text-sm text-green-700">CO₂ Savings</p>
+                      <p className="text-sm text-muted-foreground">CO₂ Savings</p>
                       <p className="text-xs text-muted-foreground">+{mockAnalyticsData.projections.trendAnalysis.co2SavingsGrowth}% growth</p>
                     </div>
                     
-                    <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600 mb-1">
+                    <div className="text-center p-3 bg-muted/40 rounded-lg">
+                      <div className="text-2xl font-bold text-foreground mb-1">
                         {(mockAnalyticsData.projections.threeMonthForecast.wasteCollection / 1000).toFixed(1)}K kg
                       </div>
-                      <p className="text-sm text-blue-700">Waste Collection</p>
+                      <p className="text-sm text-muted-foreground">Waste Collection</p>
                       <p className="text-xs text-muted-foreground">+{mockAnalyticsData.projections.trendAnalysis.wasteCollectionGrowth}% monthly</p>
                     </div>
                     
-                    <div className="text-center p-3 bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
-                      <div className="text-2xl font-bold text-purple-600 mb-1">
+                    <div className="text-center p-3 bg-muted/40 rounded-lg">
+                      <div className="text-2xl font-bold text-foreground mb-1">
                         {(mockAnalyticsData.projections.threeMonthForecast.newUsers / 1000).toFixed(1)}K
                       </div>
-                      <p className="text-sm text-purple-700">New Users</p>
+                      <p className="text-sm text-muted-foreground">New Users</p>
                       <p className="text-xs text-muted-foreground">+{mockAnalyticsData.projections.trendAnalysis.userAcquisitionGrowth}% quarterly</p>
                     </div>
                   </div>
@@ -1559,36 +1568,36 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5 text-amber-600" />
+                    <TrendingUp className="h-5 w-5 text-warning" />
                     <span>6-Month Forecast</span>
                   </CardTitle>
                   <CardDescription>
-                    March 2026 projections
+                    {forecastMonth(6)} projections
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 mb-1">
+                    <div className="text-center p-3 bg-success/5 rounded-lg">
+                      <div className="text-2xl font-bold text-success mb-1">
                         {mockAnalyticsData.projections.sixMonthForecast.co2Savings} tons
                       </div>
-                      <p className="text-sm text-green-700">CO₂ Savings</p>
+                      <p className="text-sm text-muted-foreground">CO₂ Savings</p>
                       <p className="text-xs text-muted-foreground">Cumulative impact</p>
                     </div>
                     
-                    <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-lg">
-                      <div className="text-2xl font-bold text-blue-600 mb-1">
+                    <div className="text-center p-3 bg-muted/40 rounded-lg">
+                      <div className="text-2xl font-bold text-foreground mb-1">
                         {(mockAnalyticsData.projections.sixMonthForecast.wasteCollection / 1000).toFixed(1)}K kg
                       </div>
-                      <p className="text-sm text-blue-700">Waste Collection</p>
+                      <p className="text-sm text-muted-foreground">Waste Collection</p>
                       <p className="text-xs text-muted-foreground">6-month total</p>
                     </div>
                     
-                    <div className="text-center p-3 bg-gradient-to-br from-orange-50 to-red-50 rounded-lg">
-                      <div className="text-2xl font-bold text-orange-600 mb-1">
+                    <div className="text-center p-3 bg-muted/40 rounded-lg">
+                      <div className="text-2xl font-bold text-foreground mb-1">
                         {(mockAnalyticsData.projections.sixMonthForecast.totalUsers / 1000).toFixed(1)}K
                       </div>
-                      <p className="text-sm text-orange-700">Total Users</p>
+                      <p className="text-sm text-muted-foreground">Total Users</p>
                       <p className="text-xs text-muted-foreground">Community size</p>
                     </div>
                   </div>
@@ -1598,36 +1607,36 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Target className="h-5 w-5 text-green-600" />
+                    <Target className="h-5 w-5 text-success" />
                     <span>Year-End Forecast</span>
                   </CardTitle>
                   <CardDescription>
-                    September 2026 projections
+                    {yearEndMonth} projections
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="text-center p-3 bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg">
-                      <div className="text-2xl font-bold text-green-600 mb-1">
+                    <div className="text-center p-3 bg-success/5 rounded-lg">
+                      <div className="text-2xl font-bold text-success mb-1">
                         {mockAnalyticsData.projections.yearlyForecast.co2Savings} tons
                       </div>
-                      <p className="text-sm text-green-700">CO₂ Savings</p>
+                      <p className="text-sm text-muted-foreground">CO₂ Savings</p>
                       <p className="text-xs text-muted-foreground">Annual target</p>
                     </div>
                     
-                    <div className="text-center p-3 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-lg">
-                      <div className="text-2xl font-bold text-indigo-600 mb-1">
+                    <div className="text-center p-3 bg-muted/40 rounded-lg">
+                      <div className="text-2xl font-bold text-foreground mb-1">
                         {(mockAnalyticsData.projections.yearlyForecast.wasteCollection / 1000).toFixed(0)}K kg
                       </div>
-                      <p className="text-sm text-indigo-700">Waste Collection</p>
+                      <p className="text-sm text-foreground">Waste Collection</p>
                       <p className="text-xs text-muted-foreground">Annual goal</p>
                     </div>
                     
-                    <div className="text-center p-3 bg-gradient-to-br from-teal-50 to-cyan-50 rounded-lg">
-                      <div className="text-2xl font-bold text-teal-600 mb-1">
+                    <div className="text-center p-3 bg-muted/40 rounded-lg">
+                      <div className="text-2xl font-bold text-primary mb-1">
                         {(mockAnalyticsData.projections.yearlyForecast.totalUsers / 1000).toFixed(0)}K
                       </div>
-                      <p className="text-sm text-teal-700">Total Users</p>
+                      <p className="text-sm text-primary">Total Users</p>
                       <p className="text-xs text-muted-foreground">Growth target</p>
                     </div>
                   </div>
@@ -1639,7 +1648,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <BarChart3 className="h-5 w-5 text-purple-600" />
+                  <BarChart3 className="h-5 w-5 text-foreground" />
                   <span>Seasonal Impact Analysis</span>
                 </CardTitle>
                 <CardDescription>
@@ -1650,15 +1659,15 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {mockAnalyticsData.projections.seasonalFactors.map((season, index) => (
                     <div key={index} className={`p-4 rounded-lg border ${
-                      season.factor > 1.1 ? 'bg-green-50 border-green-200' : 
-                      season.factor < 0.95 ? 'bg-orange-50 border-orange-200' : 
-                      'bg-blue-50 border-blue-200'
+                      season.factor > 1.1 ? 'bg-success/5 border-success/20' :
+                      season.factor < 0.95 ? 'bg-warning/5 border-warning/20' :
+                      'bg-muted/40 border-border'
                     }`}>
                       <div className="text-center mb-2">
                         <div className={`text-2xl font-bold ${
-                          season.factor > 1.1 ? 'text-green-600' : 
-                          season.factor < 0.95 ? 'text-orange-600' : 
-                          'text-blue-600'
+                          season.factor > 1.1 ? 'text-success' :
+                          season.factor < 0.95 ? 'text-warning' :
+                          'text-foreground'
                         }`}>
                           {(season.factor * 100).toFixed(0)}%
                         </div>
@@ -1667,9 +1676,9 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                       <p className="text-xs text-muted-foreground text-center">{season.reason}</p>
                       <div className="mt-2 text-center">
                         <span className={`px-2 py-1 text-xs rounded-full ${
-                          season.factor > 1.1 ? 'bg-green-100 text-green-700' : 
-                          season.factor < 0.95 ? 'bg-orange-100 text-orange-700' : 
-                          'bg-blue-100 text-blue-700'
+                          season.factor > 1.1 ? 'bg-success/10 text-success' :
+                          season.factor < 0.95 ? 'bg-warning/10 text-warning' :
+                          'bg-muted text-muted-foreground'
                         }`}>
                           {season.factor > 1.1 ? 'Peak' : season.factor < 0.95 ? 'Low' : 'Normal'}
                         </span>
@@ -1685,7 +1694,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <TrendingUp className="h-5 w-5 text-emerald-600" />
+                    <TrendingUp className="h-5 w-5 text-success" />
                     <span>Growth Opportunities</span>
                   </CardTitle>
                   <CardDescription>
@@ -1694,29 +1703,29 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-start space-x-3 p-3 bg-emerald-50 rounded-lg">
-                      <div className="w-2 h-2 bg-emerald-500 rounded-full mt-2"></div>
+                    <div className="flex items-start space-x-3 p-3 bg-success/5 rounded-lg">
+                      <div className="w-2 h-2 bg-success/50 rounded-full mt-2"></div>
                       <div>
-                        <p className="font-medium text-emerald-800">Corporate Partnership Expansion</p>
-                        <p className="text-sm text-emerald-700">Target 25% increase in B2B waste collection</p>
+                        <p className="font-medium text-foreground">Corporate Partnership Expansion</p>
+                        <p className="text-sm text-muted-foreground">Target 25% increase in B2B waste collection</p>
                         <p className="text-xs text-muted-foreground">Est. impact: +3.2 tons CO₂ savings/month</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
+                    <div className="flex items-start space-x-3 p-3 bg-muted/40 rounded-lg">
+                      <div className="w-2 h-2 bg-primary rounded-full mt-2"></div>
                       <div>
-                        <p className="font-medium text-blue-800">Mobile App Enhancement</p>
-                        <p className="text-sm text-blue-700">Gamification features to boost engagement</p>
+                        <p className="font-medium text-foreground">Mobile App Enhancement</p>
+                        <p className="text-sm text-muted-foreground">Gamification features to boost engagement</p>
                         <p className="text-xs text-muted-foreground">Est. impact: +15% user retention</p>
                       </div>
                     </div>
                     
-                    <div className="flex items-start space-x-3 p-3 bg-purple-50 rounded-lg">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2"></div>
+                    <div className="flex items-start space-x-3 p-3 bg-accent/10 rounded-lg">
+                      <div className="w-2 h-2 bg-accent rounded-full mt-2"></div>
                       <div>
-                        <p className="font-medium text-purple-800">Educational Campaigns</p>
-                        <p className="text-sm text-purple-700">Increase recycling knowledge and participation</p>
+                        <p className="font-medium text-foreground">Educational Campaigns</p>
+                        <p className="text-sm text-muted-foreground">Increase recycling knowledge and participation</p>
                         <p className="text-xs text-muted-foreground">Est. impact: +0.3 kg per user/month</p>
                       </div>
                     </div>
@@ -1727,7 +1736,7 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <Award className="h-5 w-5 text-amber-600" />
+                    <Award className="h-5 w-5 text-warning" />
                     <span>Key Performance Indicators</span>
                   </CardTitle>
                   <CardDescription>
@@ -1736,40 +1745,40 @@ const AnalyticsDashboard: React.FC<{ analytics?: BrandAnalytics | null }> = ({ a
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex justify-between items-center p-3 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                    <div className="flex justify-between items-center p-3 bg-success/5 rounded-lg">
                       <div>
-                        <p className="font-medium text-green-800">Avg Waste per User</p>
-                        <p className="text-sm text-green-700">Current: 1.23 kg/month</p>
+                        <p className="font-medium text-foreground">Avg Waste per User</p>
+                        <p className="text-sm text-muted-foreground">Current: 1.23 kg/month</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-green-600">
+                        <p className="text-lg font-bold text-success">
                           {mockAnalyticsData.projections.yearlyForecast.averageWastePerUser} kg
                         </p>
-                        <p className="text-xs text-green-500">+34% improvement</p>
+                        <p className="text-xs text-success">+34% improvement</p>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center p-3 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg">
+                    <div className="flex justify-between items-center p-3 bg-muted/40 rounded-lg">
                       <div>
-                        <p className="font-medium text-blue-800">Monthly Engagement</p>
-                        <p className="text-sm text-blue-700">Current: 25% rate</p>
+                        <p className="font-medium text-foreground">Monthly Engagement</p>
+                        <p className="text-sm text-muted-foreground">Current: 25% rate</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-blue-600">33%</p>
-                        <p className="text-xs text-blue-500">+{mockAnalyticsData.projections.trendAnalysis.engagementImprovement}% monthly</p>
+                        <p className="text-lg font-bold text-foreground">33%</p>
+                        <p className="text-xs text-muted-foreground">+{mockAnalyticsData.projections.trendAnalysis.engagementImprovement}% monthly</p>
                       </div>
                     </div>
 
-                    <div className="flex justify-between items-center p-3 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                    <div className="flex justify-between items-center p-3 bg-muted/40 rounded-lg">
                       <div>
-                        <p className="font-medium text-purple-800">Total Points Earned</p>
-                        <p className="text-sm text-purple-700">Current: 95.7K points</p>
+                        <p className="font-medium text-foreground">Total Points Earned</p>
+                        <p className="text-sm text-muted-foreground">Current: 95.7K points</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-purple-600">
+                        <p className="text-lg font-bold text-foreground">
                           {(mockAnalyticsData.projections.yearlyForecast.pointsEarned / 1000).toFixed(0)}K
                         </p>
-                        <p className="text-xs text-purple-500">8x growth potential</p>
+                        <p className="text-xs text-muted-foreground">8x growth potential</p>
                       </div>
                     </div>
                   </div>
@@ -1789,62 +1798,61 @@ const OverviewTab: React.FC<{
   analytics?: BrandAnalytics | null;
 }> = ({ campaigns, analytics }) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Sustainability Metrics & Recent Activity</CardTitle>
-        <CardDescription>
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-lg font-semibold text-foreground" style={{ textWrap: "balance" }}>
+          Sustainability Metrics & Recent Activity
+        </h2>
+        <p className="text-sm text-muted-foreground">
           Your brand's environmental impact and campaign performance
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-6">
-          {/* Stats Row */}
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Active Campaigns</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">{campaigns}</p>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Unique Users</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {analytics
-                  ? analytics.summary.uniqueUsers >= 1000
-                    ? `${(analytics.summary.uniqueUsers / 1000).toFixed(1)}K`
-                    : analytics.summary.uniqueUsers
-                  : "—"}
-              </p>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Recycle className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Total Redemptions</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {analytics?.summary.totalRedemptions.toLocaleString() ?? "—"}
-              </p>
-            </div>
-            <div className="p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">Total Campaigns</span>
-              </div>
-              <p className="text-2xl font-bold text-foreground">
-                {analytics?.summary.totalCampaigns ?? "—"}
-              </p>
-            </div>
-          </div>
+        </p>
+      </div>
 
-          {/* Analytics Dashboard Section */}
-          <AnalyticsDashboard analytics={analytics} />
+      {/* Stats Row */}
+      <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Active Campaigns</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">{campaigns}</p>
         </div>
-      </CardContent>
-    </Card>
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Users className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Unique Users</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {analytics
+              ? analytics.summary.uniqueUsers >= 1000
+                ? `${(analytics.summary.uniqueUsers / 1000).toFixed(1)}K`
+                : analytics.summary.uniqueUsers
+              : "—"}
+          </p>
+        </div>
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <Recycle className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Total Redemptions</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {analytics?.summary.totalRedemptions.toLocaleString() ?? "—"}
+          </p>
+        </div>
+        <div className="p-4">
+          <div className="flex items-center gap-2 mb-1">
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Total Campaigns</span>
+          </div>
+          <p className="text-2xl font-bold text-foreground">
+            {analytics?.summary.totalCampaigns ?? "—"}
+          </p>
+        </div>
+      </div>
+
+      {/* Analytics Dashboard Section */}
+      <AnalyticsDashboard analytics={analytics} />
+    </div>
   );
 };
 

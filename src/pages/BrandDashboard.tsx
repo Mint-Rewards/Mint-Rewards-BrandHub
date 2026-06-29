@@ -14,11 +14,10 @@ import {
   Clock,
   AlertCircle,
   Eye,
-  Bell,
   Mail,
   Phone,
-  Loader2,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   fetchBrandById,
@@ -133,20 +132,51 @@ const BrandDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center">
-        <Card className="p-8">
-          <div className="flex items-center space-x-3">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Loading brand dashboard...</span>
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card/50 sticky top-0 z-50">
+          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-9 w-9 rounded-md" />
+              <Skeleton className="h-9 w-32 rounded-md" />
+            </div>
           </div>
-        </Card>
+        </header>
+        <main className="container mx-auto px-6 py-8 space-y-6">
+          <div className="grid grid-cols-4 gap-2">
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-6 space-y-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-3 w-32" />
+              </Card>
+            ))}
+          </div>
+          <Card className="p-6 space-y-4">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-64 w-full rounded-md" />
+          </Card>
+        </main>
       </div>
     );
   }
 
   if (!brandData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-lg font-semibold mb-2">Brand Not Found</h2>
           <p className="text-muted-foreground mb-4">
@@ -239,14 +269,14 @@ const BrandDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-primary" />
+            <AlertCircle className="h-5 w-5" style={{ color: brandColor }} />
             What's Next?
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-start space-x-3">
-              <div className="h-2 w-2 rounded-full bg-primary mt-2"></div>
+              <div className="h-2 w-2 rounded-full mt-2" style={{ backgroundColor: brandColor }}></div>
               <div>
                 <p className="font-medium">Marketing Team Review</p>
                 <p className="text-sm text-muted-foreground">
@@ -309,7 +339,7 @@ const BrandDashboard = () => {
       </Card>
 
       {/* Demo Button */}
-      <Card className="bg-gradient-to-r from-primary/5 to-accent/5">
+      <Card style={{ backgroundColor: brandColor + "0d" }}>
         <CardContent className="p-6">
           <div className="text-center space-y-3">
             <h3 className="font-semibold">Want to see what's coming?</h3>
@@ -409,28 +439,39 @@ const BrandDashboard = () => {
     </div>
   );
 
+  const brandColor = formattedData.themeColor;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        {/* Brand color accent line */}
+        <div className="h-0.5 w-full" style={{ backgroundColor: brandColor }} />
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-primary-foreground" />
+              <div
+                className="h-10 w-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: brandColor }}
+              >
+                <Building2 className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">{formattedData.name}</h1>
-                <p className="text-xs text-muted-foreground">Brand Dashboard</p>
+                <p className="text-xs text-muted-foreground">{formattedData.category || "Brand Dashboard"}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Badge variant={isApproved ? "default" : "secondary"}>
+              <Badge
+                variant="outline"
+                style={{
+                  backgroundColor: brandColor + "1a",
+                  color: brandColor,
+                  borderColor: brandColor + "33",
+                }}
+              >
                 {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
               </Badge>
-              <Button variant="ghost" size="sm" aria-label="Notifications">
-                <Bell className="h-4 w-4" />
-              </Button>
               <Button variant="outline" onClick={() => navigate("/")}>
                 Exit Dashboard
               </Button>
