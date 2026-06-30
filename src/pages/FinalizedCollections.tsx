@@ -63,8 +63,8 @@ const FinalizedCollections = () => {
     if (searchQuery) {
       filtered = filtered.filter(
         (c) =>
-          c.brand_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          c.pickup_location
+          c.brandName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          c.pickupLocation
             ?.toLowerCase()
             .includes(searchQuery.toLowerCase()) ||
           c.notes?.toLowerCase().includes(searchQuery.toLowerCase())
@@ -73,7 +73,7 @@ const FinalizedCollections = () => {
 
     // Brand filter
     if (filterBrand !== "all") {
-      filtered = filtered.filter((c) => c.brand_id === filterBrand);
+      filtered = filtered.filter((c) => c.brandId === filterBrand);
     }
 
     setFilteredCollections(filtered);
@@ -86,121 +86,121 @@ const FinalizedCollections = () => {
       const mockCollections: Collection[] = [
         {
           id: "1",
-          brand_id: "1",
-          brand_name: "EcoStore",
+          brandId: "1",
+          brandName: "EcoStore",
           status: "finalized",
-          total_weight: 150.5,
-          collection_date: new Date(
+          totalWeight: 150.5,
+          collectionDate: new Date(
             Date.now() - 7 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          pickup_location: "Downtown Location",
+          pickupLocation: "Downtown Location",
           notes: "Regular weekly pickup",
-          paper_weight: 45.2,
-          cardboard_weight: 38.5,
-          plastic_weight: 28.3,
-          glass_weight: 15.7,
-          aluminum_weight: 8.5,
-          steel_weight: 6.3,
-          electronic_weight: 5.0,
-          organic_weight: 3.0,
-          co2_saved: 385.65,
-          created_at: new Date(
+          paperWeight: 45.2,
+          cardboardWeight: 38.5,
+          plasticWeight: 28.3,
+          glassWeight: 15.7,
+          aluminumWeight: 8.5,
+          steelWeight: 6.3,
+          electronicWeight: 5.0,
+          organicWeight: 3.0,
+          co2Saved: 385.65,
+          createdAt: new Date(
             Date.now() - 7 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          updated_at: new Date(
+          updatedAt: new Date(
             Date.now() - 5 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          finalized_at: new Date(
+          finalizedAt: new Date(
             Date.now() - 5 * 24 * 60 * 60 * 1000
           ).toISOString(),
         },
         {
           id: "2",
-          brand_id: "2",
-          brand_name: "GreenCafe",
+          brandId: "2",
+          brandName: "GreenCafe",
           status: "finalized",
-          total_weight: 89.3,
-          collection_date: new Date(
+          totalWeight: 89.3,
+          collectionDate: new Date(
             Date.now() - 5 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          pickup_location: "Main Street Branch",
+          pickupLocation: "Main Street Branch",
           notes: "Mostly organic waste",
-          paper_weight: 12.5,
-          cardboard_weight: 18.3,
-          plastic_weight: 8.5,
-          glass_weight: 5.0,
-          aluminum_weight: 3.2,
-          steel_weight: 1.8,
-          electronic_weight: 0,
-          organic_weight: 40.0,
-          co2_saved: 168.45,
-          created_at: new Date(
+          paperWeight: 12.5,
+          cardboardWeight: 18.3,
+          plasticWeight: 8.5,
+          glassWeight: 5.0,
+          aluminumWeight: 3.2,
+          steelWeight: 1.8,
+          electronicWeight: 0,
+          organicWeight: 40.0,
+          co2Saved: 168.45,
+          createdAt: new Date(
             Date.now() - 5 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          updated_at: new Date(
+          updatedAt: new Date(
             Date.now() - 3 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          finalized_at: new Date(
+          finalizedAt: new Date(
             Date.now() - 3 * 24 * 60 * 60 * 1000
           ).toISOString(),
         },
         {
           id: "3",
-          brand_id: "3",
-          brand_name: "TechCycle",
+          brandId: "3",
+          brandName: "TechCycle",
           status: "finalized",
-          total_weight: 245.7,
-          collection_date: new Date(
+          totalWeight: 245.7,
+          collectionDate: new Date(
             Date.now() - 3 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          pickup_location: "Tech Park Facility",
+          pickupLocation: "Tech Park Facility",
           notes: "Electronic waste collection",
-          paper_weight: 8.5,
-          cardboard_weight: 15.2,
-          plastic_weight: 45.8,
-          glass_weight: 12.3,
-          aluminum_weight: 28.5,
-          steel_weight: 35.4,
-          electronic_weight: 95.0,
-          organic_weight: 5.0,
-          co2_saved: 892.15,
-          created_at: new Date(
+          paperWeight: 8.5,
+          cardboardWeight: 15.2,
+          plasticWeight: 45.8,
+          glassWeight: 12.3,
+          aluminumWeight: 28.5,
+          steelWeight: 35.4,
+          electronicWeight: 95.0,
+          organicWeight: 5.0,
+          co2Saved: 892.15,
+          createdAt: new Date(
             Date.now() - 3 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          updated_at: new Date(
+          updatedAt: new Date(
             Date.now() - 1 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          finalized_at: new Date(
+          finalizedAt: new Date(
             Date.now() - 1 * 24 * 60 * 60 * 1000
           ).toISOString(),
         },
         {
           id: "4",
-          brand_id: "1",
-          brand_name: "EcoStore",
+          brandId: "1",
+          brandName: "EcoStore",
           status: "finalized",
-          total_weight: 178.9,
-          collection_date: new Date(
+          totalWeight: 178.9,
+          collectionDate: new Date(
             Date.now() - 14 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          pickup_location: "Westside Store",
+          pickupLocation: "Westside Store",
           notes: "Bi-weekly collection",
-          paper_weight: 52.3,
-          cardboard_weight: 48.5,
-          plastic_weight: 32.1,
-          glass_weight: 18.5,
-          aluminum_weight: 12.0,
-          steel_weight: 8.5,
-          electronic_weight: 4.0,
-          organic_weight: 3.0,
-          co2_saved: 465.25,
-          created_at: new Date(
+          paperWeight: 52.3,
+          cardboardWeight: 48.5,
+          plasticWeight: 32.1,
+          glassWeight: 18.5,
+          aluminumWeight: 12.0,
+          steelWeight: 8.5,
+          electronicWeight: 4.0,
+          organicWeight: 3.0,
+          co2Saved: 465.25,
+          createdAt: new Date(
             Date.now() - 14 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          updated_at: new Date(
+          updatedAt: new Date(
             Date.now() - 12 * 24 * 60 * 60 * 1000
           ).toISOString(),
-          finalized_at: new Date(
+          finalizedAt: new Date(
             Date.now() - 12 * 24 * 60 * 60 * 1000
           ).toISOString(),
         },
@@ -221,7 +221,7 @@ const FinalizedCollections = () => {
 
   const uniqueBrands = Array.from(
     new Set(
-      finalizedCollections.map((c) => ({ id: c.brand_id, name: c.brand_name }))
+      finalizedCollections.map((c) => ({ id: c.brandId, name: c.brandName }))
     )
   ).reduce((acc, curr) => {
     if (!acc.find((b) => b.id === curr.id)) {
@@ -232,8 +232,8 @@ const FinalizedCollections = () => {
 
   const totalStats = finalizedCollections.reduce(
     (acc, curr) => ({
-      totalWeight: acc.totalWeight + curr.total_weight,
-      totalCO2: acc.totalCO2 + (curr.co2_saved || 0),
+      totalWeight: acc.totalWeight + curr.totalWeight,
+      totalCO2: acc.totalCO2 + (curr.co2Saved || 0),
       count: acc.count + 1,
     }),
     { totalWeight: 0, totalCO2: 0, count: 0 }
@@ -243,42 +243,42 @@ const FinalizedCollections = () => {
     const materials = [
       {
         name: "Paper",
-        weight: collection.paper_weight || 0,
+        weight: collection.paperWeight || 0,
         color: "bg-green-500",
       },
       {
         name: "Cardboard",
-        weight: collection.cardboard_weight || 0,
+        weight: collection.cardboardWeight || 0,
         color: "bg-emerald-600",
       },
       {
         name: "Plastic",
-        weight: collection.plastic_weight || 0,
+        weight: collection.plasticWeight || 0,
         color: "bg-purple-500",
       },
       {
         name: "Glass",
-        weight: collection.glass_weight || 0,
+        weight: collection.glassWeight || 0,
         color: "bg-blue-500",
       },
       {
         name: "Aluminum",
-        weight: collection.aluminum_weight || 0,
+        weight: collection.aluminumWeight || 0,
         color: "bg-amber-500",
       },
       {
         name: "Steel",
-        weight: collection.steel_weight || 0,
+        weight: collection.steelWeight || 0,
         color: "bg-slate-500",
       },
       {
         name: "Electronic",
-        weight: collection.electronic_weight || 0,
+        weight: collection.electronicWeight || 0,
         color: "bg-red-500",
       },
       {
         name: "Organic",
-        weight: collection.organic_weight || 0,
+        weight: collection.organicWeight || 0,
         color: "bg-lime-500",
       },
     ].filter((m) => m.weight > 0);
@@ -453,19 +453,19 @@ const FinalizedCollections = () => {
                       <div className="space-y-1">
                         <CardTitle className="flex items-center gap-2">
                           <Building2 className="h-5 w-5" />
-                          {collection.brand_name}
+                          {collection.brandName}
                         </CardTitle>
                         <CardDescription className="flex items-center gap-4 text-xs">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             {new Date(
-                              collection.collection_date
+                              collection.collectionDate
                             ).toLocaleDateString()}
                           </span>
-                          {collection.pickup_location && (
+                          {collection.pickupLocation && (
                             <span className="flex items-center gap-1">
                               <MapPin className="h-3 w-3" />
-                              {collection.pickup_location}
+                              {collection.pickupLocation}
                             </span>
                           )}
                         </CardDescription>
@@ -484,7 +484,7 @@ const FinalizedCollections = () => {
                           Total Weight
                         </p>
                         <p className="text-2xl font-bold">
-                          {collection.total_weight}
+                          {collection.totalWeight}
                           <span className="text-sm text-muted-foreground ml-1">
                             kg
                           </span>
@@ -495,7 +495,7 @@ const FinalizedCollections = () => {
                           CO₂ Saved
                         </p>
                         <p className="text-2xl font-bold text-success">
-                          {(collection.co2_saved || 0).toFixed(1)}
+                          {(collection.co2Saved || 0).toFixed(1)}
                           <span className="text-sm text-muted-foreground ml-1">
                             kg
                           </span>
@@ -538,8 +538,8 @@ const FinalizedCollections = () => {
                     {/* Finalized Date */}
                     <div className="pt-2 text-xs text-muted-foreground">
                       Finalized on{" "}
-                      {collection.finalized_at
-                        ? new Date(collection.finalized_at).toLocaleString()
+                      {collection.finalizedAt
+                        ? new Date(collection.finalizedAt).toLocaleString()
                         : "N/A"}
                     </div>
                   </CardContent>
@@ -564,7 +564,7 @@ const FinalizedCollections = () => {
                   <div>
                     <CardTitle className="flex items-center gap-2 text-2xl">
                       <Building2 className="h-6 w-6" />
-                      {selectedCollection.brand_name}
+                      {selectedCollection.brandName}
                     </CardTitle>
                     <CardDescription className="mt-2">
                       Collection ID: {selectedCollection.id}
@@ -585,7 +585,7 @@ const FinalizedCollections = () => {
                     </p>
                     <p className="font-medium">
                       {new Date(
-                        selectedCollection.collection_date
+                        selectedCollection.collectionDate
                       ).toLocaleDateString()}
                     </p>
                   </div>
@@ -594,7 +594,7 @@ const FinalizedCollections = () => {
                       Pickup Location
                     </p>
                     <p className="font-medium">
-                      {selectedCollection.pickup_location || "N/A"}
+                      {selectedCollection.pickupLocation || "N/A"}
                     </p>
                   </div>
                   <div>
@@ -602,7 +602,7 @@ const FinalizedCollections = () => {
                       Total Weight
                     </p>
                     <p className="text-2xl font-bold">
-                      {selectedCollection.total_weight} kg
+                      {selectedCollection.totalWeight} kg
                     </p>
                   </div>
                   <div>
@@ -610,7 +610,7 @@ const FinalizedCollections = () => {
                       CO₂ Saved
                     </p>
                     <p className="text-2xl font-bold text-success">
-                      {(selectedCollection.co2_saved || 0).toFixed(2)} kg
+                      {(selectedCollection.co2Saved || 0).toFixed(2)} kg
                     </p>
                   </div>
                 </div>
@@ -657,13 +657,13 @@ const FinalizedCollections = () => {
                 <div className="pt-4 border-t space-y-1 text-sm text-muted-foreground">
                   <p>
                     Created:{" "}
-                    {new Date(selectedCollection.created_at).toLocaleString()}
+                    {new Date(selectedCollection.createdAt).toLocaleString()}
                   </p>
                   <p>
                     Finalized:{" "}
-                    {selectedCollection.finalized_at
+                    {selectedCollection.finalizedAt
                       ? new Date(
-                          selectedCollection.finalized_at
+                          selectedCollection.finalizedAt
                         ).toLocaleString()
                       : "N/A"}
                   </p>

@@ -1,0 +1,297 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-20T00:00:00.000Z",
+  "title": "Design System: MintRewards BrandHub",
+  "extensions": {
+    "colorMeta": {
+      "platform-teal": {
+        "role": "primary",
+        "displayName": "Certification Teal",
+        "canonical": "oklch(37% 0.09 200)",
+        "tonalRamp": [
+          "oklch(12% 0.09 200)",
+          "oklch(20% 0.09 200)",
+          "oklch(28% 0.09 200)",
+          "oklch(37% 0.09 200)",
+          "oklch(48% 0.08 200)",
+          "oklch(62% 0.07 200)",
+          "oklch(78% 0.05 200)",
+          "oklch(92% 0.02 200)"
+        ]
+      },
+      "precision-violet": {
+        "role": "secondary",
+        "displayName": "Precision Violet",
+        "canonical": "oklch(50% 0.28 295)",
+        "tonalRamp": [
+          "oklch(15% 0.25 295)",
+          "oklch(25% 0.27 295)",
+          "oklch(35% 0.28 295)",
+          "oklch(50% 0.28 295)",
+          "oklch(62% 0.24 295)",
+          "oklch(73% 0.18 295)",
+          "oklch(84% 0.10 295)",
+          "oklch(93% 0.04 295)"
+        ]
+      },
+      "brand-dynamic": {
+        "role": "tertiary",
+        "displayName": "Brand Dynamic",
+        "canonical": "oklch(56% 0.22 255)",
+        "tonalRamp": [
+          "oklch(20% 0.22 255)",
+          "oklch(30% 0.22 255)",
+          "oklch(40% 0.22 255)",
+          "oklch(56% 0.22 255)",
+          "oklch(66% 0.18 255)",
+          "oklch(76% 0.13 255)",
+          "oklch(86% 0.08 255)",
+          "oklch(94% 0.03 255)"
+        ]
+      },
+      "ink-primary": {
+        "role": "neutral",
+        "displayName": "Ink Primary",
+        "canonical": "oklch(22% 0.02 240)",
+        "tonalRamp": [
+          "oklch(8% 0.02 240)",
+          "oklch(14% 0.02 240)",
+          "oklch(22% 0.02 240)",
+          "oklch(35% 0.02 240)",
+          "oklch(50% 0.02 240)",
+          "oklch(65% 0.01 240)",
+          "oklch(80% 0.01 240)",
+          "oklch(95% 0.005 240)"
+        ]
+      },
+      "bg-base": {
+        "role": "neutral",
+        "displayName": "Surface Base",
+        "canonical": "oklch(99% 0 0)",
+        "tonalRamp": [
+          "oklch(80% 0 0)",
+          "oklch(85% 0 0)",
+          "oklch(88% 0 0)",
+          "oklch(91% 0 0)",
+          "oklch(94% 0 0)",
+          "oklch(96% 0 0)",
+          "oklch(98% 0 0)",
+          "oklch(99% 0 0)"
+        ]
+      },
+      "state-success": {
+        "role": "neutral",
+        "displayName": "Success Green",
+        "canonical": "oklch(54% 0.16 155)",
+        "tonalRamp": [
+          "oklch(20% 0.16 155)",
+          "oklch(30% 0.16 155)",
+          "oklch(40% 0.16 155)",
+          "oklch(54% 0.16 155)",
+          "oklch(65% 0.13 155)",
+          "oklch(76% 0.10 155)",
+          "oklch(86% 0.06 155)",
+          "oklch(94% 0.03 155)"
+        ]
+      },
+      "state-warning": {
+        "role": "neutral",
+        "displayName": "Warning Amber",
+        "canonical": "oklch(78% 0.18 75)",
+        "tonalRamp": [
+          "oklch(30% 0.18 75)",
+          "oklch(40% 0.18 75)",
+          "oklch(52% 0.18 75)",
+          "oklch(65% 0.18 75)",
+          "oklch(78% 0.18 75)",
+          "oklch(86% 0.12 75)",
+          "oklch(91% 0.07 75)",
+          "oklch(96% 0.03 75)"
+        ]
+      },
+      "state-error": {
+        "role": "neutral",
+        "displayName": "Error Red",
+        "canonical": "oklch(63% 0.22 30)",
+        "tonalRamp": [
+          "oklch(20% 0.22 30)",
+          "oklch(30% 0.22 30)",
+          "oklch(42% 0.22 30)",
+          "oklch(55% 0.22 30)",
+          "oklch(63% 0.22 30)",
+          "oklch(74% 0.16 30)",
+          "oklch(84% 0.10 30)",
+          "oklch(94% 0.04 30)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": { "displayName": "Headline", "purpose": "Page titles and major section headers. One per view." },
+      "title": { "displayName": "Title", "purpose": "Card titles, tab labels, named sections within a view." },
+      "body": { "displayName": "Body", "purpose": "Prose, descriptions, and data context text. Max 65ch line length." },
+      "label": { "displayName": "Label", "purpose": "Field labels, table headers, button text, navigation links." },
+      "caption": { "displayName": "Caption", "purpose": "Metadata, timestamps, chart axis labels, KPI supporting context." }
+    },
+    "shadows": [
+      {
+        "name": "shadow-card",
+        "value": "0 4px 20px -4px rgba(33, 36, 44, 0.08)",
+        "purpose": "Default elevation for card containers on bg-base. Not for list items or inline components."
+      },
+      {
+        "name": "shadow-button",
+        "value": "0 2px 8px -2px rgba(var(--primary-rgb), 0.3)",
+        "purpose": "Hover state only on brand primary button. Brand-color-tinted — inherits themeColor in dashboard context."
+      },
+      {
+        "name": "shadow-elegant",
+        "value": "0 10px 40px -10px rgba(var(--primary-rgb), 0.15)",
+        "purpose": "Modal overlays and the Preview Dashboard featured card. Brand-tinted. Never at rest."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Default easing for all state transitions (button hover, input focus, badge state change)."
+      },
+      {
+        "name": "duration-fast",
+        "value": "150ms",
+        "purpose": "Micro-interactions: button hover, input focus, badge transitions."
+      },
+      {
+        "name": "duration-standard",
+        "value": "200ms",
+        "purpose": "Accordion expand/collapse, tab panel switch."
+      },
+      {
+        "name": "duration-slow",
+        "value": "300ms",
+        "purpose": "Modal/dialog enter, popover calendar open."
+      }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Brand Primary Button",
+      "kind": "button",
+      "refersTo": "button-brand",
+      "description": "Primary CTA within brand dashboard contexts. Fill color inherits the brand's themeColor.",
+      "html": "<button class=\"ds-btn-brand\">Preview Dashboard</button>",
+      "css": ".ds-btn-brand { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; background: #3B82F6; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 10px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1), box-shadow 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-brand:hover { background: rgba(59,130,246,0.9); box-shadow: 0 2px 8px -2px rgba(59,130,246,0.3); } .ds-btn-brand:focus-visible { outline: 2px solid #005660; outline-offset: 2px; } .ds-btn-brand:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }"
+    },
+    {
+      "name": "Platform Primary Button",
+      "kind": "button",
+      "refersTo": "button-platform",
+      "description": "Platform-level CTA — registration flow, global nav actions. Always Certification Teal.",
+      "html": "<button class=\"ds-btn-platform\">Register Your Brand</button>",
+      "css": ".ds-btn-platform { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; background: #005660; color: #ffffff; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 10px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1), box-shadow 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-platform:hover { background: rgba(0,86,96,0.9); box-shadow: 0 2px 8px -2px rgba(0,86,96,0.3); } .ds-btn-platform:focus-visible { outline: 2px solid #005660; outline-offset: 2px; } .ds-btn-platform:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Gradient Button",
+      "kind": "button",
+      "refersTo": "button-brand",
+      "description": "One-per-page promotional CTA only. Teal → Violet gradient. Not a general-purpose button.",
+      "html": "<button class=\"ds-btn-gradient\">Submit Registration</button>",
+      "css": ".ds-btn-gradient { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; background: linear-gradient(135deg, #005660, #8135F3); color: #ffffff; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 10px; cursor: pointer; transition: box-shadow 200ms cubic-bezier(0.4,0,0.2,1), transform 200ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-gradient:hover { box-shadow: 0 6px 24px -4px rgba(129,53,243,0.35); transform: scale(1.02); } .ds-btn-gradient:focus-visible { outline: 2px solid #005660; outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-btn-gradient { transition: none; } .ds-btn-gradient:hover { transform: none; } }"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary action alongside a primary. Used for 'Previous', 'Exit Dashboard', 'Remove Logo'.",
+      "html": "<button class=\"ds-btn-outline\">Exit Dashboard</button>",
+      "css": ".ds-btn-outline { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 16px; background: #FCFCFC; color: #21242C; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 500; border: 1px solid #E0EBE4; border-radius: 10px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1), box-shadow 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-outline:hover { background: #F3F5F7; box-shadow: 0 4px 20px -4px rgba(33,36,44,0.08); } .ds-btn-outline:focus-visible { outline: 2px solid #005660; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Navigation-level and tertiary actions. Bell icon, Back to Home, inline text actions.",
+      "html": "<button class=\"ds-btn-ghost\">← Back to Home</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 12px; background: transparent; color: #21242C; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 10px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-ghost:hover { background: #F3F5F7; } .ds-btn-ghost:focus-visible { outline: 2px solid #005660; outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "Standard text field used throughout the registration flow and settings.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field__label\" for=\"ds-input\">Company Name</label><input class=\"ds-input\" id=\"ds-input\" type=\"text\" placeholder=\"Enter your company name\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-field__label { font-family: system-ui, sans-serif; font-size: 14px; font-weight: 500; color: #21242C; } .ds-input { height: 40px; width: 100%; padding: 0 12px; background: #ffffff; color: #21242C; font-family: system-ui, -apple-system, sans-serif; font-size: 14px; border: 1px solid #E0EBE4; border-radius: 8px; transition: border-color 150ms cubic-bezier(0.4,0,0.2,1), box-shadow 150ms cubic-bezier(0.4,0,0.2,1); box-sizing: border-box; } .ds-input::placeholder { color: #7B8999; } .ds-input:focus { outline: none; border-color: #005660; box-shadow: 0 0 0 2px rgba(0,86,96,0.2); } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    },
+    {
+      "name": "Content Card",
+      "kind": "card",
+      "refersTo": "card-default",
+      "description": "Primary container for grouped content. One level of nesting only — never nest cards.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card__title\">Brand Information</h3><p class=\"ds-card__body\">Tell us about your brand and business.</p></div>",
+      "css": ".ds-card { background: #ffffff; border-radius: 10px; padding: 24px; border: 1px solid #E0EBE4; box-shadow: 0 4px 20px -4px rgba(33,36,44,0.08); } .ds-card__title { margin: 0 0 4px; font-family: system-ui, sans-serif; font-size: 16px; font-weight: 600; color: #21242C; line-height: 1.4; } .ds-card__body { margin: 0; font-family: system-ui, sans-serif; font-size: 14px; font-weight: 400; color: #7B8999; line-height: 1.5; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "card-default",
+      "description": "Brand approval status indicator. Three states: Pending, Active, Rejected. Text + background tint, no icons.",
+      "html": "<div class=\"ds-badges\"><span class=\"ds-badge ds-badge--pending\">Pending Review</span><span class=\"ds-badge ds-badge--active\">Active</span><span class=\"ds-badge ds-badge--rejected\">Rejected</span></div>",
+      "css": ".ds-badges { display: flex; gap: 8px; flex-wrap: wrap; } .ds-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 6px; font-family: system-ui, sans-serif; font-size: 12px; font-weight: 500; line-height: 1.4; } .ds-badge--pending { background: rgba(245,158,11,0.12); color: #B45309; } .ds-badge--active { background: rgba(22,162,73,0.12); color: #15803D; } .ds-badge--rejected { background: rgba(239,68,68,0.12); color: #B91C1C; }"
+    },
+    {
+      "name": "Dashboard Navigation Header",
+      "kind": "nav",
+      "refersTo": "card-default",
+      "description": "Sticky top bar present on all dashboard views. Contains brand identity, status badge, and exit action.",
+      "html": "<header class=\"ds-header\"><div class=\"ds-header__brand\"><div class=\"ds-header__logo\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M9 12h6M12 9v6\"/></svg></div><div><p class=\"ds-header__name\">EcoBrand</p><p class=\"ds-header__sub\">Brand Dashboard</p></div></div><div class=\"ds-header__actions\"><span class=\"ds-badge ds-badge--active\">Active</span><button class=\"ds-btn-ghost ds-btn-ghost--icon\" aria-label=\"Notifications\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9\"/><path d=\"M13.73 21a2 2 0 0 1-3.46 0\"/></svg></button><button class=\"ds-btn-outline ds-btn-outline--sm\">Exit Dashboard</button></div></header>",
+      "css": ".ds-header { display: flex; align-items: center; justify-content: space-between; padding: 0 24px; height: 64px; background: rgba(252,252,252,0.85); backdrop-filter: blur(12px); border-bottom: 1px solid #E0EBE4; position: sticky; top: 0; z-index: 40; } .ds-header__brand { display: flex; align-items: center; gap: 12px; } .ds-header__logo { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; background: linear-gradient(135deg, #005660, #8135F3); color: #ffffff; border-radius: 8px; flex-shrink: 0; } .ds-header__name { margin: 0; font-family: system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #21242C; line-height: 1.2; } .ds-header__sub { margin: 0; font-family: system-ui, sans-serif; font-size: 11px; font-weight: 400; color: #7B8999; } .ds-header__actions { display: flex; align-items: center; gap: 8px; } .ds-btn-ghost--icon { width: 36px; height: 36px; padding: 0; display: flex; align-items: center; justify-content: center; } .ds-btn-outline--sm { height: 32px; padding: 0 12px; font-size: 13px; background: #FCFCFC; color: #21242C; border: 1px solid #E0EBE4; border-radius: 8px; cursor: pointer; font-family: system-ui, sans-serif; font-weight: 500; transition: background 150ms ease; } .ds-btn-outline--sm:hover { background: #F3F5F7; } .ds-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 6px; font-family: system-ui, sans-serif; font-size: 12px; font-weight: 500; } .ds-badge--active { background: rgba(22,162,73,0.12); color: #15803D; } .ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 40px; padding: 0 12px; background: transparent; color: #21242C; font-family: system-ui, sans-serif; font-size: 14px; font-weight: 500; border: none; border-radius: 10px; cursor: pointer; transition: background 150ms ease; } .ds-btn-ghost:hover { background: #F3F5F7; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Accountability Ledger",
+    "overview": "BrandHub is where sustainability claims become documented fact. It combines the institutional authority of a certification board, the precision of an impact ledger, and the navigable clarity of a field report. A brand manager must be able to pull CO₂ savings for a quarterly board deck in under two minutes. An enterprise sustainability lead must trust what they see. The aesthetic IS the audit trail: structured, navigable, and built to survive a screenshot.\n\nThe system rejects two failure modes with equal force. First: the greenwashing aesthetic — leaf icons, earth-tone gradients, stock-photo warmth — where the design substitutes for the data. Second: the generic SaaS scaffold — hero metric cards, cool-blue palette, identical card grids — that announces this was built from a template.\n\nColor strategy is restrained. Platform Teal appears only in global navigation and registration. Inside brand dashboards, CSS --primary is replaced by the brand's own themeColor at runtime. Each dashboard becomes a credible extension of the brand's identity.",
+    "keyCharacteristics": [
+      "One typeface family, in multiple weights only — system-ui for zero latency and native rendering",
+      "Platform teal for platform context; brand color for brand dashboard context — never compete",
+      "Three named shadows, each with a specific structural role; decorative elevation is prohibited",
+      "Every metric shown with context: no bare KPIs, always a comparator or real-world equivalent",
+      "Standard affordances throughout — no invented patterns"
+    ],
+    "rules": [
+      { "name": "The Dynamic Brand Rule", "body": "Inside any /dashboard/:brandId route, platform Certification Teal must not appear as a fill color. All primary fills use the brand's themeColor. The dashboard is the brand's space; the platform is a frame.", "section": "colors" },
+      { "name": "The One Accent Rule", "body": "Precision Violet is used in two places only: the gradient button variant and secondary interactive states. Never as a background, card tint, or decorative element.", "section": "colors" },
+      { "name": "The Single Family Rule", "body": "No second typeface is permitted. Monospace for code is the only exception, and only if code appears in the interface.", "section": "typography" },
+      { "name": "The Context Requirement", "body": "A number without a unit, comparator, or time frame is prohibited. '8.4 tons CO₂ saved — 24% above category average' is a fact. '8.4' is not.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "No shadow at rest except shadow-card on explicit card containers. List items, table rows, tab panels, and inline components are flat.", "section": "elevation" },
+      { "name": "The Tinted Shadow Rule", "body": "shadow-button and shadow-elegant use the current --primary color. The shadow inherits the brand identity. Hardcoded colored shadows are prohibited.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Certification Teal (#005660) for global navigation, the registration CTA, and platform-level buttons only",
+      "Do show every metric with a denominator, a comparison, or a real-world equivalent",
+      "Do apply shadow-card to card containers; keep list items and table rows flat",
+      "Do verify all body and caption text at ≥4.5:1 contrast on their background",
+      "Do use the system-ui font stack — no web fonts",
+      "Do give every interactive element a visible keyboard focus state using the 2px platform-teal outline",
+      "Do use the Status Badge component for brand status — text + background tint, no icons, always caption size"
+    ],
+    "donts": [
+      "Don't use the hero-metric template (big number + small label + gradient accent card)",
+      "Don't build identical card grids (same-sized cards with icon + heading + text, repeated)",
+      "Don't use the generic SaaS scaffold — cool-blue primary, identical card grids, gradient-to-white hero sections",
+      "Don't use leaf icons, earth-tone gradients, or stock-photo eco imagery to signal sustainability",
+      "Don't use Precision Violet as a background fill, section tint, or decorative element",
+      "Don't use gradient text (background-clip: text + gradient background)",
+      "Don't use side-stripe borders (border-left or border-right > 1px as a colored accent)",
+      "Don't use glassmorphism decoratively — backdrop-filter permitted on sticky nav header only",
+      "Don't apply shadow-button or shadow-elegant at rest",
+      "Don't introduce a second typeface",
+      "Don't place a card inside a card"
+    ]
+  }
+}

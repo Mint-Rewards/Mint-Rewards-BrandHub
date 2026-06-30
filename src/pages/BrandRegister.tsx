@@ -17,12 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import {
   Building2,
   Upload,
-  Palette,
   ArrowLeft,
   ArrowRight,
   CheckCircle,
@@ -31,6 +28,14 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import { registerBrand } from "@/actions/brandActions";
+import {
+  isValidEmail,
+  isValidUrl,
+  isValidPhone,
+  isValidDomain,
+  isValidHex,
+  minLength,
+} from "@/lib/validators";
 
 const BrandRegister = () => {
   const navigate = useNavigate();
@@ -54,6 +59,9 @@ const BrandRegister = () => {
     customEmails: "",
   });
 
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
   const totalSteps = 4;
   const progress = (currentStep / totalSteps) * 100;
 
@@ -71,64 +79,123 @@ const BrandRegister = () => {
     "Other",
   ];
 
+  const getFieldError = (field: string, value: string): string => {
+    switch (field) {
+      case "companyName":
+        return minLength(value, 2, "Company name") ?? "";
+      case "brandName":
+        return minLength(value, 2, "Brand name") ?? "";
+      case "contactName":
+        return minLength(value, 2, "Contact name") ?? "";
+      case "category":
+        return value ? "" : "Please select a category";
+      case "website":
+        return !value ? "Website is required" : (isValidUrl(value) ?? "");
+      case "appLink":
+        return value ? (isValidUrl(value) ?? "") : "";
+      case "contactEmail":
+        return !value ? "Email is required" : (isValidEmail(value) ?? "");
+      case "contactPhone":
+        return !value ? "Phone is required" : (isValidPhone(value) ?? "");
+      case "domain":
+        return value ? (isValidDomain(value) ?? "") : "";
+      case "themeColor":
+        return isValidHex(value) ?? "";
+      default:
+        return "";
+    }
+  };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (touched[field]) {
+      setErrors((prev) => ({ ...prev, [field]: getFieldError(field, value) }));
+    }
+  };
+
+  const handleBlur = (field: string) => {
+    setTouched((prev) => ({ ...prev, [field]: true }));
+    const value = String(formData[field as keyof typeof formData] ?? "");
+    setErrors((prev) => ({ ...prev, [field]: getFieldError(field, value) }));
   };
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: "File too large",
-          description: "Logo must be under 5MB",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (!file) return;
 
-      if (!file.type.startsWith("image/")) {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload a PNG or JPG image",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      setFormData((prev) => ({ ...prev, logo: file }));
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Logo must be under 5MB",
+        variant: "destructive",
+      });
+      return;
     }
+
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PNG or JPG image",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      if (img.width < 100 || img.height < 100) {
+        setErrors((prev) => ({
+          ...prev,
+          logo: "Logo must be at least 100×100 pixels",
+        }));
+        return;
+      }
+      setErrors((prev) => ({ ...prev, logo: "" }));
+      setFormData((prev) => ({ ...prev, logo: file }));
+    };
+    img.src = objectUrl;
   };
 
-  const validateStep = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          formData.companyName &&
-          formData.brandName &&
-          formData.category &&
-          formData.website
-        );
-      case 2:
-        return (
-          formData.contactName && formData.contactPhone && formData.contactEmail
-        );
-      case 3:
-        return formData.logo && formData.themeColor;
-      case 4:
-        return true;
-      default:
-        return false;
+  const validateStepFields = (): boolean => {
+    const stepFields: Record<number, string[]> = {
+      1: ["companyName", "brandName", "category", "website", "appLink"],
+      2: ["contactName", "contactPhone", "contactEmail", "domain"],
+      3: ["themeColor"],
+    };
+
+    const fields = stepFields[currentStep] ?? [];
+    const newErrors: Record<string, string> = { ...errors };
+    const newTouched: Record<string, boolean> = { ...touched };
+    let hasError = false;
+
+    for (const field of fields) {
+      newTouched[field] = true;
+      const value = String(formData[field as keyof typeof formData] ?? "");
+      const error = getFieldError(field, value);
+      newErrors[field] = error;
+      if (error) hasError = true;
     }
+
+    if (currentStep === 3 && !formData.logo) {
+      newErrors.logo = "Logo is required";
+      newTouched.logo = true;
+      hasError = true;
+    }
+
+    setErrors(newErrors);
+    setTouched(newTouched);
+    return !hasError;
   };
 
   const nextStep = () => {
-    if (validateStep()) {
+    if (validateStepFields()) {
       setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
     } else {
       toast({
-        title: "Please complete all required fields",
-        description: "Fill in all required information before proceeding",
+        title: "Please fix the errors above",
+        description: "Fill in all required fields correctly before proceeding",
         variant: "destructive",
       });
     }
@@ -161,7 +228,6 @@ const BrandRegister = () => {
           navigate(`/dashboard/${brandId}`);
           return;
         }
-
         navigate("/");
       }, 2000);
     } catch (error: unknown) {
@@ -175,6 +241,11 @@ const BrandRegister = () => {
     }
   };
 
+  const FieldError = ({ field }: { field: string }) =>
+    errors[field] ? (
+      <p className="text-xs text-destructive mt-1">{errors[field]}</p>
+    ) : null;
+
   const renderStepContent = () => {
     switch (currentStep) {
       case 1:
@@ -186,31 +257,38 @@ const BrandRegister = () => {
                 <Input
                   id="companyName"
                   value={formData.companyName}
-                  onChange={(e) =>
-                    handleInputChange("companyName", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("companyName", e.target.value)}
+                  onBlur={() => handleBlur("companyName")}
                   placeholder="Enter your company name"
+                  className={errors.companyName && touched.companyName ? "border-destructive" : ""}
                 />
+                <FieldError field="companyName" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="brandName">Brand Name *</Label>
                 <Input
                   id="brandName"
                   value={formData.brandName}
-                  onChange={(e) =>
-                    handleInputChange("brandName", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("brandName", e.target.value)}
+                  onBlur={() => handleBlur("brandName")}
                   placeholder="Enter your brand name"
+                  className={errors.brandName && touched.brandName ? "border-destructive" : ""}
                 />
+                <FieldError field="brandName" />
               </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Brand Category *</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => handleInputChange("category", value)}
+                onValueChange={(value) => {
+                  handleInputChange("category", value);
+                  setTouched((prev) => ({ ...prev, category: true }));
+                }}
               >
-                <SelectTrigger>
+                <SelectTrigger
+                  className={errors.category && touched.category ? "border-destructive" : ""}
+                >
                   <SelectValue placeholder="Select your brand category" />
                 </SelectTrigger>
                 <SelectContent>
@@ -221,6 +299,7 @@ const BrandRegister = () => {
                   ))}
                 </SelectContent>
               </Select>
+              <FieldError field="category" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="website">Website *</Label>
@@ -229,8 +308,11 @@ const BrandRegister = () => {
                 type="url"
                 value={formData.website}
                 onChange={(e) => handleInputChange("website", e.target.value)}
+                onBlur={() => handleBlur("website")}
                 placeholder="https://yourwebsite.com"
+                className={errors.website && touched.website ? "border-destructive" : ""}
               />
+              <FieldError field="website" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="appLink">App Link (Optional)</Label>
@@ -239,8 +321,11 @@ const BrandRegister = () => {
                 type="url"
                 value={formData.appLink}
                 onChange={(e) => handleInputChange("appLink", e.target.value)}
+                onBlur={() => handleBlur("appLink")}
                 placeholder="https://apps.apple.com/... or https://play.google.com/..."
+                className={errors.appLink && touched.appLink ? "border-destructive" : ""}
               />
+              <FieldError field="appLink" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="address">Business Address</Label>
@@ -256,10 +341,8 @@ const BrandRegister = () => {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) =>
-                  handleInputChange("description", e.target.value)
-                }
-                placeholder="Describe your brand (max 500 words)"
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="Describe your brand (max 500 characters)"
                 rows={4}
                 maxLength={500}
               />
@@ -279,11 +362,12 @@ const BrandRegister = () => {
                 <Input
                   id="contactName"
                   value={formData.contactName}
-                  onChange={(e) =>
-                    handleInputChange("contactName", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("contactName", e.target.value)}
+                  onBlur={() => handleBlur("contactName")}
                   placeholder="Enter contact person's name"
+                  className={errors.contactName && touched.contactName ? "border-destructive" : ""}
                 />
+                <FieldError field="contactName" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="contactPhone">Contact Phone *</Label>
@@ -291,11 +375,12 @@ const BrandRegister = () => {
                   id="contactPhone"
                   type="tel"
                   value={formData.contactPhone}
-                  onChange={(e) =>
-                    handleInputChange("contactPhone", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                  onBlur={() => handleBlur("contactPhone")}
                   placeholder="+1 (555) 123-4567"
+                  className={errors.contactPhone && touched.contactPhone ? "border-destructive" : ""}
                 />
+                <FieldError field="contactPhone" />
               </div>
             </div>
             <div className="space-y-2">
@@ -304,11 +389,12 @@ const BrandRegister = () => {
                 id="contactEmail"
                 type="email"
                 value={formData.contactEmail}
-                onChange={(e) =>
-                  handleInputChange("contactEmail", e.target.value)
-                }
+                onChange={(e) => handleInputChange("contactEmail", e.target.value)}
+                onBlur={() => handleBlur("contactEmail")}
                 placeholder="contact@company.com"
+                className={errors.contactEmail && touched.contactEmail ? "border-destructive" : ""}
               />
+              <FieldError field="contactEmail" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="domain">Domain Name (Optional)</Label>
@@ -316,8 +402,11 @@ const BrandRegister = () => {
                 id="domain"
                 value={formData.domain}
                 onChange={(e) => handleInputChange("domain", e.target.value)}
+                onBlur={() => handleBlur("domain")}
                 placeholder="company.com"
+                className={errors.domain && touched.domain ? "border-destructive" : ""}
               />
+              <FieldError field="domain" />
               <p className="text-xs text-muted-foreground">
                 Used for employee email identification
               </p>
@@ -329,7 +418,7 @@ const BrandRegister = () => {
         return (
           <div className="space-y-6">
             <div className="space-y-4">
-              <Label>Brand Logo * (512x512 pixels, PNG/JPG)</Label>
+              <Label>Brand Logo * (PNG/JPG, min 100×100 px, max 5 MB)</Label>
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
                 {formData.logo ? (
                   <div className="space-y-4">
@@ -345,9 +434,10 @@ const BrandRegister = () => {
                     </p>
                     <Button
                       variant="outline"
-                      onClick={() =>
-                        setFormData((prev) => ({ ...prev, logo: null }))
-                      }
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, logo: null }));
+                        setErrors((prev) => ({ ...prev, logo: "Logo is required" }));
+                      }}
                     >
                       Remove Logo
                     </Button>
@@ -356,16 +446,12 @@ const BrandRegister = () => {
                   <div className="space-y-4">
                     <Upload className="h-12 w-12 text-muted-foreground mx-auto" />
                     <div>
-                      <p className="text-sm font-medium">
-                        Upload your brand logo
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        PNG or JPG, max 5MB
-                      </p>
+                      <p className="text-sm font-medium">Upload your brand logo</p>
+                      <p className="text-xs text-muted-foreground">PNG or JPG, max 5 MB</p>
                     </div>
                     <input
                       type="file"
-                      accept="image/*"
+                      accept="image/png,image/jpeg"
                       onChange={handleFileUpload}
                       className="hidden"
                       id="logo-upload"
@@ -378,6 +464,9 @@ const BrandRegister = () => {
                   </div>
                 )}
               </div>
+              {errors.logo && touched.logo && (
+                <p className="text-xs text-destructive">{errors.logo}</p>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -386,19 +475,18 @@ const BrandRegister = () => {
                 <input
                   type="color"
                   value={formData.themeColor}
-                  onChange={(e) =>
-                    handleInputChange("themeColor", e.target.value)
-                  }
+                  onChange={(e) => handleInputChange("themeColor", e.target.value)}
                   className="h-12 w-12 rounded-lg border border-border cursor-pointer"
                 />
                 <div className="flex-1">
                   <Input
                     value={formData.themeColor}
-                    onChange={(e) =>
-                      handleInputChange("themeColor", e.target.value)
-                    }
+                    onChange={(e) => handleInputChange("themeColor", e.target.value)}
+                    onBlur={() => handleBlur("themeColor")}
                     placeholder="#3B82F6"
+                    className={errors.themeColor && touched.themeColor ? "border-destructive" : ""}
                   />
+                  <FieldError field="themeColor" />
                 </div>
                 <div
                   className="h-12 w-24 rounded-lg border border-border"
@@ -415,22 +503,6 @@ const BrandRegister = () => {
       case 4:
         return (
           <div className="space-y-6">
-            {/* <div className="space-y-2">
-              <Label htmlFor="customEmails">Custom Email List (Optional)</Label>
-              <Textarea
-                id="customEmails"
-                value={formData.customEmails}
-                onChange={(e) =>
-                  handleInputChange("customEmails", e.target.value)
-                }
-                placeholder="Enter email addresses, one per line&#10;email1@company.com&#10;email2@company.com"
-                rows={6}
-              />
-              <p className="text-xs text-muted-foreground">
-                Add team member emails for notifications and updates
-              </p>
-            </div> */}
-
             <Card className="bg-muted/50">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center gap-2">
@@ -442,9 +514,7 @@ const BrandRegister = () => {
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
                     <p className="font-medium">Brand Name</p>
-                    <p className="text-muted-foreground">
-                      {formData.brandName}
-                    </p>
+                    <p className="text-muted-foreground">{formData.brandName}</p>
                   </div>
                   <div>
                     <p className="font-medium">Category</p>
@@ -452,9 +522,7 @@ const BrandRegister = () => {
                   </div>
                   <div>
                     <p className="font-medium">Contact Email</p>
-                    <p className="text-muted-foreground">
-                      {formData.contactEmail}
-                    </p>
+                    <p className="text-muted-foreground">{formData.contactEmail}</p>
                   </div>
                   <div>
                     <p className="font-medium">Website</p>
@@ -479,7 +547,7 @@ const BrandRegister = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
@@ -491,12 +559,10 @@ const BrandRegister = () => {
               </Button>
             </div>
             <div className="flex items-center space-x-3">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <Building2 className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="font-semibold">
-                MintRewards Brand Management
-              </span>
+              <span className="font-semibold">MintRewards Brand Management</span>
             </div>
           </div>
         </div>
@@ -505,35 +571,46 @@ const BrandRegister = () => {
       <div className="container mx-auto px-6 py-8 max-w-4xl">
         {/* Progress Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-6">
             <h1 className="text-3xl font-bold">Brand Registration</h1>
-            <Badge variant="secondary">
+            <span className="text-sm text-muted-foreground tabular-nums">
               Step {currentStep} of {totalSteps}
-            </Badge>
+            </span>
           </div>
-          <Progress value={progress} className="h-2" />
-          <div className="flex justify-between mt-2">
-            {stepTitles.map((title, index) => (
-              <span
-                key={index}
-                className={`text-xs ${
-                  index + 1 <= currentStep
-                    ? "text-primary font-medium"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {title}
-              </span>
-            ))}
+          <div className="flex items-center gap-0">
+            {stepTitles.map((title, index) => {
+              const stepNum = index + 1;
+              const isCompleted = stepNum < currentStep;
+              const isCurrent = stepNum === currentStep;
+              return (
+                <div key={index} className="flex items-center flex-1 last:flex-none">
+                  <div className="flex flex-col items-center gap-1.5">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-colors ${
+                      isCompleted
+                        ? "bg-primary text-primary-foreground"
+                        : isCurrent
+                        ? "bg-primary text-primary-foreground ring-2 ring-offset-2 ring-primary/40"
+                        : "bg-muted text-muted-foreground"
+                    }`}>
+                      {isCompleted ? <CheckCircle className="h-4 w-4" /> : stepNum}
+                    </div>
+                    <span className={`text-xs whitespace-nowrap hidden sm:block ${isCurrent ? "text-primary font-medium" : "text-muted-foreground"}`}>
+                      {title}
+                    </span>
+                  </div>
+                  {index < stepTitles.length - 1 && (
+                    <div className={`h-0.5 flex-1 mx-2 mb-5 transition-colors ${stepNum < currentStep ? "bg-primary" : "bg-border"}`} />
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
 
         {/* Form Content */}
         <Card className="border-0 bg-card/60 backdrop-blur-sm shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl">
-              {stepTitles[currentStep - 1]}
-            </CardTitle>
+            <CardTitle className="text-xl">{stepTitles[currentStep - 1]}</CardTitle>
             <CardDescription>
               {currentStep === 1 && "Tell us about your brand and business"}
               {currentStep === 2 && "Provide your contact information"}

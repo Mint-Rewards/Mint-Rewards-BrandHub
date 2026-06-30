@@ -30,17 +30,18 @@ import { CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
+import { createDeal } from "@/actions/brandActions";
 
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  discount_percentage: z.string().optional(),
-  discount_amount: z.string().optional(),
-  promo_code: z.string().optional(),
-  start_date: z.date().optional(),
-  end_date: z.date().optional(),
-  max_uses: z.string().optional(),
-  minimum_purchase: z.string().optional(),
+  discountPercentage: z.string().optional(),
+  discountAmount: z.string().optional(),
+  promoCode: z.string().optional(),
+  startDate: z.date().optional(),
+  endDate: z.date().optional(),
+  maxUses: z.string().optional(),
+  minimumPurchase: z.string().optional(),
 });
 
 type DealFormData = z.infer<typeof dealSchema>;
@@ -63,51 +64,48 @@ export function CreateDealForm({
     defaultValues: {
       title: "",
       description: "",
-      discount_percentage: "",
-      discount_amount: "",
-      promo_code: "",
-      max_uses: "",
-      minimum_purchase: "",
+      discountPercentage: "",
+      discountAmount: "",
+      promoCode: "",
+      maxUses: "",
+      minimumPurchase: "",
     },
   });
 
   const onSubmit = async (data: DealFormData) => {
     setIsSubmitting(true);
     try {
-      const dealData = {
-        brand_id: brandId,
+      await createDeal(brandId, {
         title: data.title,
-        description: data.description,
-        discount_percentage: data.discount_percentage
-          ? parseInt(data.discount_percentage)
+        description: data.description || undefined,
+        discountPercentage: data.discountPercentage
+          ? parseInt(data.discountPercentage)
           : null,
-        discount_amount: data.discount_amount
-          ? parseFloat(data.discount_amount)
+        discountAmount: data.discountAmount
+          ? parseFloat(data.discountAmount)
           : null,
-        promo_code: data.promo_code,
-        start_date: data.start_date
-          ? format(data.start_date, "yyyy-MM-dd")
+        promoCode: data.promoCode || null,
+        startDate: data.startDate ? format(data.startDate, "yyyy-MM-dd") : null,
+        endDate: data.endDate ? format(data.endDate, "yyyy-MM-dd") : null,
+        maxUses: data.maxUses ? parseInt(data.maxUses) : null,
+        minimumPurchase: data.minimumPurchase
+          ? parseFloat(data.minimumPurchase)
           : null,
-        end_date: data.end_date ? format(data.end_date, "yyyy-MM-dd") : null,
-        max_uses: data.max_uses ? parseInt(data.max_uses) : null,
-        minimum_purchase: data.minimum_purchase
-          ? parseFloat(data.minimum_purchase)
-          : null,
-        status: "active",
-        current_uses: 0,
-      };
+      });
 
       toast({
-        title: "Success",
-        description: "Deal created successfully!",
+        title: "Deal submitted",
+        description: "Your deal is now live.",
       });
 
       onSuccess();
     } catch (error) {
-      console.error("Error creating deal:", error);
       toast({
         title: "Error",
-        description: "Failed to create deal. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to create deal. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -135,7 +133,7 @@ export function CreateDealForm({
 
           <FormField
             control={form.control}
-            name="promo_code"
+            name="promoCode"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Promo Code</FormLabel>
@@ -165,7 +163,7 @@ export function CreateDealForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="discount_percentage"
+            name="discountPercentage"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Discount Percentage (%)</FormLabel>
@@ -185,7 +183,7 @@ export function CreateDealForm({
 
           <FormField
             control={form.control}
-            name="discount_amount"
+            name="discountAmount"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Discount Amount ($)</FormLabel>
@@ -201,7 +199,7 @@ export function CreateDealForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="start_date"
+            name="startDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>Start Date</FormLabel>
@@ -242,7 +240,7 @@ export function CreateDealForm({
 
           <FormField
             control={form.control}
-            name="end_date"
+            name="endDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
                 <FormLabel>End Date</FormLabel>
@@ -285,7 +283,7 @@ export function CreateDealForm({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             control={form.control}
-            name="max_uses"
+            name="maxUses"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Maximum Uses</FormLabel>
@@ -299,7 +297,7 @@ export function CreateDealForm({
 
           <FormField
             control={form.control}
-            name="minimum_purchase"
+            name="minimumPurchase"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Minimum Purchase ($)</FormLabel>

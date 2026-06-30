@@ -20,8 +20,6 @@ export type BrandStatus =
 export interface Brand {
   id?: string;
   _id?: string;
-
-  // Backend camelCase shape
   companyName?: string;
   brandName?: string;
   email?: string;
@@ -33,29 +31,18 @@ export interface Brand {
   phone?: string;
   registrationNumber?: string;
   themeColor?: string;
-
-  // Existing API snake_case shape used by frontend
-  company_name?: string;
-  brand_name?: string;
-  app_link?: string;
-  contact_email?: string;
-  contact_phone?: string;
-  logo_url?: string;
-  theme_color?: string;
-  created_at?: string;
-  updated_at?: string;
-  custom_emails?: string;
-
-  // Shared fields
+  website?: string;
   category?: string;
   description?: string;
   address?: string;
-  website?: string;
   domain?: string;
   status?: BrandStatus;
   role?: Role;
   emailVerified?: boolean;
   verificationToken?: string;
+  createdAt?: string;
+  updatedAt?: string;
+  customEmails?: string;
 }
 
 export interface BrandDocument extends Brand {
@@ -92,8 +79,7 @@ export type CampaignStatus =
 export interface Campaign {
   id: string;
   _id?: string;
-
-  // Backend camelCase shape
+  brand?: ObjectId;
   name?: string;
   startDate?: string;
   endDate?: string;
@@ -102,22 +88,17 @@ export interface Campaign {
   discountPercentage?: string;
   addresses?: CampaignAddress[];
   users?: ObjectId[];
-  brand?: ObjectId;
-
-  // Existing API snake_case shape used by frontend
-  brand_id: string;
-  budget: number | null;
-  campaign_type: string;
-  created_at: string;
-  description: string | null;
-  end_date: string | null;
-  start_date: string | null;
-  target_audience: string | null;
-  title: string;
-  updated_at: string;
-
-  // Shared
+  budget?: number | null;
+  campaignType?: string;
+  description?: string | null;
+  targetAudience?: string | null;
   status: CampaignStatus | string;
+  backgroundColor?: string | null;
+  badge?: string | null;
+  subtitle?: string | null;
+  banner?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CampaignDocument extends Campaign {
@@ -158,8 +139,6 @@ export type CollectionStatus =
 export interface Collection {
   id: string;
   _id?: string;
-
-  // Backend campaign collection model shape
   name?: string;
   area?: string;
   city?: string;
@@ -169,30 +148,25 @@ export interface Collection {
   startDate?: string;
   users?: ObjectId[];
   captainsWithDates?: CaptainDateAssignment[];
-
-  // Existing frontend collection fields
-  brand_id: string;
-  brand_name?: string;
-  total_weight: number;
-  collection_date: string;
-  pickup_location?: string;
+  brandId?: string;
+  brandName?: string;
+  totalWeight?: number;
+  collectionDate?: string;
+  pickupLocation?: string;
   notes?: string;
-
-  paper_weight?: number;
-  cardboard_weight?: number;
-  plastic_weight?: number;
-  glass_weight?: number;
-  aluminum_weight?: number;
-  steel_weight?: number;
-  electronic_weight?: number;
-  organic_weight?: number;
-  co2_saved?: number;
-
-  created_at: string;
-  updated_at: string;
-  finalized_at?: string;
-
+  paperWeight?: number;
+  cardboardWeight?: number;
+  plasticWeight?: number;
+  glassWeight?: number;
+  aluminumWeight?: number;
+  steelWeight?: number;
+  electronicWeight?: number;
+  organicWeight?: number;
+  co2Saved?: number;
   status: CollectionStatus;
+  createdAt?: string;
+  updatedAt?: string;
+  finalizedAt?: string;
 }
 
 export interface CollectionDocument extends Collection {
@@ -283,14 +257,10 @@ export interface PickupHistoryEntry {
 export interface User {
   id?: string;
   _id?: string;
-
-  // Existing frontend minimal shape
   email: string;
   name?: string;
-  created_at?: string;
-  updated_at?: string;
-
-  // Backend full shape
+  createdAt?: string;
+  updatedAt?: string;
   userName?: string;
   password?: string;
   avatar?: string;
@@ -323,18 +293,18 @@ export interface UserDocument extends User {
 export interface Deal {
   id: string;
   _id?: string;
-  brand_id: string;
-  created_at: string;
-  current_uses: number | null;
-  description: string | null;
-  discount_amount: number | null;
-  discount_percentage: number | null;
-  end_date: string | null;
-  max_uses: number | null;
-  minimum_purchase: number | null;
-  promo_code: string | null;
-  start_date: string | null;
-  status: string;
+  brandId?: string;
   title: string;
-  updated_at: string;
+  description?: string | null;
+  discountAmount?: number | null;
+  discountPercentage?: number | null;
+  promoCode?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  maxUses?: number | null;
+  currentUses?: number | null;
+  minimumPurchase?: number | null;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }

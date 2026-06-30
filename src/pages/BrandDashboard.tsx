@@ -12,15 +12,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2,
   Clock,
-  CheckCircle,
   AlertCircle,
   Eye,
-  Bell,
   Mail,
   Phone,
-  Loader2,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  fetchBrandById,
+  fetchCampaignsForBrand,
+  fetchDealsForBrand,
+  fetchBrandAnalytics,
+  type BrandAnalytics,
+} from "@/actions/brandActions";
 
 import { useToast } from "@/hooks/use-toast";
 
@@ -38,7 +43,9 @@ const BrandDashboard = () => {
   const [brandData, setBrandData] = useState<Brand>();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
     const fetchBrandData = async () => {
@@ -48,26 +55,8 @@ const BrandDashboard = () => {
       }
 
       try {
-        // Fetch brand data
-        //set dummy data
-        setBrandData({
-          id: "1",
-          brand_name: "Dummy Brand",
-          company_name: "Dummy Company",
-          category: "Technology",
-          status: "approved",
-          created_at: new Date().toISOString(),
-          website: "https://dummybrand.com",
-          description: "This is a dummy brand.",
-          logo_url: "https://dummybrand.com/logo.png",
-          theme_color: "#3B82F6",
-          contact_email: "contact@dummybrand.com",
-          contact_phone: "+1234567890",
-          address: "123 Dummy St, Dummy City",
-          app_link: "https://dummybrand.com/app",
-          custom_emails: "support@dummybrand.com",
-          domain: "dummybrand.com",
-        });
+        const brand = await fetchBrandById(brandId);
+        setBrandData(brand);
       } catch (error) {
         console.error("Unexpected error:", error);
         toast({
@@ -83,20 +72,56 @@ const BrandDashboard = () => {
 
     const fetchCampaigns = async () => {
       if (!brandId) return;
+      try {
+        const data = await fetchCampaignsForBrand(brandId);
+        setCampaigns(data);
+      } catch {
+        // silently ignore
+      }
     };
 
     const fetchDeals = async () => {
       if (!brandId) return;
+      const data = await fetchDealsForBrand(brandId);
+      setDeals(data);
+    };
+
+    const fetchAnalytics = async () => {
+      if (!brandId) return;
+      const data = await fetchBrandAnalytics(brandId);
+      setAnalytics(data);
     };
 
     fetchBrandData();
     fetchCampaigns();
     fetchDeals();
+    fetchAnalytics();
   }, [brandId, navigate, toast]);
 
-  // Function to refresh campaigns data
   const refreshCampaigns = async () => {
     if (!brandId) return;
+    try {
+      const data = await fetchCampaignsForBrand(brandId);
+      setCampaigns(data);
+    } catch {
+      // silently ignore
+    }
+  };
+
+  const refreshDeals = async () => {
+    if (!brandId) return;
+    const data = await fetchDealsForBrand(brandId);
+    setDeals(data);
+  };
+
+  const refreshBrand = async () => {
+    if (!brandId) return;
+    try {
+      const brand = await fetchBrandById(brandId);
+      setBrandData(brand);
+    } catch {
+      // silently ignore
+    }
   };
 
   // Function to handle campaign creation success
@@ -107,20 +132,51 @@ const BrandDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center">
-        <Card className="p-8">
-          <div className="flex items-center space-x-3">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Loading brand dashboard...</span>
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card/50 sticky top-0 z-50">
+          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-9 w-9 rounded-md" />
+              <Skeleton className="h-9 w-32 rounded-md" />
+            </div>
           </div>
-        </Card>
+        </header>
+        <main className="container mx-auto px-6 py-8 space-y-6">
+          <div className="grid grid-cols-4 gap-2">
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-6 space-y-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-3 w-32" />
+              </Card>
+            ))}
+          </div>
+          <Card className="p-6 space-y-4">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-64 w-full rounded-md" />
+          </Card>
+        </main>
       </div>
     );
   }
 
   if (!brandData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-lg font-semibold mb-2">Brand Not Found</h2>
           <p className="text-muted-foreground mb-4">
@@ -132,21 +188,21 @@ const BrandDashboard = () => {
     );
   }
 
-  const isApproved = brandData.status === "approved";
+  const isApproved = brandData.status?.toLowerCase() === "approved";
   const formattedData = {
-    name: brandData.brand_name,
-    companyName: brandData.company_name,
+    name: brandData.brandName,
+    companyName: brandData.companyName,
     category: brandData.category,
     status: brandData.status,
-    submissionDate: new Date(brandData.created_at).toLocaleDateString(),
+    submissionDate: new Date(brandData.createdAt ?? "").toLocaleDateString(),
     estimatedApproval: "2-3 business days",
-    referenceNumber: `REF-${brandData.id.substring(0, 8).toUpperCase()}`,
-    contactEmail: brandData?.contact_email || "N/A",
-    contactPhone: brandData?.contact_phone || "N/A",
+    referenceNumber: `REF-${(brandData.id ?? brandData._id ?? "").substring(0, 8).toUpperCase()}`,
+    contactEmail: brandData.email || "N/A",
+    contactPhone: brandData.phone || "N/A",
     website: brandData.website,
     description: brandData.description,
-    logoUrl: brandData?.logo_url,
-    themeColor: brandData?.theme_color || "#3B82F6",
+    logoUrl: brandData.logo,
+    themeColor: brandData.themeColor || "#3B82F6",
   };
 
   const PendingApprovalView = () => (
@@ -159,7 +215,7 @@ const BrandDashboard = () => {
               <Clock className="h-6 w-6 text-warning" />
             </div>
             <div>
-              <CardTitle className="text-xl text-warning">
+              <CardTitle className="text-xl text-amber-700">
                 Pending Approval
               </CardTitle>
               <CardDescription>
@@ -199,7 +255,7 @@ const BrandDashboard = () => {
                 </p>
                 <Badge
                   variant="secondary"
-                  className="bg-warning/10 text-warning"
+                  className="bg-warning/10 text-amber-700"
                 >
                   Under Review
                 </Badge>
@@ -213,14 +269,14 @@ const BrandDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-primary" />
+            <AlertCircle className="h-5 w-5" style={{ color: brandColor }} />
             What's Next?
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-start space-x-3">
-              <div className="h-2 w-2 rounded-full bg-primary mt-2"></div>
+              <div className="h-2 w-2 rounded-full mt-2" style={{ backgroundColor: brandColor }}></div>
               <div>
                 <p className="font-medium">Marketing Team Review</p>
                 <p className="text-sm text-muted-foreground">
@@ -283,7 +339,7 @@ const BrandDashboard = () => {
       </Card>
 
       {/* Demo Button */}
-      <Card className="bg-gradient-to-r from-primary/5 to-accent/5">
+      <Card style={{ backgroundColor: brandColor + "0d" }}>
         <CardContent className="p-6">
           <div className="text-center space-y-3">
             <h3 className="font-semibold">Want to see what's coming?</h3>
@@ -292,16 +348,7 @@ const BrandDashboard = () => {
             </p>
             <Button
               variant="outline"
-              onClick={async () => {
-                // Update brand status to approved in database
-                // if () {
-                //   setBrandData((prev) => ({ ...prev, status: "approved" }));
-                //   toast({
-                //     title: "Preview Mode",
-                //     description: "Showing approved dashboard preview",
-                //   });
-                // }
-              }}
+              onClick={() => setIsPreviewMode(true)}
             >
               <Eye className="h-4 w-4 mr-2" />
               Preview Dashboard
@@ -314,8 +361,15 @@ const BrandDashboard = () => {
 
   const ApprovedDashboardView = () => (
     <div className="space-y-6">
-      {/* Success Header */}
-      <Card className="border-success/20 bg-success/5">
+      {/* {isPreviewMode && !isApproved && (
+        <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-amber-700">
+          <span className="font-medium">Preview mode — this is how your dashboard will look once approved.</span>
+          <Button variant="ghost" size="sm" className="text-amber-700 hover:text-amber-800 hover:bg-warning/20 h-auto py-1" onClick={() => setIsPreviewMode(false)}>
+            Exit Preview
+          </Button>
+        </div>
+      )} */}
+      {/* <Card className="border-success/20 bg-success/5">
         <CardHeader>
           <div className="flex items-center space-x-3">
             <div className="h-12 w-12 rounded-full bg-success/20 flex items-center justify-center">
@@ -331,7 +385,7 @@ const BrandDashboard = () => {
             </div>
           </div>
         </CardHeader>
-      </Card>
+      </Card> */}
 
       {/* Dashboard Tabs */}
       <Tabs
@@ -347,55 +401,79 @@ const BrandDashboard = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
-          {/* Recent Activity */}
-          <OverviewTab campaigns={campaigns.length} />
+          <OverviewTab
+            campaigns={analytics?.summary.activeCampaigns ?? campaigns.length}
+            analytics={analytics}
+            brandColor={brandColor}
+          />
         </TabsContent>
 
         <TabsContent value="campaigns">
           <CampaignsTab
             campaigns={campaigns}
+            logoUrl={formattedData.logoUrl}
             onCampaignCreated={handleCampaignCreated}
           />
         </TabsContent>
 
         <TabsContent value="deals">
-          <DealsTab deals={deals} />
+          <DealsTab deals={deals} onDealCreated={refreshDeals} brandColor={brandColor} />
         </TabsContent>
 
         <TabsContent value="settings">
           <SettingsTab
+            brandId={brandData.id ?? brandData._id ?? ""}
             name={formattedData.name}
+            companyName={brandData.companyName}
             category={formattedData.category}
             contactEmail={formattedData.contactEmail}
             contactPhone={formattedData.contactPhone}
+            webLink={brandData.webLink ?? brandData.website}
+            appLink={brandData.appLink}
+            description={brandData.description}
+            address={brandData.address}
+            themeColor={brandData.themeColor}
+            brandColor={brandColor}
+            onSettingsUpdated={refreshBrand}
           />
         </TabsContent>
       </Tabs>
     </div>
   );
 
+  const brandColor = formattedData.themeColor;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        {/* Brand color accent line */}
+        <div className="h-0.5 w-full" style={{ backgroundColor: brandColor }} />
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-primary-foreground" />
+              <div
+                className="h-10 w-10 rounded-lg flex items-center justify-center"
+                style={{ backgroundColor: brandColor }}
+              >
+                <Building2 className="h-6 w-6 text-white" aria-hidden="true" />
               </div>
               <div>
                 <h1 className="text-xl font-bold">{formattedData.name}</h1>
-                <p className="text-xs text-muted-foreground">Brand Dashboard</p>
+                <p className="text-xs text-muted-foreground">{formattedData.category || "Brand Dashboard"}</p>
               </div>
             </div>
             <div className="flex items-center space-x-3">
-              <Badge variant={isApproved ? "default" : "secondary"}>
-                {brandData.status === "approved" ? "Active" : "Pending"}
+              <Badge
+                variant="outline"
+                style={{
+                  backgroundColor: brandColor + "1a",
+                  color: brandColor,
+                  borderColor: brandColor + "33",
+                }}
+              >
+                {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
               </Badge>
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
               <Button variant="outline" onClick={() => navigate("/")}>
                 Exit Dashboard
               </Button>
@@ -406,7 +484,7 @@ const BrandDashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {isApproved ? <ApprovedDashboardView /> : <PendingApprovalView />}
+        {isApproved || isPreviewMode ? <ApprovedDashboardView /> : <PendingApprovalView />}
       </main>
     </div>
   );
