@@ -1,5 +1,6 @@
 import { Brand, BrandStatus, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
+import { brandAuth } from "@/lib/brandAuth";
 
 export interface BrandAnalytics {
   summary: {
@@ -88,8 +89,11 @@ export const fetchBrands = async (): Promise<Brand[]> => {
   return [];
 };
 
+// TODO(backend): GET /brands/:id must start requiring brand JWTs for this header to have effect
 export const fetchBrandById = async (id: string): Promise<Brand> => {
-  const response = await fetch(`${getApiBaseUrl()}/brands/${id}`);
+  const response = await fetch(`${getApiBaseUrl()}/brands/${id}`, {
+    headers: { ...brandAuth.authHeaders() },
+  });
 
   const data = (await response.json()) as {
     success?: boolean;
@@ -125,11 +129,13 @@ export const fetchBrandById = async (id: string): Promise<Brand> => {
   };
 };
 
+// TODO(backend): GET /brands/:id/campaigns must start requiring brand JWTs for this header to have effect
 export const fetchCampaignsForBrand = async (
   brandId: string,
 ): Promise<Campaign[]> => {
   const response = await fetch(
     `${getApiBaseUrl()}/brands/${brandId}/campaigns`,
+    { headers: { ...brandAuth.authHeaders() } },
   );
 
   if (!response.ok) return [];
@@ -161,6 +167,7 @@ export const createCampaign = async (
     banner?: File | null;
   },
 ): Promise<Campaign> => {
+  // TODO(backend): POST /brands/:id/campaigns must start requiring brand JWTs for this header to have effect
   let body: BodyInit;
   let headers: Record<string, string> | undefined;
 
@@ -178,13 +185,17 @@ export const createCampaign = async (
     if (payload.subtitle) fd.append("subtitle", payload.subtitle);
     fd.append("banner", payload.banner);
     body = fd;
+    headers = { ...brandAuth.authHeaders() };
   } else {
     const { banner: _b, ...rest } = payload;
     const clean = Object.fromEntries(
       Object.entries(rest).filter(([, v]) => v !== null && v !== undefined),
     );
     body = JSON.stringify(clean);
-    headers = { "Content-Type": "application/json" };
+    headers = {
+      "Content-Type": "application/json",
+      ...brandAuth.authHeaders(),
+    };
   }
 
   const response = await fetch(
@@ -205,8 +216,11 @@ export const createCampaign = async (
   return data.campaign;
 };
 
+// TODO(backend): GET /brands/:id/deals must start requiring brand JWTs for this header to have effect
 export const fetchDealsForBrand = async (brandId: string): Promise<Deal[]> => {
-  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}/deals`);
+  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}/deals`, {
+    headers: { ...brandAuth.authHeaders() },
+  });
   if (!response.ok) return [];
   const data = (await response.json()) as {
     success?: boolean;
@@ -232,9 +246,13 @@ export const createDeal = async (
     minimumPurchase?: number | null;
   },
 ): Promise<Deal> => {
+  // TODO(backend): POST /brands/:id/deals must start requiring brand JWTs for this header to have effect
   const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}/deals`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...brandAuth.authHeaders(),
+    },
     body: JSON.stringify(payload),
   });
 
@@ -266,11 +284,15 @@ export const updateBrandSettings = async (
     contactName: string;
   }>,
 ): Promise<Brand> => {
+  // TODO(backend): PATCH /brands/:id/settings must start requiring brand JWTs for this header to have effect
   const response = await fetch(
     `${getApiBaseUrl()}/brands/${brandId}/settings`,
     {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...brandAuth.authHeaders(),
+      },
       body: JSON.stringify(payload),
     },
   );
@@ -292,8 +314,10 @@ export const fetchBrandAnalytics = async (
   brandId: string,
 ): Promise<BrandAnalytics | null> => {
   try {
+    // TODO(backend): GET /brands/:id/analytics must start requiring brand JWTs for this header to have effect
     const response = await fetch(
       `${getApiBaseUrl()}/brands/${brandId}/analytics`,
+      { headers: { ...brandAuth.authHeaders() } },
     );
     if (!response.ok) return null;
     const data = (await response.json()) as {
@@ -350,11 +374,15 @@ export const updateDeal = async (
     status: "active" | "inactive" | "expired";
   }>,
 ): Promise<Deal> => {
+  // TODO(backend): PATCH /brands/:id/deals/:dealId must start requiring brand JWTs for this header to have effect
   const response = await fetch(
     `${getApiBaseUrl()}/brands/${brandId}/deals/${dealId}`,
     {
       method: "PATCH",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...brandAuth.authHeaders(),
+      },
       body: JSON.stringify(payload),
     },
   );
@@ -373,9 +401,10 @@ export const deleteDeal = async (
   brandId: string,
   dealId: string,
 ): Promise<void> => {
+  // TODO(backend): DELETE /brands/:id/deals/:dealId must start requiring brand JWTs for this header to have effect
   const response = await fetch(
     `${getApiBaseUrl()}/brands/${brandId}/deals/${dealId}`,
-    { method: "DELETE" },
+    { method: "DELETE", headers: { ...brandAuth.authHeaders() } },
   );
   if (!response.ok) {
     const data = (await response.json()) as { message?: string };
@@ -444,9 +473,10 @@ export const deleteCampaign = async (
   brandId: string,
   campaignId: string,
 ): Promise<void> => {
+  // TODO(backend): DELETE /brands/:id/campaigns/:campaignId must start requiring brand JWTs for this header to have effect
   const response = await fetch(
     `${getApiBaseUrl()}/brands/${brandId}/campaigns/${campaignId}`,
-    { method: "DELETE" },
+    { method: "DELETE", headers: { ...brandAuth.authHeaders() } },
   );
   if (!response.ok) {
     const data = (await response.json()) as { message?: string };

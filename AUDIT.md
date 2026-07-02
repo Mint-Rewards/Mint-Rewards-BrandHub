@@ -119,3 +119,15 @@ Additionally, `/dashboard/:brandId` has **no auth guard** — any unauthenticate
 - **The leaked `VITE_API_URL` secret must be rotated and the git history cleaned** before the RBAC prototype goes to production. At minimum, run `git rm --cached .env && git commit -m "untrack .env"` and rotate the API URL immediately. A full rewrite with BFG Repo-Cleaner is needed to purge the historical commit.
 
 - **`/dashboard/:brandId` must be protected** as part of any RBAC work — currently any visitor can view any brand's dashboard without authentication.
+
+---
+
+## Remaining: history purge
+
+`.env` is no longer tracked in HEAD on this branch (untracking already done), but commit `a906da4` ("Updated backend url") still contains the old `.env` blob in git history — reachable from `main`. Purging it requires a history rewrite and force-push over shared history, so it must be coordinated with the team. When scheduled, run:
+
+```
+bfg --delete-files .env && git reflog expire --expire=now --all && git gc --prune=now --aggressive
+```
+
+Rotating `VITE_API_URL` (if the backend URL is considered sensitive) is likewise a coordinated task — noted here, not done in this pass.
