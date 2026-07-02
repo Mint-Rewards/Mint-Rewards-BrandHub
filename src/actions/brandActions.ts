@@ -1,6 +1,6 @@
 import { Brand, BrandStatus, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
-import { brandAuth } from "@/lib/brandAuth";
+import { brandAuth, type OrgBrand } from "@/lib/brandAuth";
 
 export interface BrandAnalytics {
   summary: {
@@ -89,20 +89,70 @@ export const fetchBrands = async (): Promise<Brand[]> => {
   return [];
 };
 
-// TODO(backend): GET /brands/:id must start requiring brand JWTs for this header to have effect
+// Thrown on a 404 from the org-scoped brand endpoint: foreign, orphan, and
+// nonexistent brand ids all look the same to the caller by design.
+export class BrandNotFoundError extends Error {
+  constructor() {
+    super("Brand not found");
+    this.name = "BrandNotFoundError";
+  }
+}
+
+// Refreshes the org's brand list from the server; brandSession holds the
+// cached copy from login.
+export const fetchOrgBrands = async (): Promise<OrgBrand[]> => {
+  const response = await fetch(`${getApiBaseUrl()}/brandhub/brands`, {
+    headers: { ...brandAuth.authHeaders() },
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch brands");
+  }
+  const data = (await response.json()) as { brands?: OrgBrand[] };
+  return data.brands ?? [];
+};
+
+// Owner/admin only — members get a 403 from the backend. The backend
+// backfills required legacy fields (email, registration number, etc.) with
+// placeholders; collecting real values here is a known follow-up.
+export const createOrgBrand = async (payload: {
+  brandName: string;
+  companyName: string;
+}): Promise<OrgBrand> => {
+  const response = await fetch(`${getApiBaseUrl()}/brandhub/brands`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...brandAuth.authHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = (await response.json()) as {
+    brand?: OrgBrand;
+    error?: string;
+  };
+  if (!response.ok || !data.brand) {
+    throw new Error(data.error ?? "Failed to create brand");
+  }
+  return data.brand;
+};
+
 export const fetchBrandById = async (id: string): Promise<Brand> => {
-  const response = await fetch(`${getApiBaseUrl()}/brands/${id}`, {
+  const response = await fetch(`${getApiBaseUrl()}/brandhub/brands/${id}`, {
     headers: { ...brandAuth.authHeaders() },
   });
 
+  if (response.status === 404) {
+    throw new BrandNotFoundError();
+  }
+
   const data = (await response.json()) as {
-    success?: boolean;
     brand?: Record<string, unknown>;
+    error?: string;
     message?: string;
   };
 
   if (!response.ok || !data.brand) {
-    throw new Error(data.message ?? "Brand not found");
+    throw new Error(data.error ?? data.message ?? "Brand not found");
   }
 
   const raw = data.brand;

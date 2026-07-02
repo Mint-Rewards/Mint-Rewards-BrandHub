@@ -1,6 +1,7 @@
 // Distinct storage key from adminAuth's 'admin_token' so brand and admin
 // sessions can coexist in one browser.
 const BRAND_TOKEN_KEY = "brand_token";
+const BRANDS_KEY = "brand_org_brands";
 
 export const brandAuth = {
   getToken: (): string | null =>
@@ -9,8 +10,12 @@ export const brandAuth = {
   setToken: (token: string): void =>
     localStorage.setItem(BRAND_TOKEN_KEY, token),
 
-  clearToken: (): void =>
-    localStorage.removeItem(BRAND_TOKEN_KEY),
+  // Also drops the cached brand list so a logged-out browser holds no
+  // org data.
+  clearToken: (): void => {
+    localStorage.removeItem(BRAND_TOKEN_KEY);
+    localStorage.removeItem(BRANDS_KEY);
+  },
 
   isLoggedIn: (): boolean =>
     !!localStorage.getItem(BRAND_TOKEN_KEY),
@@ -18,6 +23,33 @@ export const brandAuth = {
   authHeaders: (): Record<string, string> => {
     const token = localStorage.getItem(BRAND_TOKEN_KEY);
     return token ? { Authorization: `Bearer ${token}` } : {};
+  },
+};
+
+export interface OrgBrand {
+  id: string;
+  brandName: string;
+  companyName: string;
+  logo: string | null;
+}
+
+// Brands are cached from the login response for instant navigation/picker
+// rendering. This cache is a UX convenience, NOT a source of truth — the
+// server enforces brand scoping per request (404 outside the caller's org),
+// and stale entries simply 404 on click. Refresh via fetchOrgBrands().
+export const brandSession = {
+  setBrands(brands: OrgBrand[]): void {
+    localStorage.setItem(BRANDS_KEY, JSON.stringify(brands));
+  },
+  getBrands(): OrgBrand[] {
+    try {
+      return JSON.parse(localStorage.getItem(BRANDS_KEY) ?? "[]") as OrgBrand[];
+    } catch {
+      return [];
+    }
+  },
+  clear(): void {
+    localStorage.removeItem(BRANDS_KEY);
   },
 };
 

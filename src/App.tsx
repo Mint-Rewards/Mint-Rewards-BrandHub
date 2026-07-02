@@ -8,6 +8,7 @@ import BrandRegister from "./pages/BrandRegister";
 import BrandLogin from "./pages/BrandLogin";
 import AdminLogin from "./pages/AdminLogin";
 import BrandDashboard from "./pages/BrandDashboard";
+import BrandPicker from "./pages/BrandPicker";
 import AdminDashboard from "./pages/AdminDashboard";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import { BrandProtectedRoute } from "./components/BrandProtectedRoute";
@@ -63,6 +64,14 @@ const App = () => (
             }
           />
           <Route path="/demo" element={<DemoPage />} />
+          <Route
+            path="/brands"
+            element={
+              <BrandProtectedRoute>
+                <BrandPicker />
+              </BrandProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard/:brandId"
             element={

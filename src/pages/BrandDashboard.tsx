@@ -20,6 +20,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, useNavigate } from "react-router-dom";
 import {
+  BrandNotFoundError,
   fetchBrandById,
   fetchCampaignsForBrand,
   fetchDealsForBrand,
@@ -58,13 +59,16 @@ const BrandDashboard = () => {
         const brand = await fetchBrandById(brandId);
         setBrandData(brand);
       } catch (error) {
-        console.error("Unexpected error:", error);
-        toast({
-          title: "Error loading brand data",
-          description: "Please try again later.",
-          variant: "destructive",
-        });
-        navigate("/");
+        // 404 covers stale cached brand links and foreign/orphan ids alike —
+        // fall through to the not-found view instead of bouncing away.
+        if (!(error instanceof BrandNotFoundError)) {
+          console.error("Unexpected error:", error);
+          toast({
+            title: "Error loading brand data",
+            description: "Please try again later.",
+            variant: "destructive",
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -182,7 +186,7 @@ const BrandDashboard = () => {
           <p className="text-muted-foreground mb-4">
             The requested brand could not be found.
           </p>
-          <Button onClick={() => navigate("/")}>Return Home</Button>
+          <Button onClick={() => navigate("/brands")}>Back to Your Brands</Button>
         </Card>
       </div>
     );

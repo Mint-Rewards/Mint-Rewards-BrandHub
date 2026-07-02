@@ -12,7 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Store, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { brandAuth, decodeBrandToken } from "@/lib/brandAuth";
+import { brandAuth, brandSession, type OrgBrand } from "@/lib/brandAuth";
 
 const BrandLogin = () => {
   const navigate = useNavigate();
@@ -36,7 +36,13 @@ const BrandLogin = () => {
         },
       );
 
-      const data = (await response.json()) as { token?: string; error?: string };
+      const data = (await response.json()) as {
+        token?: string;
+        orgId?: string;
+        brands?: OrgBrand[];
+        defaultBrandId?: string | null;
+        error?: string;
+      };
 
       if (!response.ok) {
         toast({
@@ -57,8 +63,17 @@ const BrandLogin = () => {
       }
 
       brandAuth.setToken(data.token);
-      const payload = decodeBrandToken();
-      navigate(`/dashboard/${payload?.orgId ?? ""}`);
+
+      // The response body drives navigation — the token is only decoded for
+      // guard/expiry purposes elsewhere.
+      const brands = data.brands ?? [];
+      brandSession.setBrands(brands);
+      if (brands.length === 1 && data.defaultBrandId) {
+        navigate(`/dashboard/${data.defaultBrandId}`);
+      } else {
+        // Multi-brand → picker; zero brands → picker's empty state.
+        navigate("/brands");
+      }
     } catch {
       toast({
         title: "Network Error",
