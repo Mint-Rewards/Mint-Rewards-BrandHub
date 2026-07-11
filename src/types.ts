@@ -299,6 +299,8 @@ export interface Deal {
   discountAmount?: number | null;
   discountPercentage?: number | null;
   promoCode?: string | null;
+  codes?: string[];
+  codeCount?: number;
   startDate?: string | null;
   endDate?: string | null;
   maxUses?: number | null;

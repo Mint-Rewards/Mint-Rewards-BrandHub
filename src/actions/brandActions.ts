@@ -328,7 +328,8 @@ export const createDeal = async (
     description?: string;
     discountPercentage?: number | null;
     discountAmount?: number | null;
-    promoCode?: string | null;
+    codes?: string[];
+    generateCodes?: { count: number; prefix?: string };
     startDate?: string | null;
     endDate?: string | null;
     maxUses?: number | null;
@@ -499,7 +500,7 @@ export const updateBrandDeal = async (
     description: string;
     discountPercentage: number | null;
     discountAmount: number | null;
-    promoCode: string | null;
+    addCodes: string[] | { count: number; prefix?: string };
     startDate: string | null;
     endDate: string | null;
     maxUses: number | null;

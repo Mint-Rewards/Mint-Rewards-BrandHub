@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import {
@@ -39,6 +39,12 @@ import {
 } from "@/actions/brandActions";
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
+import {
+  DealCodesInput,
+  emptyDealCodesValue,
+  resolveDealCodes,
+  type DealCodesValue,
+} from "@/components/DealCodesInput";
 
 const editDealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -46,7 +52,6 @@ const editDealSchema = z.object({
   status: z.enum(["active", "inactive", "expired"]),
   discountPercentage: z.string().optional(),
   discountAmount: z.string().optional(),
-  promoCode: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   maxUses: z.string().optional(),
@@ -75,12 +80,22 @@ const DealsTab: React.FC<{
   const [createOpen, setCreateOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
+  const [viewingCodesDeal, setViewingCodesDeal] = useState<Deal | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [existingCodesOpen, setExistingCodesOpen] = useState(false);
+  const [addCodesOpen, setAddCodesOpen] = useState(false);
+  const [addCodesValue, setAddCodesValue] = useState<DealCodesValue>(emptyDealCodesValue);
+  const [addCodesError, setAddCodesError] = useState<string | null>(null);
 
   const editForm = useForm<EditDealFormData>({
     resolver: zodResolver(editDealSchema),
     defaultValues: { title: "", description: "", status: "active" },
   });
+
+  const copyCodes = async (codes: string[]) => {
+    await navigator.clipboard.writeText(codes.join("\n"));
+    toast({ title: "Copied", description: `${codes.length} codes copied to clipboard.` });
+  };
 
   const openEdit = (deal: Deal) => {
     editForm.reset({
@@ -89,17 +104,33 @@ const DealsTab: React.FC<{
       status: (deal.status as "active" | "inactive" | "expired") ?? "active",
       discountPercentage: deal.discountPercentage?.toString() ?? "",
       discountAmount: deal.discountAmount?.toString() ?? "",
-      promoCode: deal.promoCode ?? "",
       startDate: deal.startDate ?? "",
       endDate: deal.endDate ?? "",
       maxUses: deal.maxUses?.toString() ?? "",
       minimumPurchase: deal.minimumPurchase?.toString() ?? "",
     });
+    setExistingCodesOpen(false);
+    setAddCodesOpen(false);
+    setAddCodesValue(emptyDealCodesValue);
+    setAddCodesError(null);
     setEditingDeal(deal);
   };
 
   const handleEditSubmit = async (data: EditDealFormData) => {
     if (!editingDeal || !brandId) return;
+
+    // "Add more codes" is optional — only include addCodes when the section is
+    // open and has input; validation errors block the save so nothing is lost.
+    let addCodes: string[] | { count: number; prefix?: string } | undefined;
+    if (addCodesOpen && (addCodesValue.rawCodes.trim() || addCodesValue.mode === "generate")) {
+      const resolved = resolveDealCodes(addCodesValue);
+      if ("error" in resolved) {
+        setAddCodesError(resolved.error);
+        return;
+      }
+      addCodes = "codes" in resolved ? resolved.codes : resolved.generateCodes;
+    }
+    setAddCodesError(null);
     setBusyId(editingDeal.id);
     try {
       await updateBrandDeal(brandId, editingDeal.id, {
@@ -108,7 +139,7 @@ const DealsTab: React.FC<{
         status: data.status,
         discountPercentage: data.discountPercentage ? parseFloat(data.discountPercentage) : null,
         discountAmount: data.discountAmount ? parseFloat(data.discountAmount) : null,
-        promoCode: data.promoCode || null,
+        ...(addCodes !== undefined ? { addCodes } : {}),
         startDate: data.startDate || null,
         endDate: data.endDate || null,
         maxUses: data.maxUses ? parseInt(data.maxUses) : null,
@@ -118,9 +149,11 @@ const DealsTab: React.FC<{
       setEditingDeal(null);
       await onDealCreated?.();
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Failed to update deal.";
+      if (addCodes !== undefined) setAddCodesError(message);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to update deal.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -232,9 +265,9 @@ const DealsTab: React.FC<{
                               ${deal.discountAmount} off
                             </span>
                           )}
-                          {deal.promoCode && (
+                          {(deal.codeCount ?? deal.codes?.length ?? 0) > 0 && (
                             <span className="text-xs font-mono bg-muted text-foreground px-1.5 py-0.5 rounded">
-                              {deal.promoCode}
+                              {deal.codeCount ?? deal.codes?.length} {(deal.codeCount ?? deal.codes?.length) === 1 ? "code" : "codes"}
                             </span>
                           )}
                           {deal.startDate && deal.endDate && (
@@ -272,6 +305,12 @@ const DealsTab: React.FC<{
                               <Pencil className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
+                            {(deal.codes?.length ?? 0) > 0 && (
+                              <DropdownMenuItem onClick={() => setViewingCodesDeal(deal)}>
+                                <Ticket className="h-4 w-4 mr-2" />
+                                View codes
+                              </DropdownMenuItem>
+                            )}
                             <DropdownMenuItem
                               onClick={() => handleToggle(deal)}
                               disabled={statusKey === "expired"}
@@ -397,17 +436,6 @@ const DealsTab: React.FC<{
                 />
                 <FormField
                   control={editForm.control}
-                  name="promoCode"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Promo Code</FormLabel>
-                      <FormControl><Input placeholder="SAVE20" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
                   name="maxUses"
                   render={({ field }) => (
                     <FormItem>
@@ -453,6 +481,80 @@ const DealsTab: React.FC<{
                   </FormItem>
                 )}
               />
+
+              {/* Existing codes are immutable — the backend only appends. */}
+              <div className="rounded-md border p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">
+                    Promo codes
+                    <span className="text-muted-foreground font-normal">
+                      {" "}— {editingDeal?.codes?.length ?? editingDeal?.codeCount ?? 0} on this deal
+                    </span>
+                  </p>
+                  <div className="flex items-center gap-2">
+                    {(editingDeal?.codes?.length ?? 0) > 0 && (
+                      <>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setExistingCodesOpen((open) => !open)}
+                        >
+                          {existingCodesOpen ? "Hide codes" : "Show codes"}
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => copyCodes(editingDeal?.codes ?? [])}
+                        >
+                          <Copy className="h-3.5 w-3.5 mr-1.5" />
+                          Copy all
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </div>
+                {existingCodesOpen && (
+                  <div className="max-h-32 overflow-y-auto rounded bg-muted/50 p-2 font-mono text-xs space-y-0.5">
+                    {editingDeal?.codes?.map((code) => (
+                      <div key={code}>{code}</div>
+                    ))}
+                  </div>
+                )}
+                {addCodesOpen ? (
+                  <div className="space-y-2 pt-1">
+                    <DealCodesInput
+                      idPrefix="add-codes"
+                      value={addCodesValue}
+                      onChange={setAddCodesValue}
+                      uploadLabel="Upload codes"
+                      generateLabel="Generate codes"
+                    />
+                    {addCodesError && (
+                      <p className="text-sm font-medium text-destructive">{addCodesError}</p>
+                    )}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setAddCodesOpen(false);
+                        setAddCodesValue(emptyDealCodesValue);
+                        setAddCodesError(null);
+                      }}
+                    >
+                      Cancel adding codes
+                    </Button>
+                  </div>
+                ) : (
+                  <Button type="button" variant="outline" size="sm" onClick={() => setAddCodesOpen(true)}>
+                    <Plus className="h-3.5 w-3.5 mr-1.5" />
+                    Add more codes
+                  </Button>
+                )}
+              </div>
+
               <div className="flex justify-end gap-3 pt-2">
                 <Button type="button" variant="outline" onClick={() => setEditingDeal(null)}>
                   Cancel
@@ -466,6 +568,35 @@ const DealsTab: React.FC<{
               </div>
             </form>
           </Form>
+        </DialogContent>
+      </Dialog>
+
+      {/* View codes */}
+      <Dialog open={!!viewingCodesDeal} onOpenChange={(open) => !open && setViewingCodesDeal(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Codes — {viewingCodesDeal?.title}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-muted-foreground">
+                {viewingCodesDeal?.codes?.length ?? 0} codes
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => copyCodes(viewingCodesDeal?.codes ?? [])}
+              >
+                <Copy className="h-3.5 w-3.5 mr-1.5" />
+                Copy all
+              </Button>
+            </div>
+            <div className="max-h-72 overflow-y-auto rounded-md border bg-muted/50 p-3 font-mono text-sm space-y-1">
+              {viewingCodesDeal?.codes?.map((code) => (
+                <div key={code}>{code}</div>
+              ))}
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
 
