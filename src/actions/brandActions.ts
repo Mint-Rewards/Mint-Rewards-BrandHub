@@ -98,6 +98,44 @@ export class BrandNotFoundError extends Error {
   }
 }
 
+// 402 — the org isn't subscribed to the module (upsell framing).
+export class ModuleNotSubscribedError extends Error {
+  constructor() {
+    super("This feature is not part of your organisation's plan.");
+    this.name = "ModuleNotSubscribedError";
+  }
+}
+
+// 403 — subscribed, but this user's role/permission is insufficient.
+// Deliberately distinct from 402: locked = buy it; forbidden = ask your owner.
+export class InsufficientPermissionError extends Error {
+  constructor() {
+    super(
+      "You don't have permission to do this. Ask your organisation's owner or admin.",
+    );
+    this.name = "InsufficientPermissionError";
+  }
+}
+
+// Central mapping for the scoped /api/brandhub/* endpoints' error semantics.
+// Returns normally on 2xx and on statuses the caller wants to inspect itself.
+const throwForBrandApiStatus = (response: Response): void => {
+  if (response.ok) return;
+  switch (response.status) {
+    case 401:
+      // Missing/invalid/expired token — drop the session and start over.
+      brandAuth.clearToken();
+      window.location.assign("/brand/login");
+      throw new Error("Your session has expired. Please sign in again.");
+    case 402:
+      throw new ModuleNotSubscribedError();
+    case 403:
+      throw new InsufficientPermissionError();
+    case 404:
+      throw new BrandNotFoundError();
+  }
+};
+
 // Refreshes the org's brand list from the server; brandSession holds the
 // cached copy from login.
 export const fetchOrgBrands = async (): Promise<OrgBrand[]> => {
@@ -179,15 +217,15 @@ export const fetchBrandById = async (id: string): Promise<Brand> => {
   };
 };
 
-// TODO(backend): GET /brands/:id/campaigns must start requiring brand JWTs for this header to have effect
 export const fetchCampaignsForBrand = async (
   brandId: string,
 ): Promise<Campaign[]> => {
   const response = await fetch(
-    `${getApiBaseUrl()}/brands/${brandId}/campaigns`,
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/campaigns`,
     { headers: { ...brandAuth.authHeaders() } },
   );
 
+  throwForBrandApiStatus(response);
   if (!response.ok) return [];
 
   const data = (await response.json()) as {
@@ -217,7 +255,6 @@ export const createCampaign = async (
     banner?: File | null;
   },
 ): Promise<Campaign> => {
-  // TODO(backend): POST /brands/:id/campaigns must start requiring brand JWTs for this header to have effect
   let body: BodyInit;
   let headers: Record<string, string> | undefined;
 
@@ -249,10 +286,11 @@ export const createCampaign = async (
   }
 
   const response = await fetch(
-    `${getApiBaseUrl()}/brands/${brandId}/campaigns`,
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/campaigns`,
     { method: "POST", headers, body },
   );
 
+  throwForBrandApiStatus(response);
   const data = (await response.json()) as {
     success?: boolean;
     campaign?: Campaign;
@@ -266,11 +304,12 @@ export const createCampaign = async (
   return data.campaign;
 };
 
-// TODO(backend): GET /brands/:id/deals must start requiring brand JWTs for this header to have effect
 export const fetchDealsForBrand = async (brandId: string): Promise<Deal[]> => {
-  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}/deals`, {
-    headers: { ...brandAuth.authHeaders() },
-  });
+  const response = await fetch(
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/deals`,
+    { headers: { ...brandAuth.authHeaders() } },
+  );
+  throwForBrandApiStatus(response);
   if (!response.ok) return [];
   const data = (await response.json()) as {
     success?: boolean;
@@ -296,16 +335,19 @@ export const createDeal = async (
     minimumPurchase?: number | null;
   },
 ): Promise<Deal> => {
-  // TODO(backend): POST /brands/:id/deals must start requiring brand JWTs for this header to have effect
-  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}/deals`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...brandAuth.authHeaders(),
+  const response = await fetch(
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/deals`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...brandAuth.authHeaders(),
+      },
+      body: JSON.stringify(payload),
     },
-    body: JSON.stringify(payload),
-  });
+  );
 
+  throwForBrandApiStatus(response);
   const data = (await response.json()) as {
     success?: boolean;
     deal?: Deal;
@@ -334,19 +376,18 @@ export const updateBrandSettings = async (
     contactName: string;
   }>,
 ): Promise<Brand> => {
-  // TODO(backend): PATCH /brands/:id/settings must start requiring brand JWTs for this header to have effect
-  const response = await fetch(
-    `${getApiBaseUrl()}/brands/${brandId}/settings`,
-    {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...brandAuth.authHeaders(),
-      },
-      body: JSON.stringify(payload),
+  // Settings live on the brand resource itself; owner/admin role required
+  // (members get a 403) — no module gate.
+  const response = await fetch(`${getApiBaseUrl()}/brandhub/brands/${brandId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...brandAuth.authHeaders(),
     },
-  );
+    body: JSON.stringify(payload),
+  });
 
+  throwForBrandApiStatus(response);
   const data = (await response.json()) as {
     success?: boolean;
     brand?: Record<string, unknown>;
@@ -364,9 +405,8 @@ export const fetchBrandAnalytics = async (
   brandId: string,
 ): Promise<BrandAnalytics | null> => {
   try {
-    // TODO(backend): GET /brands/:id/analytics must start requiring brand JWTs for this header to have effect
     const response = await fetch(
-      `${getApiBaseUrl()}/brands/${brandId}/analytics`,
+      `${getApiBaseUrl()}/brandhub/brands/${brandId}/analytics`,
       { headers: { ...brandAuth.authHeaders() } },
     );
     if (!response.ok) return null;
@@ -408,6 +448,8 @@ export const fetchAllDeals = async (filters?: {
   });
 };
 
+// Legacy endpoint retained for the ADMIN moderation flow only
+// (AdminDashboard status changes). Brand UI uses updateBrandDeal below.
 export const updateDeal = async (
   brandId: string,
   dealId: string,
@@ -424,7 +466,6 @@ export const updateDeal = async (
     status: "active" | "inactive" | "expired";
   }>,
 ): Promise<Deal> => {
-  // TODO(backend): PATCH /brands/:id/deals/:dealId must start requiring brand JWTs for this header to have effect
   const response = await fetch(
     `${getApiBaseUrl()}/brands/${brandId}/deals/${dealId}`,
     {
@@ -447,21 +488,66 @@ export const updateDeal = async (
   return data.deal;
 };
 
+// Brand-side deal update on the scoped endpoint. Deal `status` IS writable
+// here (activate/deactivate) — unlike campaigns, where status is admin
+// moderation state.
+export const updateBrandDeal = async (
+  brandId: string,
+  dealId: string,
+  payload: Partial<{
+    title: string;
+    description: string;
+    discountPercentage: number | null;
+    discountAmount: number | null;
+    promoCode: string | null;
+    startDate: string | null;
+    endDate: string | null;
+    maxUses: number | null;
+    minimumPurchase: number | null;
+    status: "active" | "inactive" | "expired";
+  }>,
+): Promise<Deal> => {
+  const response = await fetch(
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/deals/${dealId}`,
+    {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...brandAuth.authHeaders(),
+      },
+      body: JSON.stringify(payload),
+    },
+  );
+  throwForBrandApiStatus(response);
+  const data = (await response.json()) as {
+    success?: boolean;
+    deal?: Deal;
+    message?: string;
+  };
+  if (!response.ok || !data.deal) {
+    throw new Error(data.message ?? "Failed to update deal");
+  }
+  return data.deal;
+};
+
 export const deleteDeal = async (
   brandId: string,
   dealId: string,
 ): Promise<void> => {
-  // TODO(backend): DELETE /brands/:id/deals/:dealId must start requiring brand JWTs for this header to have effect
   const response = await fetch(
-    `${getApiBaseUrl()}/brands/${brandId}/deals/${dealId}`,
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/deals/${dealId}`,
     { method: "DELETE", headers: { ...brandAuth.authHeaders() } },
   );
+  throwForBrandApiStatus(response);
   if (!response.ok) {
     const data = (await response.json()) as { message?: string };
     throw new Error(data.message ?? "Failed to delete deal");
   }
 };
 
+// Legacy endpoint retained for the ADMIN moderation flow only
+// (AdminDashboard approve/reject via `status`). Brand UI uses
+// updateBrandCampaign below.
 export const updateCampaign = async (
   brandId: string,
   campaignId: string,
@@ -519,15 +605,75 @@ export const updateCampaign = async (
   return data.campaign;
 };
 
+// Brand-side campaign update on the scoped endpoint. `status` is deliberately
+// NOT part of the payload type — it is admin moderation state, and the
+// backend returns 400 for a status-only body.
+export const updateBrandCampaign = async (
+  brandId: string,
+  campaignId: string,
+  payload: Partial<{
+    name: string;
+    description: string;
+    startDate: string;
+    endDate: string;
+    campaignType: string;
+    targetAudience: string;
+    budget: number | null;
+    backgroundColor: string;
+    badge: string;
+    subtitle: string;
+    banner: File | null;
+  }>,
+): Promise<Campaign> => {
+  let body: BodyInit;
+  let headers: Record<string, string>;
+
+  if (payload.banner instanceof File) {
+    const fd = new FormData();
+    const { banner, ...rest } = payload;
+    for (const [k, v] of Object.entries(rest)) {
+      if (v != null) fd.append(k, String(v));
+    }
+    fd.append("banner", banner);
+    body = fd;
+    headers = { ...brandAuth.authHeaders() };
+  } else {
+    const { banner: _b, ...rest } = payload;
+    const clean = Object.fromEntries(
+      Object.entries(rest).filter(([, v]) => v !== null && v !== undefined),
+    );
+    body = JSON.stringify(clean);
+    headers = {
+      "Content-Type": "application/json",
+      ...brandAuth.authHeaders(),
+    };
+  }
+
+  const response = await fetch(
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/campaigns/${campaignId}`,
+    { method: "PATCH", headers, body },
+  );
+  throwForBrandApiStatus(response);
+  const data = (await response.json()) as {
+    success?: boolean;
+    campaign?: Campaign;
+    message?: string;
+  };
+  if (!response.ok || !data.campaign) {
+    throw new Error(data.message ?? "Failed to update campaign");
+  }
+  return data.campaign;
+};
+
 export const deleteCampaign = async (
   brandId: string,
   campaignId: string,
 ): Promise<void> => {
-  // TODO(backend): DELETE /brands/:id/campaigns/:campaignId must start requiring brand JWTs for this header to have effect
   const response = await fetch(
-    `${getApiBaseUrl()}/brands/${brandId}/campaigns/${campaignId}`,
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/campaigns/${campaignId}`,
     { method: "DELETE", headers: { ...brandAuth.authHeaders() } },
   );
+  throwForBrandApiStatus(response);
   if (!response.ok) {
     const data = (await response.json()) as { message?: string };
     throw new Error(data.message ?? "Failed to delete campaign");

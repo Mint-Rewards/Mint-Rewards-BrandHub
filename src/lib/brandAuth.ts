@@ -2,6 +2,7 @@
 // sessions can coexist in one browser.
 const BRAND_TOKEN_KEY = "brand_token";
 const BRANDS_KEY = "brand_org_brands";
+const MODULES_KEY = "brand_subscribed_modules";
 
 export const brandAuth = {
   getToken: (): string | null =>
@@ -15,6 +16,7 @@ export const brandAuth = {
   clearToken: (): void => {
     localStorage.removeItem(BRAND_TOKEN_KEY);
     localStorage.removeItem(BRANDS_KEY);
+    localStorage.removeItem(MODULES_KEY);
   },
 
   isLoggedIn: (): boolean =>
@@ -50,6 +52,21 @@ export const brandSession = {
   },
   clear(): void {
     localStorage.removeItem(BRANDS_KEY);
+    localStorage.removeItem(MODULES_KEY);
+  },
+
+  // Subscriptions are NOT in the JWT — they arrive in the login/register
+  // response body, derived fresh from the org's active/trial subscriptions.
+  // Same caching contract as the brand list: UX convenience, server enforces.
+  setSubscribedModules(modules: string[]): void {
+    localStorage.setItem(MODULES_KEY, JSON.stringify(modules));
+  },
+  getSubscribedModules(): string[] {
+    try {
+      return JSON.parse(localStorage.getItem(MODULES_KEY) ?? "[]") as string[];
+    } catch {
+      return [];
+    }
   },
 };
 
@@ -78,4 +95,65 @@ export function decodeBrandToken(): BrandTokenPayload | null {
   } catch {
     return null;
   }
+}
+
+export type ModulePermission = "read" | "write" | "manage";
+
+const PERMISSION_RANK: Record<ModulePermission, number> = {
+  read: 1,
+  write: 2,
+  manage: 3,
+};
+
+// The token claim types `permissions` as string[]; the backend contract
+// describes a single hierarchical rank. Accept either and use the highest
+// rank present.
+function highestRank(permissions: string[] | string): ModulePermission | null {
+  const list = Array.isArray(permissions) ? permissions : [permissions];
+  let best: ModulePermission | null = null;
+  for (const p of list) {
+    if (p in PERMISSION_RANK) {
+      const perm = p as ModulePermission;
+      if (!best || PERMISSION_RANK[perm] > PERMISSION_RANK[best]) best = perm;
+    }
+  }
+  return best;
+}
+
+export function getOrgRole(): "owner" | "admin" | "member" | null {
+  return decodeBrandToken()?.orgRole ?? null;
+}
+
+export function getSubscribedModules(): string[] {
+  return brandSession.getSubscribedModules();
+}
+
+// Mirrors the backend's resolution order exactly:
+// 1. org must be subscribed; 2. owner/admin → full access;
+// 3. member → needs a moduleAccess entry.
+export function hasModule(moduleId: string): boolean {
+  return getModulePermission(moduleId) !== null;
+}
+
+export function getModulePermission(
+  moduleId: string,
+): ModulePermission | null {
+  const payload = decodeBrandToken();
+  if (!payload) return null;
+  if (!getSubscribedModules().includes(moduleId)) return null;
+  if (payload.orgRole === "owner" || payload.orgRole === "admin") {
+    return "manage";
+  }
+  const entry = payload.moduleAccess?.find((e) => e.module === moduleId);
+  return entry ? highestRank(entry.permissions) : null;
+}
+
+export function hasPermission(
+  moduleId: string,
+  required: ModulePermission,
+): boolean {
+  const granted = getModulePermission(moduleId);
+  return (
+    granted !== null && PERMISSION_RANK[granted] >= PERMISSION_RANK[required]
+  );
 }

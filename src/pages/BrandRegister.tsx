@@ -28,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import { registerBrand } from "@/actions/brandActions";
+import { brandSession } from "@/lib/brandAuth";
 import {
   isValidEmail,
   isValidUrl,
@@ -208,6 +209,13 @@ const BrandRegister = () => {
   const handleSubmit = async () => {
     try {
       const data = await registerBrand(formData);
+
+      // A fresh org currently has no subscriptions ([]), but capture whatever
+      // the register response reports so module gating starts from server
+      // truth, mirroring the login flow.
+      if (Array.isArray(data.subscribedModules)) {
+        brandSession.setSubscribedModules(data.subscribedModules as string[]);
+      }
 
       toast({
         title: "Registration Submitted!",

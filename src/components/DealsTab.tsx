@@ -31,8 +31,14 @@ import { Badge } from "./ui/badge";
 import { CreateDealForm } from "./CreateDealForm";
 import { useParams } from "react-router-dom";
 import { Deal } from "@/types";
-import { updateDeal, deleteDeal } from "@/actions/brandActions";
+import {
+  updateBrandDeal,
+  deleteDeal,
+  InsufficientPermissionError,
+  ModuleNotSubscribedError,
+} from "@/actions/brandActions";
 import { toast } from "@/hooks/use-toast";
+import { hasPermission } from "@/lib/brandAuth";
 
 const editDealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -61,6 +67,11 @@ const DealsTab: React.FC<{
   brandColor?: string;
 }> = ({ deals, onDealCreated, brandColor = "hsl(var(--primary))" }) => {
   const { brandId } = useParams();
+  // UX mirror of backend gates: create/edit/toggle need write, delete needs
+  // manage. A user never sees a button that will 403; the typed error
+  // handling below stays as the safety net, not the primary UX.
+  const canWrite = hasPermission("consumer-reporting", "write");
+  const canManage = hasPermission("consumer-reporting", "manage");
   const [createOpen, setCreateOpen] = useState(false);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [deletingDeal, setDeletingDeal] = useState<Deal | null>(null);
@@ -91,7 +102,7 @@ const DealsTab: React.FC<{
     if (!editingDeal || !brandId) return;
     setBusyId(editingDeal.id);
     try {
-      await updateDeal(brandId, editingDeal.id, {
+      await updateBrandDeal(brandId, editingDeal.id, {
         title: data.title,
         description: data.description || undefined,
         status: data.status,
@@ -122,7 +133,7 @@ const DealsTab: React.FC<{
     const newStatus = deal.status === "active" ? "inactive" : "active";
     setBusyId(deal.id);
     try {
-      await updateDeal(brandId, deal.id, { status: newStatus as "active" | "inactive" });
+      await updateBrandDeal(brandId, deal.id, { status: newStatus as "active" | "inactive" });
       toast({
         title: newStatus === "active" ? "Deal activated" : "Deal deactivated",
         description: `"${deal.title}" is now ${newStatus}.`,
@@ -148,8 +159,15 @@ const DealsTab: React.FC<{
       setDeletingDeal(null);
       await onDealCreated?.();
     } catch (error) {
+      // 403 (role too low) and 402 (module not in plan) carry different
+      // meanings — keep the copy distinct.
       toast({
-        title: "Error",
+        title:
+          error instanceof InsufficientPermissionError
+            ? "Permission required"
+            : error instanceof ModuleNotSubscribedError
+              ? "Not part of your plan"
+              : "Error",
         description: error instanceof Error ? error.message : "Failed to delete deal.",
         variant: "destructive",
       });
@@ -166,10 +184,12 @@ const DealsTab: React.FC<{
             <CardTitle>Deals & Discounts</CardTitle>
             <CardDescription>Manage your promotional offers</CardDescription>
           </div>
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Deal
-          </Button>
+          {canWrite && (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Deal
+            </Button>
+          )}
         </CardHeader>
 
         <CardContent>
@@ -235,7 +255,7 @@ const DealsTab: React.FC<{
                     <div className="shrink-0 flex items-center">
                       {isBusy ? (
                         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground m-2" />
-                      ) : (
+                      ) : canWrite ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -259,17 +279,21 @@ const DealsTab: React.FC<{
                               <Power className="h-4 w-4 mr-2" />
                               {statusKey === "active" ? "Deactivate" : "Activate"}
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => setDeletingDeal(deal)}
-                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
+                            {canManage && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => setDeletingDeal(deal)}
+                                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 );
@@ -284,10 +308,12 @@ const DealsTab: React.FC<{
               <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
                 Create your first promotional deal to attract and reward customers.
               </p>
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Deal
-              </Button>
+              {canWrite && (
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Deal
+                </Button>
+              )}
             </div>
           )}
         </CardContent>

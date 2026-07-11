@@ -16,6 +16,8 @@ import {
   Eye,
   Mail,
   Phone,
+  Lock,
+  LayoutGrid,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, useNavigate } from "react-router-dom";
@@ -29,6 +31,11 @@ import {
 } from "@/actions/brandActions";
 
 import { useToast } from "@/hooks/use-toast";
+import {
+  getOrgRole,
+  getSubscribedModules,
+  hasModule,
+} from "@/lib/brandAuth";
 
 import OverviewTab from "@/components/OverviewTab";
 import CampaignsTab from "@/components/CampaignsTab";
@@ -45,7 +52,12 @@ const BrandDashboard = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  // Tabs are state-driven (no sub-routes), so "route-level" module gating
+  // happens here: deep links to /dashboard/:brandId always land on a tab the
+  // user is allowed to see, and tab switches are validated.
+  const [activeTab, setActiveTab] = useState(() =>
+    hasModule("consumer-reporting") ? "overview" : "settings",
+  );
   const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
@@ -363,8 +375,61 @@ const BrandDashboard = () => {
     </div>
   );
 
+  // Module gating — UX mirror of the backend's resolution order (see
+  // brandAuth.ts). Subscribed-missing modules render locked (upsell, the 402
+  // story); role-missing modules are hidden entirely (not the user's job).
+  const subscribedModules = getSubscribedModules();
+  const orgRole = getOrgRole();
+  const canManageSettings = orgRole === "owner" || orgRole === "admin";
+  const showReporting = hasModule("consumer-reporting");
+  const esgSubscribed = subscribedModules.includes("esg");
+  const showEsg = hasModule("esg");
+  const showLockedEsg = !esgSubscribed;
+  const hasAnyModule = subscribedModules.length > 0;
+
+  const visibleTabCount =
+    (showReporting ? 3 : 0) + (showEsg || showLockedEsg ? 1 : 0) + 1; // + Settings
+
+  const allowedTabs = new Set([
+    ...(showReporting ? ["overview", "campaigns", "deals"] : []),
+    ...(showEsg ? ["esg"] : []),
+    "settings",
+  ]);
+
+  const handleTabChange = (value: string) => {
+    if (!allowedTabs.has(value)) {
+      toast({
+        title: "You don't have access to that section",
+        description: "Ask your organisation's owner or admin for access.",
+      });
+      return;
+    }
+    setActiveTab(value);
+  };
+
+  const handleLockedModuleClick = (moduleName: string) => {
+    toast({
+      title: `${moduleName} is not part of your plan`,
+      description:
+        "Your organisation isn't subscribed to this module. Contact MintRewards to add it.",
+    });
+  };
+
   const ApprovedDashboardView = () => (
     <div className="space-y-6">
+      {!hasAnyModule && (
+        <Card>
+          <CardContent className="p-10 text-center space-y-3">
+            <LayoutGrid className="h-8 w-8 mx-auto text-muted-foreground" aria-hidden="true" />
+            <h3 className="font-semibold">No active modules</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Your organisation has no active module subscriptions yet. Once a
+              module is added to your plan, its tools will appear here.
+              Settings remain available below.
+            </p>
+          </CardContent>
+        </Card>
+      )}
       {/* {isPreviewMode && !isApproved && (
         <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-amber-700">
           <span className="font-medium">Preview mode — this is how your dashboard will look once approved.</span>
@@ -393,36 +458,74 @@ const BrandDashboard = () => {
 
       {/* Dashboard Tabs */}
       <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
+        value={allowedTabs.has(activeTab) ? activeTab : "settings"}
+        onValueChange={handleTabChange}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="deals">Deals</TabsTrigger>
+        <TabsList
+          className="grid w-full"
+          style={{
+            gridTemplateColumns: `repeat(${visibleTabCount}, minmax(0, 1fr))`,
+          }}
+        >
+          {showReporting && (
+            <>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+              <TabsTrigger value="deals">Deals</TabsTrigger>
+            </>
+          )}
+          {showEsg && <TabsTrigger value="esg">ESG</TabsTrigger>}
+          {showLockedEsg && (
+            <button
+              type="button"
+              onClick={() => handleLockedModuleClick("ESG")}
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground/60 cursor-pointer"
+              aria-label="ESG — not included in your plan"
+            >
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+              ESG
+            </button>
+          )}
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          <OverviewTab
-            campaigns={analytics?.summary.activeCampaigns ?? campaigns.length}
-            analytics={analytics}
-            brandColor={brandColor}
-          />
-        </TabsContent>
+        {showReporting && (
+          <>
+            <TabsContent value="overview" className="space-y-6">
+              <OverviewTab
+                campaigns={analytics?.summary.activeCampaigns ?? campaigns.length}
+                analytics={analytics}
+                brandColor={brandColor}
+              />
+            </TabsContent>
 
-        <TabsContent value="campaigns">
-          <CampaignsTab
-            campaigns={campaigns}
-            logoUrl={formattedData.logoUrl}
-            onCampaignCreated={handleCampaignCreated}
-          />
-        </TabsContent>
+            <TabsContent value="campaigns">
+              <CampaignsTab
+                campaigns={campaigns}
+                logoUrl={formattedData.logoUrl}
+                onCampaignCreated={handleCampaignCreated}
+              />
+            </TabsContent>
 
-        <TabsContent value="deals">
-          <DealsTab deals={deals} onDealCreated={refreshDeals} brandColor={brandColor} />
-        </TabsContent>
+            <TabsContent value="deals">
+              <DealsTab deals={deals} onDealCreated={refreshDeals} brandColor={brandColor} />
+            </TabsContent>
+          </>
+        )}
+
+        {showEsg && (
+          <TabsContent value="esg">
+            <Card>
+              <CardHeader>
+                <CardTitle>ESG</CardTitle>
+                <CardDescription>
+                  ESG reporting tools are coming to this workspace.
+                </CardDescription>
+              </CardHeader>
+            </Card>
+          </TabsContent>
+        )}
 
         <TabsContent value="settings">
           <SettingsTab
@@ -439,6 +542,7 @@ const BrandDashboard = () => {
             themeColor={brandData.themeColor}
             brandColor={brandColor}
             onSettingsUpdated={refreshBrand}
+            readOnly={!canManageSettings}
           />
         </TabsContent>
       </Tabs>
