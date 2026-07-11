@@ -130,14 +130,16 @@ const BrandDashboard = () => {
     setDeals(data);
   };
 
-  const refreshBrand = async () => {
-    if (!brandId) return;
-    try {
-      const brand = await fetchBrandById(brandId);
-      setBrandData(brand);
-    } catch {
-      // silently ignore
-    }
+  const applyUpdatedBrand = (brand: Brand) => {
+    // The PATCH response contains writable fields (including `phone`) that the
+    // current scoped GET projection omits. Apply it directly so a successful
+    // save is not immediately replaced by an incomplete refetch.
+    setBrandData((current) => ({
+      ...current,
+      ...brand,
+      id: brand.id ?? brand._id ?? current?.id,
+      _id: brand._id ?? brand.id ?? current?._id,
+    } as Brand));
   };
 
   // Function to handle campaign creation success
@@ -541,7 +543,7 @@ const BrandDashboard = () => {
             address={brandData.address}
             themeColor={brandData.themeColor}
             brandColor={brandColor}
-            onSettingsUpdated={refreshBrand}
+            onSettingsUpdated={applyUpdatedBrand}
             readOnly={!canManageSettings}
           />
         </TabsContent>

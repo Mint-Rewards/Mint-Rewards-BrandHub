@@ -23,12 +23,18 @@ import {
 } from "./ui/form";
 import { toast } from "@/hooks/use-toast";
 import { updateBrandSettings } from "@/actions/brandActions";
+import { CountryPhoneInput } from "@/components/CountryPhoneInput";
+import { isValidPhone } from "@/lib/validators";
+import type { Brand } from "@/types";
 
 const settingsSchema = z.object({
   brandName: z.string().min(1, "Brand name is required"),
   companyName: z.string().min(1, "Company name is required"),
   contactName: z.string().optional(),
-  phone: z.string().optional(),
+  phone: z
+    .string()
+    .refine((value) => !value || isValidPhone(value) === null, "Enter a valid international phone number")
+    .optional(),
   webLink: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
   appLink: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
   description: z.string().optional(),
@@ -55,7 +61,7 @@ const SettingsTab: React.FC<{
   address?: string;
   themeColor?: string;
   brandColor?: string;
-  onSettingsUpdated?: () => Promise<void>;
+  onSettingsUpdated?: (brand: Brand) => void;
   // Mirrors the backend rule: PATCH /api/brandhub/brands/:brandId is
   // owner/admin only — members get a 403, so don't offer them the form.
   readOnly?: boolean;
@@ -112,7 +118,7 @@ const SettingsTab: React.FC<{
   const onSubmit = async (data: SettingsFormData) => {
     setIsSaving(true);
     try {
-      await updateBrandSettings(brandId, {
+      const updatedBrand = await updateBrandSettings(brandId, {
         brandName: data.brandName,
         companyName: data.companyName || undefined,
         contactName: data.contactName || undefined,
@@ -129,7 +135,7 @@ const SettingsTab: React.FC<{
         description: "Your brand profile has been updated.",
       });
 
-      if (onSettingsUpdated) await onSettingsUpdated();
+      onSettingsUpdated?.(updatedBrand);
       setIsEditing(false);
     } catch (error) {
       toast({
@@ -270,7 +276,13 @@ const SettingsTab: React.FC<{
                     <FormItem>
                       <FormLabel>Phone</FormLabel>
                       <FormControl>
-                        <Input placeholder="+1 (555) 000-0000" {...field} />
+                        <CountryPhoneInput
+                          id="settings-phone"
+                          value={field.value}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          invalid={Boolean(form.formState.errors.phone)}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
