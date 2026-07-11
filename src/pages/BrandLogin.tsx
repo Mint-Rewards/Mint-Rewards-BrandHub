@@ -41,6 +41,7 @@ const BrandLogin = () => {
         orgId?: string;
         brands?: OrgBrand[];
         defaultBrandId?: string | null;
+        subscribedModules?: string[];
         error?: string;
       };
 
@@ -68,6 +69,7 @@ const BrandLogin = () => {
       // guard/expiry purposes elsewhere.
       const brands = data.brands ?? [];
       brandSession.setBrands(brands);
+      brandSession.setSubscribedModules(data.subscribedModules ?? []);
       if (brands.length === 1 && data.defaultBrandId) {
         navigate(`/dashboard/${data.defaultBrandId}`);
       } else {
