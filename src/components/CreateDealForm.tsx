@@ -186,7 +186,7 @@ export function CreateDealForm({
             name="discountAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Discount Amount ($)</FormLabel>
+                <FormLabel>Discount Amount (PKR)</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="10.00" {...field} />
                 </FormControl>
@@ -300,7 +300,7 @@ export function CreateDealForm({
             name="minimumPurchase"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Minimum Purchase ($)</FormLabel>
+                <FormLabel>Minimum Purchase (PKR)</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="50.00" {...field} />
                 </FormControl>
