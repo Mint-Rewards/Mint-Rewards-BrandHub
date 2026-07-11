@@ -164,5 +164,7 @@
   "162": "OverviewTab.tsx",
   "163": "useToast",
   "164": "BrandRegister.tsx",
-  "165": "App.tsx"
+  "165": "App.tsx",
+  "166": "scroll-area.tsx",
+  "167": "hover-card.tsx"
 }
