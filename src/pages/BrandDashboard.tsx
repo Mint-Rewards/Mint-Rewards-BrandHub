@@ -51,6 +51,8 @@ const BrandDashboard = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   // Tabs are state-driven (no sub-routes), so "route-level" module gating
   // happens here: deep links to /dashboard/:brandId always land on a tab the
   // user is allowed to see, and tab switches are validated.
@@ -103,8 +105,19 @@ const BrandDashboard = () => {
 
     const fetchAnalytics = async () => {
       if (!brandId) return;
-      const data = await fetchBrandAnalytics(brandId);
-      setAnalytics(data);
+      setAnalyticsLoading(true);
+      setAnalyticsError(null);
+      try {
+        const data = await fetchBrandAnalytics(brandId);
+        setAnalytics(data);
+      } catch (error) {
+        // Typed 402/403 messages from throwForBrandApiStatus read well as-is.
+        setAnalyticsError(
+          error instanceof Error ? error.message : "Failed to load analytics.",
+        );
+      } finally {
+        setAnalyticsLoading(false);
+      }
     };
 
     fetchBrandData();
@@ -494,8 +507,9 @@ const BrandDashboard = () => {
           <>
             <TabsContent value="overview" className="space-y-6">
               <OverviewTab
-                campaigns={analytics?.summary.activeCampaigns ?? campaigns.length}
                 analytics={analytics}
+                loading={analyticsLoading}
+                error={analyticsError}
                 brandColor={brandColor}
               />
             </TabsContent>
