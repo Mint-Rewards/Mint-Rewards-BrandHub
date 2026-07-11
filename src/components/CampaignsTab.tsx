@@ -30,6 +30,7 @@ import {
   ModuleNotSubscribedError,
 } from "@/actions/brandActions";
 import { toast } from "@/hooks/use-toast";
+import { hasPermission } from "@/lib/brandAuth";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   PENDING:  { label: "Pending",  className: "bg-warning/10 text-warning border-warning/20" },
@@ -48,6 +49,11 @@ const CampaignsTab: React.FC<{
   onCampaignCreated?: () => Promise<void>;
 }> = ({ campaigns, logoUrl, onCampaignCreated }) => {
   const { brandId } = useParams();
+  // UX mirror of backend gates: create/edit need write, delete needs manage.
+  // A user never sees a button that will 403; the typed error handling below
+  // stays as the safety net, not the primary UX.
+  const canWrite = hasPermission("consumer-reporting", "write");
+  const canManage = hasPermission("consumer-reporting", "manage");
   const [createOpen, setCreateOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [deletingCampaign, setDeletingCampaign] = useState<Campaign | null>(null);
@@ -100,10 +106,12 @@ const CampaignsTab: React.FC<{
             <CardTitle>Campaign Management</CardTitle>
             <CardDescription>Create and manage your marketing campaigns</CardDescription>
           </div>
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Create Campaign
-          </Button>
+          {canWrite && (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Create Campaign
+            </Button>
+          )}
         </CardHeader>
 
         <CardContent>
@@ -170,7 +178,7 @@ const CampaignsTab: React.FC<{
                     <div className="shrink-0 flex items-center">
                       {isBusy ? (
                         <Loader2 className="h-4 w-4 animate-spin text-muted-foreground m-2" />
-                      ) : (
+                      ) : canWrite ? (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <Button
@@ -187,17 +195,21 @@ const CampaignsTab: React.FC<{
                               <Pencil className="h-4 w-4 mr-2" />
                               Edit
                             </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => setDeletingCampaign(campaign)}
-                              className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
+                            {canManage && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => setDeletingCampaign(campaign)}
+                                  className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 );
@@ -212,10 +224,12 @@ const CampaignsTab: React.FC<{
               <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
                 Create your first campaign to start engaging customers and driving rewards.
               </p>
-              <Button size="sm" onClick={() => setCreateOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create Campaign
-              </Button>
+              {canWrite && (
+                <Button size="sm" onClick={() => setCreateOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create Campaign
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
