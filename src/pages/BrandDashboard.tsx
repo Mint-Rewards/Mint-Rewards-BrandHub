@@ -38,9 +38,8 @@ import {
 } from "@/lib/brandAuth";
 
 import OverviewTab from "@/components/OverviewTab";
-import CampaignsTab from "@/components/CampaignsTab";
+import PromotionsTab from "@/components/PromotionsTab";
 import { Brand, Campaign, Deal } from "@/types";
-import DealsTab from "@/components/DealsTab";
 import SettingsTab from "@/components/SettingsTab";
 
 const BrandDashboard = () => {
@@ -145,7 +144,7 @@ const BrandDashboard = () => {
   // Function to handle campaign creation success
   const handleCampaignCreated = async () => {
     await refreshCampaigns();
-    setActiveTab("campaigns"); // Switch to campaigns tab after creation
+    setActiveTab("promotions"); // Switch to promotions tab after creation
   };
 
   if (loading) {
@@ -390,10 +389,10 @@ const BrandDashboard = () => {
   const hasAnyModule = subscribedModules.length > 0;
 
   const visibleTabCount =
-    (showReporting ? 3 : 0) + (showEsg || showLockedEsg ? 1 : 0) + 1; // + Settings
+    (showReporting ? 2 : 0) + (showEsg || showLockedEsg ? 1 : 0) + 1; // + Settings
 
   const allowedTabs = new Set([
-    ...(showReporting ? ["overview", "campaigns", "deals"] : []),
+    ...(showReporting ? ["overview", "promotions"] : []),
     ...(showEsg ? ["esg"] : []),
     "settings",
   ]);
@@ -473,8 +472,7 @@ const BrandDashboard = () => {
           {showReporting && (
             <>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-              <TabsTrigger value="deals">Deals</TabsTrigger>
+              <TabsTrigger value="promotions">Promotions</TabsTrigger>
             </>
           )}
           {showEsg && <TabsTrigger value="esg">ESG</TabsTrigger>}
@@ -502,16 +500,15 @@ const BrandDashboard = () => {
               />
             </TabsContent>
 
-            <TabsContent value="campaigns">
-              <CampaignsTab
+            <TabsContent value="promotions">
+              <PromotionsTab
                 campaigns={campaigns}
+                deals={deals}
                 logoUrl={formattedData.logoUrl}
+                brandColor={brandColor}
                 onCampaignCreated={handleCampaignCreated}
+                onDealCreated={refreshDeals}
               />
-            </TabsContent>
-
-            <TabsContent value="deals">
-              <DealsTab deals={deals} onDealCreated={refreshDeals} brandColor={brandColor} />
             </TabsContent>
           </>
         )}
