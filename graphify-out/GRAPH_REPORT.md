@@ -1,16 +1,16 @@
 # Graph Report - Mint-Rewards-BrandHub  (2026-07-11)
 
 ## Corpus Check
-- 132 files · ~802,207 words
+- 132 files · ~802,349 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1083 nodes · 1633 edges · 161 communities (73 shown, 88 thin omitted)
+- 1083 nodes · 1639 edges · 166 communities (78 shown, 88 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 42 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `245efc6c`
+- Built from commit: `7e6dc590`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -164,6 +164,11 @@
 - [[_COMMUNITY_checkAuth() Function|checkAuth() Function]]
 - [[_COMMUNITY_srcpagesAdminDashboard.tsx|src/pages/AdminDashboard.tsx]]
 - [[_COMMUNITY_Two Status Badge Patterns Inconsistency|Two Status Badge Patterns Inconsistency]]
+- [[_COMMUNITY_button.tsx|button.tsx]]
+- [[_COMMUNITY_OverviewTab.tsx|OverviewTab.tsx]]
+- [[_COMMUNITY_useToast|useToast]]
+- [[_COMMUNITY_BrandRegister.tsx|BrandRegister.tsx]]
+- [[_COMMUNITY_App.tsx|App.tsx]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 71 edges
@@ -201,11 +206,11 @@
 - **Design Governance Document Set** — design, product, ui_audit [INFERRED 0.80]
 - **Ralph Loop Autonomous Workflow Documents** — specify_memory_constitution, specify_memory_agents, prompt_build, prompt_plan [EXTRACTED 1.00]
 
-## Communities (161 total, 88 thin omitted)
+## Communities (166 total, 88 thin omitted)
 
 ### Community 0 - "Brand Admin Routing & Campaign Forms"
-Cohesion: 0.06
-Nodes (76): BrandAnalytics, InsufficientPermissionError, ModuleNotSubscribedError, App(), queryClient, STATUS_CONFIG, EditDealFormData, editDealSchema (+68 more)
+Cohesion: 0.12
+Nodes (27): InsufficientPermissionError, ModuleNotSubscribedError, STATUS_CONFIG, EditDealFormData, editDealSchema, STATUS_CONFIG, AlertDialogAction, AlertDialogCancel (+19 more)
 
 ### Community 1 - "Brand API Actions & Analytics Types"
 Cohesion: 0.08
@@ -388,8 +393,8 @@ Cohesion: 0.08
 Nodes (25): 1. Overview, 2. Colors: The Two-Layer Palette, 3. Typography, 4. Elevation, 5. Components, 6. Do's and Don'ts, Analytics Period Selector (Signature Component), Buttons (+17 more)
 
 ### Community 64 - "brandAuth.ts"
-Cohesion: 0.21
-Nodes (14): BrandProtectedRoute(), brandAuth, BrandTokenPayload, decodeBrandToken(), getModulePermission(), getOrgRole(), getSubscribedModules(), hasModule() (+6 more)
+Cohesion: 0.19
+Nodes (16): BrandProtectedRoute(), CampaignsTab(), DealsTab(), brandAuth, BrandTokenPayload, decodeBrandToken(), getModulePermission(), getOrgRole() (+8 more)
 
 ### Community 65 - "Brand Hub repo audit"
 Cohesion: 0.13
@@ -447,6 +452,26 @@ Nodes (3): For git commit hook, For native CLAUDE.md integration, graphify refer
 Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
+### Community 161 - "button.tsx"
+Cohesion: 0.22
+Nodes (18): Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Input (+10 more)
+
+### Community 162 - "OverviewTab.tsx"
+Cohesion: 0.14
+Nodes (13): BrandAnalytics, AnalyticsDashboard(), CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS, hex(), mockAnalyticsData, Progress, TabsContent (+5 more)
+
+### Community 163 - "useToast"
+Cohesion: 0.22
+Nodes (8): useToast(), AddCollection(), AdminDashboard(), AdminLogin(), BrandLogin(), BrandRegister(), FinalizedCollections(), TransitCollections()
+
+### Community 164 - "BrandRegister.tsx"
+Cohesion: 0.39
+Nodes (7): brandSession, isValidDomain(), isValidEmail(), isValidHex(), isValidPhone(), isValidUrl(), minLength()
+
+### Community 165 - "App.tsx"
+Cohesion: 0.38
+Nodes (3): App(), queryClient, NotFound()
+
 ## Ambiguous Edges - Review These
 - `Dashboard - Future Projections Screenshot` → `Dashboard - Overview Screenshot (inferred prior tab)`  [AMBIGUOUS]
   screenshots/07 - Dashboard - Future Projections.png · relation: conceptually_related_to
@@ -461,7 +486,7 @@ _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Dashboard - Future Projections Screenshot` and `Dashboard - Overview Screenshot (inferred prior tab)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `cn()` connect `Button & Calendar UI` to `Brand Admin Routing & Campaign Forms`, `Breadcrumb UI Component`, `Navigation Menu UI Component`, `Toggle Group UI Component`, `Site Header & UI Sheet/Separator`, `Campaigns Tab Component`, `Input OTP UI Component`, `Toast Component`, `Overview Tab Analytics`, `Alert UI Component`, `Avatar & Checkbox UI`, `dropdown-menu.tsx`, `radio-group.tsx`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`?**
+- **Why does `cn()` connect `Button & Calendar UI` to `Brand Admin Routing & Campaign Forms`, `Site Header & UI Sheet/Separator`, `Campaigns Tab Component`, `Toast Component`, `Overview Tab Analytics`, `Avatar & Checkbox UI`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`, `Breadcrumb UI Component`, `button.tsx`, `Navigation Menu UI Component`, `OverviewTab.tsx`, `Toggle Group UI Component`, `Input OTP UI Component`, `Alert UI Component`, `dropdown-menu.tsx`, `radio-group.tsx`?**
   _High betweenness centrality (0.086) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `npm Dependencies` to `Sonner Toaster`, `Input OTP UI Component`, `npm devDependencies`?**
   _High betweenness centrality (0.072) - this node is a cross-community bridge._
@@ -470,6 +495,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
   _594 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Brand Admin Routing & Campaign Forms` be split into smaller, more focused modules?**
-  _Cohesion score 0.05537757437070938 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.11587301587301588 - nodes in this community are weakly interconnected._
 - **Should `Brand API Actions & Analytics Types` be split into smaller, more focused modules?**
   _Cohesion score 0.07765151515151515 - nodes in this community are weakly interconnected._
