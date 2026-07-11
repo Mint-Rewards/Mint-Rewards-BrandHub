@@ -27,7 +27,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { CalendarIcon, ImagePlus, Loader2, X } from "lucide-react";
+import { CalendarIcon, ImagePlus, Info, Loader2, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
@@ -68,7 +68,8 @@ type CampaignFormData = z.infer<typeof campaignSchema>;
 
 interface CreateCampaignFormProps {
   brandId: string;
-  onSuccess: () => void;
+  /** Edit mode passes back the server-returned campaign (status reset to PENDING) */
+  onSuccess: (updated?: Campaign) => void;
   onCancel: () => void;
   logoUrl?: string;
   /** Pass an existing campaign to switch to edit mode */
@@ -158,17 +159,21 @@ export function CreateCampaignForm({
       };
 
       if (isEdit && campaign?.id) {
-        await updateBrandCampaign(brandId, campaign.id, payload);
-        toast({ title: "Campaign updated", description: "Your changes have been saved." });
+        const updated = await updateBrandCampaign(brandId, campaign.id, payload);
+        // Any brand edit sends the campaign back through admin review.
+        toast({
+          title: "Changes saved — campaign resubmitted for approval",
+          description: "Your campaign will be reviewed again before going live.",
+        });
+        onSuccess(updated);
       } else {
         await createCampaign(brandId, payload);
         toast({
           title: "Campaign submitted",
           description: "Your campaign is pending admin approval.",
         });
+        onSuccess();
       }
-
-      onSuccess();
     } catch (error) {
       toast({
         title: "Error",
@@ -184,6 +189,13 @@ export function CreateCampaignForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {isEdit && campaign?.status?.toUpperCase() === "APPROVED" && (
+          <p className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-sm text-muted-foreground">
+            <Info className="h-4 w-4 mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+            This campaign is approved. Saving changes will send it back for review before it goes
+            live again.
+          </p>
+        )}
         {/* Banner preview */}
         <section className="space-y-4 rounded-2xl border bg-card/60 p-4 md:p-6">
           <div className="flex items-center justify-between">

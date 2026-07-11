@@ -8,6 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { CountryPhoneInput } from "@/components/CountryPhoneInput";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -379,14 +380,12 @@ const BrandRegister = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="contactPhone">Contact Phone *</Label>
-                <Input
+                <CountryPhoneInput
                   id="contactPhone"
-                  type="tel"
                   value={formData.contactPhone}
-                  onChange={(e) => handleInputChange("contactPhone", e.target.value)}
+                  onChange={(value) => handleInputChange("contactPhone", value)}
                   onBlur={() => handleBlur("contactPhone")}
-                  placeholder="+1 (555) 123-4567"
-                  className={errors.contactPhone && touched.contactPhone ? "border-destructive" : ""}
+                  invalid={Boolean(errors.contactPhone && touched.contactPhone)}
                 />
                 <FieldError field="contactPhone" />
               </div>

@@ -14,6 +14,17 @@ export interface BrandAnalytics {
     active: CampaignSummary[];
     list: CampaignSummary[];
   };
+  dealStats: {
+    total: number;
+    active: number;
+    inactive: number;
+    expired: number;
+  };
+  environmental: {
+    totalWasteKg: number;
+    co2AvoidedKg: number;
+    materialBreakdown: { material: string; weightKg: number }[];
+  };
 }
 
 export interface CampaignSummary {
@@ -328,7 +339,8 @@ export const createDeal = async (
     description?: string;
     discountPercentage?: number | null;
     discountAmount?: number | null;
-    promoCode?: string | null;
+    codes?: string[];
+    generateCodes?: { count: number; prefix?: string };
     startDate?: string | null;
     endDate?: string | null;
     maxUses?: number | null;
@@ -403,21 +415,23 @@ export const updateBrandSettings = async (
 
 export const fetchBrandAnalytics = async (
   brandId: string,
-): Promise<BrandAnalytics | null> => {
-  try {
-    const response = await fetch(
-      `${getApiBaseUrl()}/brandhub/brands/${brandId}/analytics`,
-      { headers: { ...brandAuth.authHeaders() } },
-    );
-    if (!response.ok) return null;
-    const data = (await response.json()) as {
-      success?: boolean;
-      analytics?: BrandAnalytics;
-    };
-    return data.analytics ?? null;
-  } catch {
-    return null;
+): Promise<BrandAnalytics> => {
+  // Throws the typed 401/402/403/404 errors so Overview can render a real
+  // error state instead of silently showing nothing.
+  const response = await fetch(
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/analytics`,
+    { headers: { ...brandAuth.authHeaders() } },
+  );
+  throwForBrandApiStatus(response);
+  const data = (await response.json()) as {
+    success?: boolean;
+    analytics?: BrandAnalytics;
+    message?: string;
+  };
+  if (!response.ok || !data.analytics) {
+    throw new Error(data.message ?? "Failed to load analytics");
   }
+  return data.analytics;
 };
 
 export const fetchAllDeals = async (filters?: {
@@ -499,7 +513,7 @@ export const updateBrandDeal = async (
     description: string;
     discountPercentage: number | null;
     discountAmount: number | null;
-    promoCode: string | null;
+    addCodes: string[] | { count: number; prefix?: string };
     startDate: string | null;
     endDate: string | null;
     maxUses: number | null;

@@ -116,6 +116,33 @@ All colors MUST be HSL.
   }
 }
 
+@layer components {
+  .country-phone-input.react-tel-input {
+    @apply w-full font-sans;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__field.form-control {
+    @apply h-10 w-full rounded-md border border-input bg-background py-2 pr-3 text-sm text-foreground shadow-sm transition-colors;
+    padding-left: 3rem;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__field.form-control:focus {
+    @apply border-ring outline-none ring-1 ring-ring;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__field--invalid.form-control {
+    @apply border-destructive;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__button.flag-dropdown {
+    @apply rounded-l-md border-input bg-muted/40;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__dropdown.country-list {
+    @apply border-border bg-popover text-popover-foreground shadow-md;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

@@ -47,7 +47,9 @@ const CampaignsTab: React.FC<{
   campaigns: Campaign[];
   logoUrl?: string;
   onCampaignCreated?: () => Promise<void>;
-}> = ({ campaigns, logoUrl, onCampaignCreated }) => {
+  /** Merge a PATCH response into the list immediately (status resets to PENDING server-side) */
+  onCampaignUpdated?: (campaign: Campaign) => void;
+}> = ({ campaigns, logoUrl, onCampaignCreated, onCampaignUpdated }) => {
   const { brandId } = useParams();
   // UX mirror of backend gates: create/edit need write, delete needs manage.
   // A user never sees a button that will 403; the typed error handling below
@@ -64,8 +66,10 @@ const CampaignsTab: React.FC<{
     await onCampaignCreated?.();
   };
 
-  const handleEditSuccess = async () => {
+  const handleEditSuccess = async (updated?: Campaign) => {
     setEditingCampaign(null);
+    // Show the server-returned PENDING status immediately, then refetch.
+    if (updated) onCampaignUpdated?.(updated);
     await onCampaignCreated?.();
   };
 

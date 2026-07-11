@@ -38,9 +38,10 @@ import {
 } from "@/lib/brandAuth";
 
 import OverviewTab from "@/components/OverviewTab";
-import CampaignsTab from "@/components/CampaignsTab";
+import PromotionsTab from "@/components/PromotionsTab";
+import EsgTab from "@/components/EsgTab";
+import MintTraceTab from "@/components/MintTraceTab";
 import { Brand, Campaign, Deal } from "@/types";
-import DealsTab from "@/components/DealsTab";
 import SettingsTab from "@/components/SettingsTab";
 
 const BrandDashboard = () => {
@@ -52,6 +53,8 @@ const BrandDashboard = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
   // Tabs are state-driven (no sub-routes), so "route-level" module gating
   // happens here: deep links to /dashboard/:brandId always land on a tab the
   // user is allowed to see, and tab switches are validated.
@@ -104,8 +107,19 @@ const BrandDashboard = () => {
 
     const fetchAnalytics = async () => {
       if (!brandId) return;
-      const data = await fetchBrandAnalytics(brandId);
-      setAnalytics(data);
+      setAnalyticsLoading(true);
+      setAnalyticsError(null);
+      try {
+        const data = await fetchBrandAnalytics(brandId);
+        setAnalytics(data);
+      } catch (error) {
+        // Typed 402/403 messages from throwForBrandApiStatus read well as-is.
+        setAnalyticsError(
+          error instanceof Error ? error.message : "Failed to load analytics.",
+        );
+      } finally {
+        setAnalyticsLoading(false);
+      }
     };
 
     fetchBrandData();
@@ -130,20 +144,22 @@ const BrandDashboard = () => {
     setDeals(data);
   };
 
-  const refreshBrand = async () => {
-    if (!brandId) return;
-    try {
-      const brand = await fetchBrandById(brandId);
-      setBrandData(brand);
-    } catch {
-      // silently ignore
-    }
+  const applyUpdatedBrand = (brand: Brand) => {
+    // The PATCH response contains writable fields (including `phone`) that the
+    // current scoped GET projection omits. Apply it directly so a successful
+    // save is not immediately replaced by an incomplete refetch.
+    setBrandData((current) => ({
+      ...current,
+      ...brand,
+      id: brand.id ?? brand._id ?? current?.id,
+      _id: brand._id ?? brand.id ?? current?._id,
+    } as Brand));
   };
 
   // Function to handle campaign creation success
   const handleCampaignCreated = async () => {
     await refreshCampaigns();
-    setActiveTab("campaigns"); // Switch to campaigns tab after creation
+    setActiveTab("promotions"); // Switch to promotions tab after creation
   };
 
   if (loading) {
@@ -385,14 +401,21 @@ const BrandDashboard = () => {
   const esgSubscribed = subscribedModules.includes("esg");
   const showEsg = hasModule("esg");
   const showLockedEsg = !esgSubscribed;
+  const mintTraceSubscribed = subscribedModules.includes("minttrace");
+  const showMintTrace = hasModule("minttrace");
+  const showLockedMintTrace = !mintTraceSubscribed;
   const hasAnyModule = subscribedModules.length > 0;
 
   const visibleTabCount =
-    (showReporting ? 3 : 0) + (showEsg || showLockedEsg ? 1 : 0) + 1; // + Settings
+    (showReporting ? 2 : 0) +
+    (showEsg || showLockedEsg ? 1 : 0) +
+    (showMintTrace || showLockedMintTrace ? 1 : 0) +
+    1; // + Settings
 
   const allowedTabs = new Set([
-    ...(showReporting ? ["overview", "campaigns", "deals"] : []),
+    ...(showReporting ? ["overview", "promotions"] : []),
     ...(showEsg ? ["esg"] : []),
+    ...(showMintTrace ? ["minttrace"] : []),
     "settings",
   ]);
 
@@ -471,8 +494,7 @@ const BrandDashboard = () => {
           {showReporting && (
             <>
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-              <TabsTrigger value="deals">Deals</TabsTrigger>
+              <TabsTrigger value="promotions">Promotions</TabsTrigger>
             </>
           )}
           {showEsg && <TabsTrigger value="esg">ESG</TabsTrigger>}
@@ -487,6 +509,18 @@ const BrandDashboard = () => {
               ESG
             </button>
           )}
+          {showMintTrace && <TabsTrigger value="minttrace">MintTrace</TabsTrigger>}
+          {showLockedMintTrace && (
+            <button
+              type="button"
+              onClick={() => handleLockedModuleClick("MintTrace")}
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground/60 cursor-pointer"
+              aria-label="MintTrace — not included in your plan"
+            >
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+              MintTrace
+            </button>
+          )}
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -494,36 +528,50 @@ const BrandDashboard = () => {
           <>
             <TabsContent value="overview" className="space-y-6">
               <OverviewTab
-                campaigns={analytics?.summary.activeCampaigns ?? campaigns.length}
                 analytics={analytics}
+                loading={analyticsLoading}
+                error={analyticsError}
                 brandColor={brandColor}
               />
             </TabsContent>
 
-            <TabsContent value="campaigns">
-              <CampaignsTab
+            <TabsContent value="promotions">
+              <PromotionsTab
                 campaigns={campaigns}
+                deals={deals}
                 logoUrl={formattedData.logoUrl}
+                brandColor={brandColor}
                 onCampaignCreated={handleCampaignCreated}
+                onCampaignUpdated={(updated) => {
+                  // PATCH responses carry the raw document (_id); campaign
+                  // state uses normalized ids — match on either.
+                  const updatedId = updated.id ?? updated._id;
+                  setCampaigns((current) =>
+                    current.map((c) =>
+                      c.id === updatedId ? { ...c, ...updated, id: c.id } : c,
+                    ),
+                  );
+                }}
+                onDealCreated={refreshDeals}
               />
-            </TabsContent>
-
-            <TabsContent value="deals">
-              <DealsTab deals={deals} onDealCreated={refreshDeals} brandColor={brandColor} />
             </TabsContent>
           </>
         )}
 
         {showEsg && (
           <TabsContent value="esg">
-            <Card>
-              <CardHeader>
-                <CardTitle>ESG</CardTitle>
-                <CardDescription>
-                  ESG reporting tools are coming to this workspace.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <EsgTab
+              analytics={analytics}
+              loading={analyticsLoading}
+              error={analyticsError}
+              brandColor={brandColor}
+            />
+          </TabsContent>
+        )}
+
+        {showMintTrace && (
+          <TabsContent value="minttrace">
+            <MintTraceTab brandColor={brandColor} />
           </TabsContent>
         )}
 
@@ -541,7 +589,7 @@ const BrandDashboard = () => {
             address={brandData.address}
             themeColor={brandData.themeColor}
             brandColor={brandColor}
-            onSettingsUpdated={refreshBrand}
+            onSettingsUpdated={applyUpdatedBrand}
             readOnly={!canManageSettings}
           />
         </TabsContent>

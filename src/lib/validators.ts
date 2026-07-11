@@ -8,10 +8,12 @@ export const isValidUrl = (url: string): string | null =>
     ? null
     : "Enter a valid URL starting with http:// or https://";
 
-export const isValidPhone = (phone: string): string | null =>
-  /^[\d\s\-()+]{7,15}$/.test(phone)
+export const isValidPhone = (phone: string): string | null => {
+  const digits = phone.replace(/\D/g, "");
+  return /^\+/.test(phone) && digits.length >= 7 && digits.length <= 15
     ? null
-    : "Enter a valid phone number (7–15 digits)";
+    : "Enter a valid international phone number (7–15 digits)";
+};
 
 export const isValidDomain = (domain: string): string | null =>
   /^[a-z0-9-]+\.[a-z]{2,}$/i.test(domain)

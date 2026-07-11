@@ -31,13 +31,18 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { createDeal } from "@/actions/brandActions";
+import {
+  DealCodesInput,
+  emptyDealCodesValue,
+  resolveDealCodes,
+  type DealCodesValue,
+} from "@/components/DealCodesInput";
 
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   discountPercentage: z.string().optional(),
   discountAmount: z.string().optional(),
-  promoCode: z.string().optional(),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   maxUses: z.string().optional(),
@@ -58,6 +63,8 @@ export function CreateDealForm({
   onCancel,
 }: CreateDealFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [codesValue, setCodesValue] = useState<DealCodesValue>(emptyDealCodesValue);
+  const [codesError, setCodesError] = useState<string | null>(null);
 
   const form = useForm<DealFormData>({
     resolver: zodResolver(dealSchema),
@@ -66,16 +73,22 @@ export function CreateDealForm({
       description: "",
       discountPercentage: "",
       discountAmount: "",
-      promoCode: "",
       maxUses: "",
       minimumPurchase: "",
     },
   });
 
   const onSubmit = async (data: DealFormData) => {
+    const resolved = resolveDealCodes(codesValue);
+    if ("error" in resolved) {
+      setCodesError(resolved.error);
+      return;
+    }
+    setCodesError(null);
     setIsSubmitting(true);
     try {
       await createDeal(brandId, {
+        ...resolved,
         title: data.title,
         description: data.description || undefined,
         discountPercentage: data.discountPercentage
@@ -84,7 +97,6 @@ export function CreateDealForm({
         discountAmount: data.discountAmount
           ? parseFloat(data.discountAmount)
           : null,
-        promoCode: data.promoCode || null,
         startDate: data.startDate ? format(data.startDate, "yyyy-MM-dd") : null,
         endDate: data.endDate ? format(data.endDate, "yyyy-MM-dd") : null,
         maxUses: data.maxUses ? parseInt(data.maxUses) : null,
@@ -100,12 +112,16 @@ export function CreateDealForm({
 
       onSuccess();
     } catch (error) {
+      // Backend 400s carry the authoritative code-validation message —
+      // surface it in the codes error area verbatim.
+      const message =
+        error instanceof Error
+          ? error.message
+          : "Failed to create deal. Please try again.";
+      setCodesError(message);
       toast({
         title: "Error",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Failed to create deal. Please try again.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -131,19 +147,12 @@ export function CreateDealForm({
             )}
           />
 
-          <FormField
-            control={form.control}
-            name="promoCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Promo Code</FormLabel>
-                <FormControl>
-                  <Input placeholder="SAVE20" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+        </div>
+
+        <div className="space-y-2">
+          <FormLabel>Promo Codes</FormLabel>
+          <DealCodesInput idPrefix="create-deal" value={codesValue} onChange={setCodesValue} />
+          {codesError && <p className="text-sm font-medium text-destructive">{codesError}</p>}
         </div>
 
         <FormField
