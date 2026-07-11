@@ -52,7 +52,12 @@ const BrandDashboard = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
-  const [activeTab, setActiveTab] = useState("overview");
+  // Tabs are state-driven (no sub-routes), so "route-level" module gating
+  // happens here: deep links to /dashboard/:brandId always land on a tab the
+  // user is allowed to see, and tab switches are validated.
+  const [activeTab, setActiveTab] = useState(() =>
+    hasModule("consumer-reporting") ? "overview" : "settings",
+  );
   const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
@@ -385,6 +390,23 @@ const BrandDashboard = () => {
   const visibleTabCount =
     (showReporting ? 3 : 0) + (showEsg || showLockedEsg ? 1 : 0) + 1; // + Settings
 
+  const allowedTabs = new Set([
+    ...(showReporting ? ["overview", "campaigns", "deals"] : []),
+    ...(showEsg ? ["esg"] : []),
+    "settings",
+  ]);
+
+  const handleTabChange = (value: string) => {
+    if (!allowedTabs.has(value)) {
+      toast({
+        title: "You don't have access to that section",
+        description: "Ask your organisation's owner or admin for access.",
+      });
+      return;
+    }
+    setActiveTab(value);
+  };
+
   const handleLockedModuleClick = (moduleName: string) => {
     toast({
       title: `${moduleName} is not part of your plan`,
@@ -436,8 +458,8 @@ const BrandDashboard = () => {
 
       {/* Dashboard Tabs */}
       <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
+        value={allowedTabs.has(activeTab) ? activeTab : "settings"}
+        onValueChange={handleTabChange}
         className="space-y-6"
       >
         <TabsList
