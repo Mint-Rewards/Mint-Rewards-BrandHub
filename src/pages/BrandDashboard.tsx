@@ -507,6 +507,16 @@ const BrandDashboard = () => {
                 logoUrl={formattedData.logoUrl}
                 brandColor={brandColor}
                 onCampaignCreated={handleCampaignCreated}
+                onCampaignUpdated={(updated) => {
+                  // PATCH responses carry the raw document (_id); campaign
+                  // state uses normalized ids — match on either.
+                  const updatedId = updated.id ?? updated._id;
+                  setCampaigns((current) =>
+                    current.map((c) =>
+                      c.id === updatedId ? { ...c, ...updated, id: c.id } : c,
+                    ),
+                  );
+                }}
                 onDealCreated={refreshDeals}
               />
             </TabsContent>

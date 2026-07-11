@@ -10,6 +10,7 @@ interface PromotionsTabProps {
   logoUrl?: string;
   brandColor?: string;
   onCampaignCreated: () => Promise<void> | void;
+  onCampaignUpdated?: (campaign: Campaign) => void;
   onDealCreated: () => Promise<void> | void;
 }
 
@@ -19,6 +20,7 @@ const PromotionsTab = ({
   logoUrl,
   brandColor,
   onCampaignCreated,
+  onCampaignUpdated,
   onDealCreated,
 }: PromotionsTabProps) => {
   const [subTab, setSubTab] = useState<"campaigns" | "deals">("campaigns");
@@ -38,6 +40,7 @@ const PromotionsTab = ({
           campaigns={campaigns}
           logoUrl={logoUrl}
           onCampaignCreated={onCampaignCreated}
+          onCampaignUpdated={onCampaignUpdated}
         />
       </div>
       <div hidden={subTab !== "deals"}>
