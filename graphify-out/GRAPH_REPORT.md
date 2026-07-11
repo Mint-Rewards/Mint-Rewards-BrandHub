@@ -1,12 +1,18 @@
-# Graph Report - .  (2026-07-03)
+# Graph Report - Mint-Rewards-BrandHub  (2026-07-11)
 
 ## Corpus Check
-- Large corpus: 143 files · ~797,497 words. Semantic extraction will be expensive (many Claude tokens). Consider running on a subfolder.
+- 132 files · ~802,207 words
+- Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 856 nodes · 1445 edges · 63 communities (57 shown, 6 thin omitted)
-- Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 60 edges (avg confidence: 0.83)
+- 1083 nodes · 1633 edges · 161 communities (73 shown, 88 thin omitted)
+- Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 42 edges (avg confidence: 0.82)
 - Token cost: 0 input · 0 output
+
+## Graph Freshness
+- Built from commit: `245efc6c`
+- Run `git rev-parse HEAD` and compare to check if the graph is stale.
+- Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
 - [[_COMMUNITY_Brand Admin Routing & Campaign Forms|Brand Admin Routing & Campaign Forms]]
@@ -60,31 +66,128 @@
 - [[_COMMUNITY_Vercel Config|Vercel Config]]
 - [[_COMMUNITY_Placeholder Image Asset|Placeholder Image Asset]]
 - [[_COMMUNITY_robots.txt|robots.txt]]
-- [[_COMMUNITY_Empty README|Empty README]]
+- [[_COMMUNITY_2. Colors The Two-Layer Palette|2. Colors: The Two-Layer Palette]]
+- [[_COMMUNITY_brandAuth.ts|brandAuth.ts]]
+- [[_COMMUNITY_Brand Hub repo audit|Brand Hub repo audit]]
+- [[_COMMUNITY_Constitution — Mint Rewards BrandHub|Constitution — Mint Rewards BrandHub]]
+- [[_COMMUNITY_Acceptance Criteria|Acceptance Criteria]]
+- [[_COMMUNITY_graphify reference extra exports and benchmark|graphify reference: extra exports and benchmark]]
+- [[_COMMUNITY_2026-06-26T13-53-39Z__src-pages-index-tsx|2026-06-26T13-53-39Z__src-pages-index-tsx.md]]
+- [[_COMMUNITY_Product|Product]]
+- [[_COMMUNITY_2026-06-20T10-48-58Z__src-pages-branddashboard-tsx|2026-06-20T10-48-58Z__src-pages-branddashboard-tsx.md]]
+- [[_COMMUNITY_2026-06-26T14-12-15Z__src-components-siteheader-tsx|2026-06-26T14-12-15Z__src-components-siteheader-tsx.md]]
+- [[_COMMUNITY_dropdown-menu.tsx|dropdown-menu.tsx]]
+- [[_COMMUNITY_graphify reference query, path, explain|graphify reference: query, path, explain]]
+- [[_COMMUNITY_Agent Instructions|Agent Instructions]]
+- [[_COMMUNITY_graphify reference add a URL and watch a folder|graphify reference: add a URL and watch a folder]]
+- [[_COMMUNITY_graphify reference commit hook and native CLAUDE.md integration|graphify reference: commit hook and native CLAUDE.md integration]]
+- [[_COMMUNITY_graphify reference incremental update and cluster-only|graphify reference: incremental update and cluster-only]]
+- [[_COMMUNITY_graphify reference GitHub clone and cross-repo merge|graphify reference: GitHub clone and cross-repo merge]]
+- [[_COMMUNITY_graphify reference transcribe video and audio|graphify reference: transcribe video and audio]]
+- [[_COMMUNITY_radio-group.tsx|radio-group.tsx]]
+- [[_COMMUNITY_CLAUDE|CLAUDE.md]]
+- [[_COMMUNITY_CLAUDE|CLAUDE.md]]
+- [[_COMMUNITY_extraction-spec|extraction-spec.md]]
+- [[_COMMUNITY_PROMPT_build|PROMPT_build.md]]
+- [[_COMMUNITY_PROMPT_plan|PROMPT_plan.md]]
+- [[_COMMUNITY_graphify graphify trigger (root CLAUDE.md)|graphify /graphify trigger (root CLAUDE.md)]]
+- [[_COMMUNITY_graphify add url|/graphify add <url>]]
+- [[_COMMUNITY_--watch (background folder watcher)|--watch (background folder watcher)]]
+- [[_COMMUNITY_Step 7a - FalkorDB export (--falkordb--falkordb-push)|Step 7a - FalkorDB export (--falkordb/--falkordb-push)]]
+- [[_COMMUNITY_Step 7c - GraphML export (--graphml)|Step 7c - GraphML export (--graphml)]]
+- [[_COMMUNITY_Step 7d - MCP server (--mcp)|Step 7d - MCP server (--mcp)]]
+- [[_COMMUNITY_Step 7 - Neo4j export (--neo4j--neo4j-push)|Step 7 - Neo4j export (--neo4j/--neo4j-push)]]
+- [[_COMMUNITY_Step 7b - SVG export (--svg)|Step 7b - SVG export (--svg)]]
+- [[_COMMUNITY_Step 8 - Token reduction benchmark|Step 8 - Token reduction benchmark]]
+- [[_COMMUNITY_Step 6b - Wiki export (--wiki)|Step 6b - Wiki export (--wiki)]]
+- [[_COMMUNITY_Confidence score rubric (EXTRACTEDINFERREDAMBIGUOUS)|Confidence score rubric (EXTRACTED/INFERRED/AMBIGUOUS)]]
+- [[_COMMUNITY_Hyperedge extraction rule|Hyperedge extraction rule]]
+- [[_COMMUNITY_Node ID format rule|Node ID format rule]]
+- [[_COMMUNITY_semantically_similar_to edge rule|semantically_similar_to edge rule]]
+- [[_COMMUNITY_Extraction subagent prompt template|Extraction subagent prompt template]]
+- [[_COMMUNITY_graphify merge-graphs (cross-repo)|graphify merge-graphs (cross-repo)]]
+- [[_COMMUNITY_Multiple local subfolders merge (monorepo)|Multiple local subfolders merge (monorepo)]]
+- [[_COMMUNITY_graphify claude install (native CLAUDE.md integration)|graphify claude install (native CLAUDE.md integration)]]
+- [[_COMMUNITY_graphify hook install (post-commit auto-rebuild)|graphify hook install (post-commit auto-rebuild)]]
+- [[_COMMUNITY_graphify explain NODE_NAME|graphify explain "NODE_NAME"]]
+- [[_COMMUNITY_graphify path A B|graphify path "A" "B"]]
+- [[_COMMUNITY_graphify query (BFSDFS traversal)|graphify query (BFS/DFS traversal)]]
+- [[_COMMUNITY_graphify reflect  LESSONS.md work memory|graphify reflect / LESSONS.md work memory]]
+- [[_COMMUNITY_graphify save-result (feedback loop)|graphify save-result (feedback loop)]]
+- [[_COMMUNITY_Constrained query expansion (Step 0)|Constrained query expansion (Step 0)]]
+- [[_COMMUNITY_GRAPHIFY_WHISPER_PROMPT domain hint|GRAPHIFY_WHISPER_PROMPT domain hint]]
+- [[_COMMUNITY_Step 2.5 - Whisper videoaudio transcription|Step 2.5 - Whisper video/audio transcription]]
+- [[_COMMUNITY_build_merge() incremental graph merge|build_merge() incremental graph merge]]
+- [[_COMMUNITY_--cluster-only (graphify cluster-only .)|--cluster-only (graphify cluster-only .)]]
+- [[_COMMUNITY_graph_diff (post-update summary)|graph_diff (post-update summary)]]
+- [[_COMMUNITY_--update (incremental re-extraction)|--update (incremental re-extraction)]]
+- [[_COMMUNITY_graphify add and --watch pointer|/graphify add and --watch pointer]]
+- [[_COMMUNITY_Steps 6b-8 export flags pointer|Steps 6b-8 export flags pointer]]
+- [[_COMMUNITY_Commit hook and CLAUDE.md integration pointer|Commit hook and CLAUDE.md integration pointer]]
+- [[_COMMUNITY_graphify query pointer|/graphify query pointer]]
+- [[_COMMUNITY_Step 0 - GitHub repos and multi-path merge|Step 0 - GitHub repos and multi-path merge]]
+- [[_COMMUNITY_Step 2.5 - Video and audio transcription|Step 2.5 - Video and audio transcription]]
+- [[_COMMUNITY_Step 3 Part A - Structural (AST) extraction|Step 3 Part A - Structural (AST) extraction]]
+- [[_COMMUNITY_Step 3 Part B - Semantic extraction (parallel subagents)|Step 3 Part B - Semantic extraction (parallel subagents)]]
+- [[_COMMUNITY_Step 3 Part C - Merge AST + semantic|Step 3 Part C - Merge AST + semantic]]
+- [[_COMMUNITY_Step 4.5 - Graph health check|Step 4.5 - Graph health check]]
+- [[_COMMUNITY_Step 6 - Generate Obsidian vault + HTML|Step 6 - Generate Obsidian vault + HTML]]
+- [[_COMMUNITY_Step 9 - Save manifest, update cost tracker, clean up|Step 9 - Save manifest, update cost tracker, clean up]]
+- [[_COMMUNITY_--update  --cluster-only pointer|--update / --cluster-only pointer]]
+- [[_COMMUNITY_Future Projections Feature|Future Projections Feature]]
+- [[_COMMUNITY_Impact Analytics Feature|Impact Analytics Feature]]
+- [[_COMMUNITY_Privacy & Security Features|Privacy & Security Features]]
+- [[_COMMUNITY_Rewards Performance Feature|Rewards Performance Feature]]
+- [[_COMMUNITY_Sector Performance Feature|Sector Performance Feature]]
+- [[_COMMUNITY_User Community Analytics Feature|User Community Analytics Feature]]
+- [[_COMMUNITY_Date Range Picker Functional Illusion|Date Range Picker Functional Illusion]]
+- [[_COMMUNITY_Decorative Card Mockup (Empty Rectangles)|Decorative Card Mockup (Empty Rectangles)]]
+- [[_COMMUNITY_The Accountability Ledger (Creative North Star)|The Accountability Ledger (Creative North Star)]]
+- [[_COMMUNITY_The Context Requirement (No Bare KPIs)|The Context Requirement (No Bare KPIs)]]
+- [[_COMMUNITY_The Dynamic Brand Rule|The Dynamic Brand Rule]]
+- [[_COMMUNITY_The Flat-By-Default Rule (Elevation)|The Flat-By-Default Rule (Elevation)]]
+- [[_COMMUNITY_The One Accent Rule|The One Accent Rule]]
+- [[_COMMUNITY_The Single Family Rule (Typography)|The Single Family Rule (Typography)]]
+- [[_COMMUNITY_The Tinted Shadow Rule|The Tinted Shadow Rule]]
+- [[_COMMUNITY_Two-Layer Palette (Platform vs Brand)|Two-Layer Palette (Platform vs Brand)]]
+- [[_COMMUNITY_Hero-Metric KPI Card Absolute Ban|Hero-Metric KPI Card Absolute Ban]]
+- [[_COMMUNITY_Identical Icon-Chip  Card Grid Anti-Pattern|Identical Icon-Chip / Card Grid Anti-Pattern]]
+- [[_COMMUNITY_Critique BrandDashboard.tsx (2026-06-20)|Critique: BrandDashboard.tsx (2026-06-20)]]
+- [[_COMMUNITY_Critique Index.tsx (2026-06-26)|Critique: Index.tsx (2026-06-26)]]
+- [[_COMMUNITY_Critique SiteHeader components (2026-06-26)|Critique: SiteHeader components (2026-06-26)]]
+- [[_COMMUNITY_SiteHeader No Mobile Layout|SiteHeader No Mobile Layout]]
+- [[_COMMUNITY_Nested Cards Anti-Pattern|Nested Cards Anti-Pattern]]
+- [[_COMMUNITY_OverviewTab Hardcoded Rainbow Palette|OverviewTab Hardcoded Rainbow Palette]]
+- [[_COMMUNITY_Data Earns Trust Principle|Data Earns Trust Principle]]
+- [[_COMMUNITY_Brand Managers & Sustainability Teams Personas|Brand Managers & Sustainability Teams Personas]]
+- [[_COMMUNITY_YOLO Mode Autonomy Setting|YOLO Mode Autonomy Setting]]
+- [[_COMMUNITY_checkAuth() Function|checkAuth() Function]]
+- [[_COMMUNITY_srcpagesAdminDashboard.tsx|src/pages/AdminDashboard.tsx]]
+- [[_COMMUNITY_Two Status Badge Patterns Inconsistency|Two Status Badge Patterns Inconsistency]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 71 edges
-2. `compilerOptions` - 20 edges
-3. `Button` - 19 edges
-4. `useToast()` - 18 edges
-5. `getApiBaseUrl()` - 16 edges
-6. `Design System: MintRewards BrandHub` - 16 edges
-7. `Card` - 14 edges
-8. `compilerOptions` - 14 edges
-9. `CardHeader` - 13 edges
-10. `CardTitle` - 13 edges
+2. `useToast()` - 22 edges
+3. `Button` - 21 edges
+4. `getApiBaseUrl()` - 20 edges
+5. `compilerOptions` - 20 edges
+6. `Card` - 16 edges
+7. `CardHeader` - 15 edges
+8. `CardTitle` - 15 edges
+9. `CardDescription` - 15 edges
+10. `CardContent` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `Brand Hub UI Audit` --semantically_similar_to--> `Critique: BrandDashboard.tsx (2026-06-20)`  [INFERRED] [semantically similar]
-  UI_AUDIT.md → .impeccable/critique/2026-06-20T10-48-58Z__src-pages-branddashboard-tsx.md
-- `Brand Hub UI Audit` --semantically_similar_to--> `Critique: Index.tsx (2026-06-26)`  [INFERRED] [semantically similar]
-  UI_AUDIT.md → .impeccable/critique/2026-06-26T13-53-39Z__src-pages-index-tsx.md
-- `The Context Requirement (No Bare KPIs)` --semantically_similar_to--> `Data Earns Trust Principle`  [INFERRED] [semantically similar]
-  DESIGN.md → PRODUCT.md
-- `Decorative Card Mockup (Empty Rectangles)` --conceptually_related_to--> `Design System: MintRewards BrandHub`  [INFERRED]
-  .impeccable/critique/2026-06-26T13-53-39Z__src-pages-index-tsx.md → DESIGN.md
-- `CLAUDE.md — Graphify Instructions` --conceptually_related_to--> `AGENTS.md (Ralph Loop Agent Instructions)`  [AMBIGUOUS]
-  CLAUDE.md → .specify/memory/AGENTS.md
+- `BreadcrumbSeparator()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/breadcrumb.tsx → src/lib/utils.ts
+- `BreadcrumbEllipsis()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/breadcrumb.tsx → src/lib/utils.ts
+- `CommandShortcut()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/command.tsx → src/lib/utils.ts
+- `ContextMenuShortcut()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/context-menu.tsx → src/lib/utils.ts
+- `DropdownMenuShortcut()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/dropdown-menu.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - 1-file cycle: `src/components/ui/sonner.tsx -> src/components/ui/sonner.tsx`
@@ -98,35 +201,35 @@
 - **Design Governance Document Set** — design, product, ui_audit [INFERRED 0.80]
 - **Ralph Loop Autonomous Workflow Documents** — specify_memory_constitution, specify_memory_agents, prompt_build, prompt_plan [EXTRACTED 1.00]
 
-## Communities (63 total, 6 thin omitted)
+## Communities (161 total, 88 thin omitted)
 
 ### Community 0 - "Brand Admin Routing & Campaign Forms"
 Cohesion: 0.06
-Nodes (67): App(), queryClient, AdminProtectedRoute(), CampaignFormData, campaignSchema, CreateDealForm(), CreateDealFormProps, DealFormData (+59 more)
+Nodes (76): BrandAnalytics, InsufficientPermissionError, ModuleNotSubscribedError, App(), queryClient, STATUS_CONFIG, EditDealFormData, editDealSchema (+68 more)
 
 ### Community 1 - "Brand API Actions & Analytics Types"
-Cohesion: 0.06
-Nodes (53): BrandAnalytics, CampaignSummary, createCampaign(), createDeal(), deleteCampaign(), deleteDeal(), fetchAllCampaigns(), fetchAllDeals() (+45 more)
+Cohesion: 0.08
+Nodes (32): FetchBrandsResponse, CreateCampaignFormProps, Brand, BrandApplication, BrandDocument, BrandStatus, BrandTheme, BrandThemeDocument (+24 more)
 
 ### Community 2 - "npm Dependencies"
 Cohesion: 0.04
 Nodes (51): dependencies, class-variance-authority, clsx, cmdk, date-fns, embla-carousel-react, @hookform/resolvers, lucide-react (+43 more)
 
 ### Community 3 - "graphify Export & Watch Commands"
-Cohesion: 0.05
-Nodes (48): graphify /graphify trigger (root CLAUDE.md), /graphify add <url>, --watch (background folder watcher), Step 7a - FalkorDB export (--falkordb/--falkordb-push), Step 7c - GraphML export (--graphml), Step 7d - MCP server (--mcp), Step 7 - Neo4j export (--neo4j/--neo4j-push), Step 7b - SVG export (--svg) (+40 more)
+Cohesion: 0.08
+Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
 ### Community 4 - "Dashboard Feature Docs"
-Cohesion: 0.06
-Nodes (47): CLAUDE.md — Graphify Instructions, Dashboard Overview Document, Campaign & Deal Management Module, Future Projections Feature, Impact Analytics Feature, Privacy & Security Features, Rewards Performance Feature, Sector Performance Feature (+39 more)
+Cohesion: 0.17
+Nodes (11): AI Slop Verdict, Brand Hub UI Audit, Design Quality (Phase 3 — Critique), P0 — Release blockers, P1 — Fix this sprint, P2 — Next cycle, P3 — Polish, Per-page scores (baseline — Phase 2) (+3 more)
 
 ### Community 5 - "Site Header & UI Sheet/Separator"
 Cohesion: 0.05
-Nodes (38): SiteHeaderProps, Separator, SheetContent, SheetContentProps, SheetDescription, SheetFooter(), SheetHeader(), SheetOverlay (+30 more)
+Nodes (39): SiteHeaderProps, Separator, SheetContent, SheetContentProps, SheetDescription, SheetFooter(), SheetHeader(), SheetOverlay (+31 more)
 
 ### Community 6 - "Campaigns Tab Component"
-Cohesion: 0.06
-Nodes (34): STATUS_CONFIG, CreateCampaignForm(), getContrastingTextColor(), AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter() (+26 more)
+Cohesion: 0.18
+Nodes (9): Command, CommandDialogProps, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator (+1 more)
 
 ### Community 7 - "npm devDependencies"
 Cohesion: 0.07
@@ -134,23 +237,23 @@ Nodes (28): devDependencies, autoprefixer, eslint, @eslint/js, eslint-plugin-rea
 
 ### Community 8 - "Toast Component"
 Cohesion: 0.11
-Nodes (23): Toast, ToastAction, ToastActionElement, ToastClose, ToastDescription, ToastProps, ToastTitle, toastVariants (+15 more)
+Nodes (22): Toast, ToastAction, ToastActionElement, ToastClose, ToastDescription, ToastProps, ToastTitle, toastVariants (+14 more)
 
 ### Community 9 - "Overview Tab Analytics"
-Cohesion: 0.11
-Nodes (16): AnalyticsDashboard(), CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS, hex(), mockAnalyticsData, ChartConfig, ChartContainer, ChartContext (+8 more)
+Cohesion: 0.18
+Nodes (7): ChartConfig, ChartContainer, ChartContext, ChartContextProps, ChartLegendContent, ChartTooltipContent, THEMES
 
 ### Community 10 - "TS App Config"
 Cohesion: 0.09
 Nodes (22): compilerOptions, allowImportingTsExtensions, baseUrl, ignoreDeprecations, isolatedModules, jsx, lib, module (+14 more)
 
 ### Community 11 - "Avatar & Checkbox UI"
-Cohesion: 0.10
-Nodes (11): Avatar, AvatarFallback, AvatarImage, Checkbox, HoverCardContent, RadioGroup, RadioGroupItem, ScrollArea (+3 more)
+Cohesion: 0.08
+Nodes (16): AccordionContent, AccordionItem, AccordionTrigger, Alert, AlertDescription, AlertTitle, alertVariants, Avatar (+8 more)
 
 ### Community 12 - "Button & Calendar UI"
-Cohesion: 0.16
-Nodes (16): ButtonProps, buttonVariants, Calendar(), CalendarProps, Pagination(), PaginationContent, PaginationEllipsis(), PaginationItem (+8 more)
+Cohesion: 0.12
+Nodes (21): ButtonProps, buttonVariants, Calendar(), CalendarProps, DrawerContent, DrawerDescription, DrawerFooter(), DrawerHeader() (+13 more)
 
 ### Community 13 - "shadcn Components Config"
 Cohesion: 0.12
@@ -233,8 +336,8 @@ Cohesion: 0.25
 Nodes (7): Breadcrumb, BreadcrumbEllipsis(), BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator()
 
 ### Community 33 - "Drawer UI Component"
-Cohesion: 0.25
-Nodes (6): DrawerContent, DrawerDescription, DrawerFooter(), DrawerHeader(), DrawerOverlay, DrawerTitle
+Cohesion: 0.06
+Nodes (33): 1. 📈 **Impact Analytics**, 2. 🏆 **Rewards Performance**, 3. 👥 **User Community Analytics**, 4. 🏢 **Brand Performance**, 5. 📊 **Sector Performance**, 6. 🔮 **Future Projections**, **Brand Configuration**, 📈 **Business Value Proposition** (+25 more)
 
 ### Community 34 - "Navigation Menu UI Component"
 Cohesion: 0.25
@@ -269,46 +372,104 @@ Cohesion: 0.70
 Nodes (4): print_latest_output(), ralph-loop-gemini.sh script, show_help(), watch_latest_output()
 
 ### Community 42 - "Alert UI Component"
-Cohesion: 0.40
-Nodes (4): Alert, AlertDescription, AlertTitle, alertVariants
+Cohesion: 0.11
+Nodes (24): CampaignFormData, campaignSchema, CreateCampaignForm(), getContrastingTextColor(), CreateDealForm(), CreateDealFormProps, DealFormData, dealSchema (+16 more)
 
 ### Community 43 - "Sonner Toaster"
 Cohesion: 0.67
 Nodes (3): sonner, Toaster(), ToasterProps
 
 ### Community 44 - "Accordion UI Component"
-Cohesion: 0.50
-Nodes (3): AccordionContent, AccordionItem, AccordionTrigger
+Cohesion: 0.13
+Nodes (27): BrandNotFoundError, CampaignSummary, createCampaign(), createDeal(), createOrgBrand(), deleteCampaign(), deleteDeal(), fetchAllCampaigns() (+19 more)
 
-### Community 45 - "graphify Repo Merge Commands"
-Cohesion: 0.67
-Nodes (3): graphify clone <github-url>, graphify merge-graphs (cross-repo), Multiple local subfolders merge (monorepo)
+### Community 63 - "2. Colors: The Two-Layer Palette"
+Cohesion: 0.08
+Nodes (25): 1. Overview, 2. Colors: The Two-Layer Palette, 3. Typography, 4. Elevation, 5. Components, 6. Do's and Don'ts, Analytics Period Selector (Signature Component), Buttons (+17 more)
+
+### Community 64 - "brandAuth.ts"
+Cohesion: 0.21
+Nodes (14): BrandProtectedRoute(), brandAuth, BrandTokenPayload, decodeBrandToken(), getModulePermission(), getOrgRole(), getSubscribedModules(), hasModule() (+6 more)
+
+### Community 65 - "Brand Hub repo audit"
+Cohesion: 0.13
+Nodes (14): Brand Hub repo audit, DB connection helper, Environment, Existing API routes, Existing auth code, Existing data models, Hardcoded mock data, Known issues — current status (+6 more)
+
+### Community 66 - "Constitution — Mint Rewards BrandHub"
+Cohesion: 0.17
+Nodes (11): Autonomy Settings, Constitution — Mint Rewards BrandHub, Context Detection, Core Principles, Key Files & Paths, Project Overview, Running the Ralph Loop, Spec Format (+3 more)
+
+### Community 67 - "Acceptance Criteria"
+Cohesion: 0.17
+Nodes (11): Acceptance Criteria, Admin Dashboard — Fix & Complete, Analytics Tab, Auth, Brands Tab, Campaigns Tab, Context, Deals Tab (+3 more)
+
+### Community 68 - "graphify reference: extra exports and benchmark"
+Cohesion: 0.22
+Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only if --wiki flag), Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag), Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag), Step 7b - SVG export (only if --svg flag), Step 7c - GraphML export (only if --graphml flag), Step 7d - MCP server (only if --mcp flag), Step 8 - Token reduction benchmark (only if total_words > 5000)
+
+### Community 69 - "2026-06-26T13-53-39Z__src-pages-index-tsx.md"
+Cohesion: 0.22
+Nodes (8): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overall Impression, Persona Red Flags, Priority Issues, Questions to Consider, What's Working
+
+### Community 70 - "Product"
+Cohesion: 0.22
+Nodes (8): Accessibility & Inclusion, Anti-references, Brand Personality, Design Principles, Product, Product Purpose, Register, Users
+
+### Community 71 - "2026-06-20T10-48-58Z__src-pages-branddashboard-tsx.md"
+Cohesion: 0.25
+Nodes (7): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overall Impression, Persona Red Flags, Priority Issues, What's Working
+
+### Community 72 - "2026-06-26T14-12-15Z__src-components-siteheader-tsx.md"
+Cohesion: 0.25
+Nodes (7): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overall Impression, Persona Red Flags, Priority Issues, What's Working
+
+### Community 73 - "dropdown-menu.tsx"
+Cohesion: 0.29
+Nodes (6): DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuShortcut(), DropdownMenuSubContent, DropdownMenuSubTrigger
+
+### Community 74 - "graphify reference: query, path, explain"
+Cohesion: 0.33
+Nodes (5): For /graphify explain, For /graphify path, graphify reference: query, path, explain, Step 0 — Constrained query expansion (REQUIRED before traversal), Step 1 — Traversal
+
+### Community 75 - "Agent Instructions"
+Cohesion: 0.33
+Nodes (5): Agent Instructions, Quick Reference, The Magic Word, You're in a Ralph Loop if:, You're in Interactive Chat if:
+
+### Community 76 - "graphify reference: add a URL and watch a folder"
+Cohesion: 0.50
+Nodes (3): For /graphify add, For --watch, graphify reference: add a URL and watch a folder
+
+### Community 77 - "graphify reference: commit hook and native CLAUDE.md integration"
+Cohesion: 0.50
+Nodes (3): For git commit hook, For native CLAUDE.md integration, graphify reference: commit hook and native CLAUDE.md integration
+
+### Community 78 - "graphify reference: incremental update and cluster-only"
+Cohesion: 0.50
+Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
 ## Ambiguous Edges - Review These
-- `AGENTS.md (Ralph Loop Agent Instructions)` → `CLAUDE.md — Graphify Instructions`  [AMBIGUOUS]
-  CLAUDE.md · relation: conceptually_related_to
 - `Dashboard - Future Projections Screenshot` → `Dashboard - Overview Screenshot (inferred prior tab)`  [AMBIGUOUS]
   screenshots/07 - Dashboard - Future Projections.png · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **389 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+384 more)
+- **577 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+572 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **6 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **88 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **What is the exact relationship between `AGENTS.md (Ralph Loop Agent Instructions)` and `CLAUDE.md — Graphify Instructions`?**
-  _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **What is the exact relationship between `Dashboard - Future Projections Screenshot` and `Dashboard - Overview Screenshot (inferred prior tab)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `cn()` connect `Button & Calendar UI` to `Brand Admin Routing & Campaign Forms`, `Breadcrumb UI Component`, `Drawer UI Component`, `Navigation Menu UI Component`, `Toggle Group UI Component`, `Site Header & UI Sheet/Separator`, `Campaigns Tab Component`, `Input OTP UI Component`, `Toast Component`, `Overview Tab Analytics`, `Alert UI Component`, `Avatar & Checkbox UI`, `Accordion UI Component`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`?**
-  _High betweenness centrality (0.120) - this node is a cross-community bridge._
+- **Why does `cn()` connect `Button & Calendar UI` to `Brand Admin Routing & Campaign Forms`, `Breadcrumb UI Component`, `Navigation Menu UI Component`, `Toggle Group UI Component`, `Site Header & UI Sheet/Separator`, `Campaigns Tab Component`, `Input OTP UI Component`, `Toast Component`, `Overview Tab Analytics`, `Alert UI Component`, `Avatar & Checkbox UI`, `dropdown-menu.tsx`, `radio-group.tsx`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`?**
+  _High betweenness centrality (0.086) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `npm Dependencies` to `Sonner Toaster`, `Input OTP UI Component`, `npm devDependencies`?**
-  _High betweenness centrality (0.101) - this node is a cross-community bridge._
+  _High betweenness centrality (0.072) - this node is a cross-community bridge._
 - **Why does `input-otp` connect `Input OTP UI Component` to `npm Dependencies`?**
-  _High betweenness centrality (0.071) - this node is a cross-community bridge._
+  _High betweenness centrality (0.047) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _400 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _594 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Brand Admin Routing & Campaign Forms` be split into smaller, more focused modules?**
-  _Cohesion score 0.06059405940594059 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05537757437070938 - nodes in this community are weakly interconnected._
+- **Should `Brand API Actions & Analytics Types` be split into smaller, more focused modules?**
+  _Cohesion score 0.07765151515151515 - nodes in this community are weakly interconnected._

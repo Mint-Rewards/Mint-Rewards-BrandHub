@@ -31,7 +31,7 @@ import { CalendarIcon, ImagePlus, Loader2, X } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
-import { createCampaign, updateCampaign } from "@/actions/brandActions";
+import { createCampaign, updateBrandCampaign } from "@/actions/brandActions";
 import { Campaign } from "@/types";
 
 const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -158,7 +158,7 @@ export function CreateCampaignForm({
       };
 
       if (isEdit && campaign?.id) {
-        await updateCampaign(brandId, campaign.id, payload);
+        await updateBrandCampaign(brandId, campaign.id, payload);
         toast({ title: "Campaign updated", description: "Your changes have been saved." });
       } else {
         await createCampaign(brandId, payload);

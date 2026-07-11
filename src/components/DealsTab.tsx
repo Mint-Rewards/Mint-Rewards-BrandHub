@@ -31,7 +31,12 @@ import { Badge } from "./ui/badge";
 import { CreateDealForm } from "./CreateDealForm";
 import { useParams } from "react-router-dom";
 import { Deal } from "@/types";
-import { updateDeal, deleteDeal } from "@/actions/brandActions";
+import {
+  updateBrandDeal,
+  deleteDeal,
+  InsufficientPermissionError,
+  ModuleNotSubscribedError,
+} from "@/actions/brandActions";
 import { toast } from "@/hooks/use-toast";
 
 const editDealSchema = z.object({
@@ -91,7 +96,7 @@ const DealsTab: React.FC<{
     if (!editingDeal || !brandId) return;
     setBusyId(editingDeal.id);
     try {
-      await updateDeal(brandId, editingDeal.id, {
+      await updateBrandDeal(brandId, editingDeal.id, {
         title: data.title,
         description: data.description || undefined,
         status: data.status,
@@ -122,7 +127,7 @@ const DealsTab: React.FC<{
     const newStatus = deal.status === "active" ? "inactive" : "active";
     setBusyId(deal.id);
     try {
-      await updateDeal(brandId, deal.id, { status: newStatus as "active" | "inactive" });
+      await updateBrandDeal(brandId, deal.id, { status: newStatus as "active" | "inactive" });
       toast({
         title: newStatus === "active" ? "Deal activated" : "Deal deactivated",
         description: `"${deal.title}" is now ${newStatus}.`,
@@ -148,8 +153,15 @@ const DealsTab: React.FC<{
       setDeletingDeal(null);
       await onDealCreated?.();
     } catch (error) {
+      // 403 (role too low) and 402 (module not in plan) carry different
+      // meanings — keep the copy distinct.
       toast({
-        title: "Error",
+        title:
+          error instanceof InsufficientPermissionError
+            ? "Permission required"
+            : error instanceof ModuleNotSubscribedError
+              ? "Not part of your plan"
+              : "Error",
         description: error instanceof Error ? error.message : "Failed to delete deal.",
         variant: "destructive",
       });

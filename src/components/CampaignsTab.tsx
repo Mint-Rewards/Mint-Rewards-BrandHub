@@ -24,7 +24,11 @@ import { Badge } from "./ui/badge";
 import { CreateCampaignForm } from "./CreateCampaignForm";
 import { useParams } from "react-router-dom";
 import { Campaign } from "@/types";
-import { deleteCampaign } from "@/actions/brandActions";
+import {
+  deleteCampaign,
+  InsufficientPermissionError,
+  ModuleNotSubscribedError,
+} from "@/actions/brandActions";
 import { toast } from "@/hooks/use-toast";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
@@ -71,8 +75,15 @@ const CampaignsTab: React.FC<{
       setDeletingCampaign(null);
       await onCampaignCreated?.();
     } catch (error) {
+      // 403 (role too low) and 402 (module not in plan) carry different
+      // meanings — keep the copy distinct.
       toast({
-        title: "Error",
+        title:
+          error instanceof InsufficientPermissionError
+            ? "Permission required"
+            : error instanceof ModuleNotSubscribedError
+              ? "Not part of your plan"
+              : "Error",
         description: error instanceof Error ? error.message : "Failed to delete campaign.",
         variant: "destructive",
       });
