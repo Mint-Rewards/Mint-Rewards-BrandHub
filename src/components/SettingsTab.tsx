@@ -56,6 +56,9 @@ const SettingsTab: React.FC<{
   themeColor?: string;
   brandColor?: string;
   onSettingsUpdated?: () => Promise<void>;
+  // Mirrors the backend rule: PATCH /api/brandhub/brands/:brandId is
+  // owner/admin only — members get a 403, so don't offer them the form.
+  readOnly?: boolean;
 }> = ({
   brandId,
   name,
@@ -70,6 +73,7 @@ const SettingsTab: React.FC<{
   themeColor,
   brandColor = "hsl(var(--primary))",
   onSettingsUpdated,
+  readOnly = false,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -146,7 +150,7 @@ const SettingsTab: React.FC<{
           <CardTitle>Brand Settings</CardTitle>
           <CardDescription>Manage your brand profile and preferences</CardDescription>
         </div>
-        {!isEditing && (
+        {!isEditing && !readOnly && (
           <Button variant="outline" onClick={() => setIsEditing(true)}>
             <Settings className="h-4 w-4 mr-2" />
             Edit Profile
@@ -155,7 +159,13 @@ const SettingsTab: React.FC<{
       </CardHeader>
 
       <CardContent>
-        {!isEditing ? (
+        {readOnly && (
+          <p className="mb-6 rounded-md border bg-muted/50 px-4 py-3 text-sm text-muted-foreground">
+            Settings are read-only for your role. Ask your organisation's owner
+            or admin to make changes.
+          </p>
+        )}
+        {!isEditing || readOnly ? (
           <div className="space-y-6">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
