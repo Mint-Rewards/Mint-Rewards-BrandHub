@@ -52,6 +52,9 @@ const Index = () => {
             <Button variant="ghost" onClick={() => navigate('/admin/login')}>
               Admin Login
             </Button>
+            <Button variant="secondary" onClick={() => navigate('/brand/login')}>
+              Brand Login
+            </Button>
             <Button variant="gradient" onClick={() => navigate('/register')}>
               Get Started
             </Button>
