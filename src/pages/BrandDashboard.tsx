@@ -39,6 +39,8 @@ import {
 
 import OverviewTab from "@/components/OverviewTab";
 import PromotionsTab from "@/components/PromotionsTab";
+import EsgTab from "@/components/EsgTab";
+import MintTraceTab from "@/components/MintTraceTab";
 import { Brand, Campaign, Deal } from "@/types";
 import SettingsTab from "@/components/SettingsTab";
 
@@ -399,14 +401,21 @@ const BrandDashboard = () => {
   const esgSubscribed = subscribedModules.includes("esg");
   const showEsg = hasModule("esg");
   const showLockedEsg = !esgSubscribed;
+  const mintTraceSubscribed = subscribedModules.includes("minttrace");
+  const showMintTrace = hasModule("minttrace");
+  const showLockedMintTrace = !mintTraceSubscribed;
   const hasAnyModule = subscribedModules.length > 0;
 
   const visibleTabCount =
-    (showReporting ? 2 : 0) + (showEsg || showLockedEsg ? 1 : 0) + 1; // + Settings
+    (showReporting ? 2 : 0) +
+    (showEsg || showLockedEsg ? 1 : 0) +
+    (showMintTrace || showLockedMintTrace ? 1 : 0) +
+    1; // + Settings
 
   const allowedTabs = new Set([
     ...(showReporting ? ["overview", "promotions"] : []),
     ...(showEsg ? ["esg"] : []),
+    ...(showMintTrace ? ["minttrace"] : []),
     "settings",
   ]);
 
@@ -500,6 +509,18 @@ const BrandDashboard = () => {
               ESG
             </button>
           )}
+          {showMintTrace && <TabsTrigger value="minttrace">MintTrace</TabsTrigger>}
+          {showLockedMintTrace && (
+            <button
+              type="button"
+              onClick={() => handleLockedModuleClick("MintTrace")}
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground/60 cursor-pointer"
+              aria-label="MintTrace — not included in your plan"
+            >
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+              MintTrace
+            </button>
+          )}
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
@@ -539,14 +560,18 @@ const BrandDashboard = () => {
 
         {showEsg && (
           <TabsContent value="esg">
-            <Card>
-              <CardHeader>
-                <CardTitle>ESG</CardTitle>
-                <CardDescription>
-                  ESG reporting tools are coming to this workspace.
-                </CardDescription>
-              </CardHeader>
-            </Card>
+            <EsgTab
+              analytics={analytics}
+              loading={analyticsLoading}
+              error={analyticsError}
+              brandColor={brandColor}
+            />
+          </TabsContent>
+        )}
+
+        {showMintTrace && (
+          <TabsContent value="minttrace">
+            <MintTraceTab brandColor={brandColor} />
           </TabsContent>
         )}
 
