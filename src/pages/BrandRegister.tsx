@@ -8,101 +8,61 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { CountryPhoneInput } from "@/components/CountryPhoneInput";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Building2,
   Upload,
   ArrowLeft,
   ArrowRight,
   CheckCircle,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { v4 as uuidv4 } from "uuid";
-import { registerBrand } from "@/actions/brandActions";
-import { brandSession } from "@/lib/brandAuth";
-import {
-  isValidEmail,
-  isValidUrl,
-  isValidPhone,
-  isValidDomain,
-  isValidHex,
-  minLength,
-} from "@/lib/validators";
+import { registerOrg } from "@/actions/brandActions";
+import { brandAuth, brandSession } from "@/lib/brandAuth";
+import { isValidEmail, minLength } from "@/lib/validators";
+
+const MAX_LOGO_SIZE_BYTES = 5 * 1024 * 1024;
+const MIN_LOGO_PX = 128;
+const RECOMMENDED_LOGO_PX = 512;
 
 const BrandRegister = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    companyName: "",
+    orgName: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     brandName: "",
-    category: "",
-    website: "",
-    appLink: "",
-    address: "",
-    description: "",
-    contactName: "",
-    contactPhone: "",
-    contactEmail: "",
-    registrationNumber: uuidv4(),
     logo: null as File | null,
-    themeColor: "#3B82F6",
-    domain: "",
-    customEmails: "",
   });
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const totalSteps = 4;
-  const progress = (currentStep / totalSteps) * 100;
-
-  const categories = [
-    "Technology",
-    "Healthcare",
-    "Finance",
-    "Retail",
-    "Food & Beverage",
-    "Fashion",
-    "Education",
-    "Real Estate",
-    "Travel",
-    "Entertainment",
-    "Other",
-  ];
+  const totalSteps = 3;
 
   const getFieldError = (field: string, value: string): string => {
     switch (field) {
-      case "companyName":
-        return minLength(value, 2, "Company name") ?? "";
+      case "orgName":
+        return minLength(value, 2, "Organisation name") ?? "";
+      case "email":
+        return !value ? "Email is required" : (isValidEmail(value) ?? "");
+      case "password":
+        return value.length >= 8
+          ? ""
+          : "Password must be at least 8 characters";
+      case "confirmPassword":
+        return value === formData.password ? "" : "Passwords do not match";
       case "brandName":
         return minLength(value, 2, "Brand name") ?? "";
-      case "contactName":
-        return minLength(value, 2, "Contact name") ?? "";
-      case "category":
-        return value ? "" : "Please select a category";
-      case "website":
-        return !value ? "Website is required" : (isValidUrl(value) ?? "");
-      case "appLink":
-        return value ? (isValidUrl(value) ?? "") : "";
-      case "contactEmail":
-        return !value ? "Email is required" : (isValidEmail(value) ?? "");
-      case "contactPhone":
-        return !value ? "Phone is required" : (isValidPhone(value) ?? "");
-      case "domain":
-        return value ? (isValidDomain(value) ?? "") : "";
-      case "themeColor":
-        return isValidHex(value) ?? "";
       default:
         return "";
     }
@@ -125,7 +85,7 @@ const BrandRegister = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > MAX_LOGO_SIZE_BYTES) {
       toast({
         title: "File too large",
         description: "Logo must be under 5MB",
@@ -137,7 +97,7 @@ const BrandRegister = () => {
     if (!file.type.startsWith("image/")) {
       toast({
         title: "Invalid file type",
-        description: "Please upload a PNG or JPG image",
+        description: "Please upload a PNG, JPG, or WebP image",
         variant: "destructive",
       });
       return;
@@ -146,25 +106,50 @@ const BrandRegister = () => {
     const objectUrl = URL.createObjectURL(file);
     const img = new Image();
     img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      if (img.width < 100 || img.height < 100) {
+      if (img.width !== img.height) {
+        URL.revokeObjectURL(objectUrl);
         setErrors((prev) => ({
           ...prev,
-          logo: "Logo must be at least 100×100 pixels",
+          logo: `Logo must be square — this one is ${img.width}×${img.height}px. ${RECOMMENDED_LOGO_PX}×${RECOMMENDED_LOGO_PX}px recommended.`,
+        }));
+        return;
+      }
+      if (img.width < MIN_LOGO_PX) {
+        URL.revokeObjectURL(objectUrl);
+        setErrors((prev) => ({
+          ...prev,
+          logo: `Logo must be at least ${MIN_LOGO_PX}×${MIN_LOGO_PX}px (${RECOMMENDED_LOGO_PX}×${RECOMMENDED_LOGO_PX}px recommended)`,
         }));
         return;
       }
       setErrors((prev) => ({ ...prev, logo: "" }));
+      setLogoPreview((prev) => {
+        if (prev) URL.revokeObjectURL(prev);
+        return objectUrl;
+      });
       setFormData((prev) => ({ ...prev, logo: file }));
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      setErrors((prev) => ({
+        ...prev,
+        logo: "Could not read this image — please try another file",
+      }));
     };
     img.src = objectUrl;
   };
 
+  const removeLogo = () => {
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
+    setLogoPreview(null);
+    setFormData((prev) => ({ ...prev, logo: null }));
+    setErrors((prev) => ({ ...prev, logo: "" }));
+  };
+
   const validateStepFields = (): boolean => {
     const stepFields: Record<number, string[]> = {
-      1: ["companyName", "brandName", "category", "website", "appLink"],
-      2: ["contactName", "contactPhone", "contactEmail", "domain"],
-      3: ["themeColor"],
+      1: ["orgName", "email", "password", "confirmPassword"],
+      2: ["brandName"],
     };
 
     const fields = stepFields[currentStep] ?? [];
@@ -180,11 +165,8 @@ const BrandRegister = () => {
       if (error) hasError = true;
     }
 
-    if (currentStep === 3 && !formData.logo) {
-      newErrors.logo = "Logo is required";
-      newTouched.logo = true;
-      hasError = true;
-    }
+    // Logo is optional, but a selected file that failed validation blocks.
+    if (currentStep === 2 && errors.logo) hasError = true;
 
     setErrors(newErrors);
     setTouched(newTouched);
@@ -208,37 +190,36 @@ const BrandRegister = () => {
   };
 
   const handleSubmit = async () => {
+    setIsSubmitting(true);
     try {
-      const data = await registerBrand(formData);
-
-      // A fresh org currently has no subscriptions ([]), but capture whatever
-      // the register response reports so module gating starts from server
-      // truth, mirroring the login flow.
-      if (Array.isArray(data.subscribedModules)) {
-        brandSession.setSubscribedModules(data.subscribedModules as string[]);
-      }
-
-      toast({
-        title: "Registration Submitted!",
-        description: "Your brand registration is pending approval.",
+      const data = await registerOrg({
+        orgName: formData.orgName,
+        email: formData.email,
+        password: formData.password,
+        brandName: formData.brandName,
+        logo: formData.logo,
       });
 
-      setFormData((prev) => ({ ...prev, registrationNumber: uuidv4() }));
+      if (!data.token) {
+        throw new Error("No token received from server");
+      }
 
-      const brandId =
-        typeof data.brandId === "string"
-          ? data.brandId
-          : typeof data.brand_id === "string"
-            ? data.brand_id
-            : undefined;
+      // Same session bootstrap as login so the user lands signed in.
+      brandAuth.setToken(data.token);
+      const brands = data.brands ?? [];
+      brandSession.setBrands(brands);
+      brandSession.setSubscribedModules(data.subscribedModules ?? []);
 
-      setTimeout(() => {
-        if (brandId) {
-          navigate(`/dashboard/${brandId}`);
-          return;
-        }
-        navigate("/");
-      }, 2000);
+      toast({
+        title: "Organisation Created!",
+        description: "Welcome to MintRewards BrandHub.",
+      });
+
+      if (data.defaultBrandId) {
+        navigate(`/dashboard/${data.defaultBrandId}`);
+      } else {
+        navigate("/brands");
+      }
     } catch (error: unknown) {
       console.error("Registration error:", error);
       toast({
@@ -247,6 +228,8 @@ const BrandRegister = () => {
           error instanceof Error ? error.message : "Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -260,104 +243,68 @@ const BrandRegister = () => {
       case 1:
         return (
           <div className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="orgName">Organisation Name *</Label>
+              <Input
+                id="orgName"
+                value={formData.orgName}
+                onChange={(e) => handleInputChange("orgName", e.target.value)}
+                onBlur={() => handleBlur("orgName")}
+                placeholder="Enter your organisation name"
+                className={errors.orgName && touched.orgName ? "border-destructive" : ""}
+              />
+              <FieldError field="orgName" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                onBlur={() => handleBlur("email")}
+                placeholder="you@company.com"
+                className={errors.email && touched.email ? "border-destructive" : ""}
+              />
+              <FieldError field="email" />
+            </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="companyName">Company Name *</Label>
-                <Input
-                  id="companyName"
-                  value={formData.companyName}
-                  onChange={(e) => handleInputChange("companyName", e.target.value)}
-                  onBlur={() => handleBlur("companyName")}
-                  placeholder="Enter your company name"
-                  className={errors.companyName && touched.companyName ? "border-destructive" : ""}
-                />
-                <FieldError field="companyName" />
+                <Label htmlFor="password">Password *</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) => handleInputChange("password", e.target.value)}
+                    onBlur={() => handleBlur("password")}
+                    placeholder="At least 8 characters"
+                    className={`pr-10 ${errors.password && touched.password ? "border-destructive" : ""}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((v) => !v)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+                <FieldError field="password" />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="brandName">Brand Name *</Label>
+                <Label htmlFor="confirmPassword">Confirm Password *</Label>
                 <Input
-                  id="brandName"
-                  value={formData.brandName}
-                  onChange={(e) => handleInputChange("brandName", e.target.value)}
-                  onBlur={() => handleBlur("brandName")}
-                  placeholder="Enter your brand name"
-                  className={errors.brandName && touched.brandName ? "border-destructive" : ""}
+                  id="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
+                  onBlur={() => handleBlur("confirmPassword")}
+                  placeholder="Re-enter your password"
+                  className={errors.confirmPassword && touched.confirmPassword ? "border-destructive" : ""}
                 />
-                <FieldError field="brandName" />
+                <FieldError field="confirmPassword" />
               </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="category">Brand Category *</Label>
-              <Select
-                value={formData.category}
-                onValueChange={(value) => {
-                  handleInputChange("category", value);
-                  setTouched((prev) => ({ ...prev, category: true }));
-                }}
-              >
-                <SelectTrigger
-                  className={errors.category && touched.category ? "border-destructive" : ""}
-                >
-                  <SelectValue placeholder="Select your brand category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem key={category} value={category}>
-                      {category}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError field="category" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="website">Website *</Label>
-              <Input
-                id="website"
-                type="url"
-                value={formData.website}
-                onChange={(e) => handleInputChange("website", e.target.value)}
-                onBlur={() => handleBlur("website")}
-                placeholder="https://yourwebsite.com"
-                className={errors.website && touched.website ? "border-destructive" : ""}
-              />
-              <FieldError field="website" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="appLink">App Link (Optional)</Label>
-              <Input
-                id="appLink"
-                type="url"
-                value={formData.appLink}
-                onChange={(e) => handleInputChange("appLink", e.target.value)}
-                onBlur={() => handleBlur("appLink")}
-                placeholder="https://apps.apple.com/... or https://play.google.com/..."
-                className={errors.appLink && touched.appLink ? "border-destructive" : ""}
-              />
-              <FieldError field="appLink" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="address">Business Address</Label>
-              <Input
-                id="address"
-                value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
-                placeholder="Enter your business address"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Brand Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                placeholder="Describe your brand (max 500 characters)"
-                rows={4}
-                maxLength={500}
-              />
-              <p className="text-xs text-muted-foreground text-right">
-                {formData.description.length}/500 characters
-              </p>
             </div>
           </div>
         );
@@ -365,73 +312,33 @@ const BrandRegister = () => {
       case 2:
         return (
           <div className="space-y-6">
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="contactName">Contact Person Name *</Label>
-                <Input
-                  id="contactName"
-                  value={formData.contactName}
-                  onChange={(e) => handleInputChange("contactName", e.target.value)}
-                  onBlur={() => handleBlur("contactName")}
-                  placeholder="Enter contact person's name"
-                  className={errors.contactName && touched.contactName ? "border-destructive" : ""}
-                />
-                <FieldError field="contactName" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contactPhone">Contact Phone *</Label>
-                <CountryPhoneInput
-                  id="contactPhone"
-                  value={formData.contactPhone}
-                  onChange={(value) => handleInputChange("contactPhone", value)}
-                  onBlur={() => handleBlur("contactPhone")}
-                  invalid={Boolean(errors.contactPhone && touched.contactPhone)}
-                />
-                <FieldError field="contactPhone" />
-              </div>
-            </div>
             <div className="space-y-2">
-              <Label htmlFor="contactEmail">Contact Email *</Label>
+              <Label htmlFor="brandName">Brand Name *</Label>
               <Input
-                id="contactEmail"
-                type="email"
-                value={formData.contactEmail}
-                onChange={(e) => handleInputChange("contactEmail", e.target.value)}
-                onBlur={() => handleBlur("contactEmail")}
-                placeholder="contact@company.com"
-                className={errors.contactEmail && touched.contactEmail ? "border-destructive" : ""}
+                id="brandName"
+                value={formData.brandName}
+                onChange={(e) => handleInputChange("brandName", e.target.value)}
+                onBlur={() => handleBlur("brandName")}
+                placeholder="Enter your first brand's name"
+                className={errors.brandName && touched.brandName ? "border-destructive" : ""}
               />
-              <FieldError field="contactEmail" />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="domain">Domain Name (Optional)</Label>
-              <Input
-                id="domain"
-                value={formData.domain}
-                onChange={(e) => handleInputChange("domain", e.target.value)}
-                onBlur={() => handleBlur("domain")}
-                placeholder="company.com"
-                className={errors.domain && touched.domain ? "border-destructive" : ""}
-              />
-              <FieldError field="domain" />
+              <FieldError field="brandName" />
               <p className="text-xs text-muted-foreground">
-                Used for employee email identification
+                Your organisation's first brand. You can add more later.
               </p>
             </div>
-          </div>
-        );
 
-      case 3:
-        return (
-          <div className="space-y-6">
             <div className="space-y-4">
-              <Label>Brand Logo * (PNG/JPG, min 100×100 px, max 5 MB)</Label>
+              <Label>
+                Brand Logo (square, {RECOMMENDED_LOGO_PX}×{RECOMMENDED_LOGO_PX}px
+                recommended, min {MIN_LOGO_PX}×{MIN_LOGO_PX}px, max 5 MB)
+              </Label>
               <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                {formData.logo ? (
+                {formData.logo && logoPreview ? (
                   <div className="space-y-4">
                     <div className="flex justify-center">
                       <img
-                        src={URL.createObjectURL(formData.logo)}
+                        src={logoPreview}
                         alt="Logo preview"
                         className="h-32 w-32 object-cover rounded-lg border"
                       />
@@ -439,13 +346,7 @@ const BrandRegister = () => {
                     <p className="text-sm text-muted-foreground">
                       {formData.logo.name}
                     </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setFormData((prev) => ({ ...prev, logo: null }));
-                        setErrors((prev) => ({ ...prev, logo: "Logo is required" }));
-                      }}
-                    >
+                    <Button variant="outline" onClick={removeLogo}>
                       Remove Logo
                     </Button>
                   </div>
@@ -454,11 +355,14 @@ const BrandRegister = () => {
                     <Upload className="h-12 w-12 text-muted-foreground mx-auto" />
                     <div>
                       <p className="text-sm font-medium">Upload your brand logo</p>
-                      <p className="text-xs text-muted-foreground">PNG or JPG, max 5 MB</p>
+                      <p className="text-xs text-muted-foreground">
+                        Square PNG, JPG, or WebP — {RECOMMENDED_LOGO_PX}×
+                        {RECOMMENDED_LOGO_PX}px recommended
+                      </p>
                     </div>
                     <input
                       type="file"
-                      accept="image/png,image/jpeg"
+                      accept="image/png,image/jpeg,image/webp"
                       onChange={handleFileUpload}
                       className="hidden"
                       id="logo-upload"
@@ -471,43 +375,18 @@ const BrandRegister = () => {
                   </div>
                 )}
               </div>
-              {errors.logo && touched.logo && (
+              {errors.logo && (
                 <p className="text-xs text-destructive">{errors.logo}</p>
               )}
-            </div>
-
-            <div className="space-y-4">
-              <Label>Brand Theme Color *</Label>
-              <div className="flex items-center space-x-4">
-                <input
-                  type="color"
-                  value={formData.themeColor}
-                  onChange={(e) => handleInputChange("themeColor", e.target.value)}
-                  className="h-12 w-12 rounded-lg border border-border cursor-pointer"
-                />
-                <div className="flex-1">
-                  <Input
-                    value={formData.themeColor}
-                    onChange={(e) => handleInputChange("themeColor", e.target.value)}
-                    onBlur={() => handleBlur("themeColor")}
-                    placeholder="#3B82F6"
-                    className={errors.themeColor && touched.themeColor ? "border-destructive" : ""}
-                  />
-                  <FieldError field="themeColor" />
-                </div>
-                <div
-                  className="h-12 w-24 rounded-lg border border-border"
-                  style={{ backgroundColor: formData.themeColor }}
-                />
-              </div>
               <p className="text-xs text-muted-foreground">
-                This color will be used throughout your brand dashboard
+                Shown in your dashboard header. Optional — you can add it later
+                from Settings.
               </p>
             </div>
           </div>
         );
 
-      case 4:
+      case 3:
         return (
           <div className="space-y-6">
             <Card className="bg-muted/50">
@@ -520,20 +399,28 @@ const BrandRegister = () => {
               <CardContent className="space-y-3">
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
+                    <p className="font-medium">Organisation</p>
+                    <p className="text-muted-foreground">{formData.orgName}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Email</p>
+                    <p className="text-muted-foreground">{formData.email}</p>
+                  </div>
+                  <div>
                     <p className="font-medium">Brand Name</p>
                     <p className="text-muted-foreground">{formData.brandName}</p>
                   </div>
                   <div>
-                    <p className="font-medium">Category</p>
-                    <p className="text-muted-foreground">{formData.category}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Contact Email</p>
-                    <p className="text-muted-foreground">{formData.contactEmail}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Website</p>
-                    <p className="text-muted-foreground">{formData.website}</p>
+                    <p className="font-medium">Logo</p>
+                    {logoPreview ? (
+                      <img
+                        src={logoPreview}
+                        alt="Logo"
+                        className="h-12 w-12 object-cover rounded-lg border mt-1"
+                      />
+                    ) : (
+                      <p className="text-muted-foreground">None (add later)</p>
+                    )}
                   </div>
                 </div>
               </CardContent>
@@ -546,12 +433,7 @@ const BrandRegister = () => {
     }
   };
 
-  const stepTitles = [
-    "Brand Information",
-    "Contact Details",
-    "Brand Assets",
-    "Final Details",
-  ];
+  const stepTitles = ["Organisation & Account", "Brand & Logo", "Review"];
 
   return (
     <div className="min-h-screen bg-background">
@@ -579,7 +461,7 @@ const BrandRegister = () => {
         {/* Progress Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-bold">Brand Registration</h1>
+            <h1 className="text-3xl font-bold">Create Your Organisation</h1>
             <span className="text-sm text-muted-foreground tabular-nums">
               Step {currentStep} of {totalSteps}
             </span>
@@ -619,10 +501,9 @@ const BrandRegister = () => {
           <CardHeader>
             <CardTitle className="text-xl">{stepTitles[currentStep - 1]}</CardTitle>
             <CardDescription>
-              {currentStep === 1 && "Tell us about your brand and business"}
-              {currentStep === 2 && "Provide your contact information"}
-              {currentStep === 3 && "Upload your brand assets"}
-              {currentStep === 4 && "Review and complete your registration"}
+              {currentStep === 1 && "Set up your organisation's owner account"}
+              {currentStep === 2 && "Name your first brand and upload its logo"}
+              {currentStep === 3 && "Review and create your organisation"}
             </CardDescription>
           </CardHeader>
           <CardContent>{renderStepContent()}</CardContent>
@@ -633,7 +514,7 @@ const BrandRegister = () => {
           <Button
             variant="outline"
             onClick={prevStep}
-            disabled={currentStep === 1}
+            disabled={currentStep === 1 || isSubmitting}
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Previous
@@ -645,8 +526,8 @@ const BrandRegister = () => {
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} variant="gradient">
-              Submit Registration
+            <Button onClick={handleSubmit} variant="gradient" disabled={isSubmitting}>
+              {isSubmitting ? "Creating…" : "Create Organisation"}
             </Button>
           )}
         </div>

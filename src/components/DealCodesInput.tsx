@@ -1,11 +1,14 @@
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { FileUp } from "lucide-react";
 import {
   MAX_CODES,
   MAX_PREFIX_LENGTH,
+  codesFileToRaw,
   isValidPrefix,
   parseCodesInput,
 } from "@/lib/dealCodes";
@@ -69,6 +72,17 @@ export function DealCodesInput({
 }: DealCodesInputProps) {
   const parsed = useMemo(() => parseCodesInput(value.rawCodes), [value.rawCodes]);
   const overLimit = parsed.codes.length > MAX_CODES;
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileImport = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = ""; // allow re-selecting the same file
+    if (!file) return;
+    const raw = codesFileToRaw(await file.text());
+    // Append to whatever is already typed rather than clobbering it.
+    const existing = value.rawCodes.trim();
+    onChange({ ...value, rawCodes: existing ? `${existing}\n${raw}` : raw });
+  };
 
   return (
     <div className="space-y-3">
@@ -84,6 +98,29 @@ export function DealCodesInput({
 
       {value.mode === "upload" ? (
         <div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              Paste codes below, or import a .txt / .csv file (one code per
+              line or comma-separated)
+            </p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".txt,.csv,text/plain,text/csv"
+              className="hidden"
+              id={`${idPrefix}-codes-file`}
+              onChange={handleFileImport}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileUp className="h-3.5 w-3.5 mr-1.5" />
+              Import file
+            </Button>
+          </div>
           <Textarea
             id={`${idPrefix}-codes`}
             placeholder={"SUMMER-001\nSUMMER-002\n…one code per line (or comma-separated)"}

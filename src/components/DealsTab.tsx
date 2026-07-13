@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download } from "lucide-react";
+import { downloadCodes } from "@/lib/dealCodes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import {
@@ -95,6 +96,18 @@ const DealsTab: React.FC<{
   const copyCodes = async (codes: string[]) => {
     await navigator.clipboard.writeText(codes.join("\n"));
     toast({ title: "Copied", description: `${codes.length} codes copied to clipboard.` });
+  };
+
+  const handleDownloadCodes = (
+    codes: string[],
+    format: "txt" | "csv",
+    dealTitle: string,
+  ) => {
+    downloadCodes(codes, format, dealTitle);
+    toast({
+      title: "Downloaded",
+      description: `${codes.length} codes saved as .${format}`,
+    });
   };
 
   const openEdit = (deal: Deal) => {
@@ -511,6 +524,28 @@ const DealsTab: React.FC<{
                           <Copy className="h-3.5 w-3.5 mr-1.5" />
                           Copy all
                         </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleDownloadCodes(editingDeal?.codes ?? [], "txt", editingDeal?.title ?? "deal")
+                          }
+                        >
+                          <Download className="h-3.5 w-3.5 mr-1.5" />
+                          .txt
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            handleDownloadCodes(editingDeal?.codes ?? [], "csv", editingDeal?.title ?? "deal")
+                          }
+                        >
+                          <Download className="h-3.5 w-3.5 mr-1.5" />
+                          .csv
+                        </Button>
                       </>
                     )}
                   </div>
@@ -582,14 +617,36 @@ const DealsTab: React.FC<{
               <p className="text-sm text-muted-foreground">
                 {viewingCodesDeal?.codes?.length ?? 0} codes
               </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => copyCodes(viewingCodesDeal?.codes ?? [])}
-              >
-                <Copy className="h-3.5 w-3.5 mr-1.5" />
-                Copy all
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => copyCodes(viewingCodesDeal?.codes ?? [])}
+                >
+                  <Copy className="h-3.5 w-3.5 mr-1.5" />
+                  Copy all
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    handleDownloadCodes(viewingCodesDeal?.codes ?? [], "txt", viewingCodesDeal?.title ?? "deal")
+                  }
+                >
+                  <Download className="h-3.5 w-3.5 mr-1.5" />
+                  .txt
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    handleDownloadCodes(viewingCodesDeal?.codes ?? [], "csv", viewingCodesDeal?.title ?? "deal")
+                  }
+                >
+                  <Download className="h-3.5 w-3.5 mr-1.5" />
+                  .csv
+                </Button>
+              </div>
             </div>
             <div className="max-h-72 overflow-y-auto rounded-md border bg-muted/50 p-3 font-mono text-sm space-y-1">
               {viewingCodesDeal?.codes?.map((code) => (

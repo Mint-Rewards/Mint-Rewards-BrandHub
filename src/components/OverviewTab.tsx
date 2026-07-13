@@ -125,7 +125,14 @@ const OverviewTab: React.FC<{
     );
   }
 
-  const { summary, campaigns, dealStats, environmental } = analytics;
+  const { summary, campaigns, dealStats } = analytics;
+  // The backend omits `environmental` for brands with no environmentalStats;
+  // default to zeros so a fresh brand renders instead of crashing.
+  const environmental = analytics.environmental ?? {
+    totalWasteKg: 0,
+    co2AvoidedKg: 0,
+    materialBreakdown: [],
+  };
 
   const hasAnyData =
     summary.totalCampaigns > 0 ||
