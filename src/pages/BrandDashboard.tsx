@@ -608,12 +608,20 @@ const BrandDashboard = () => {
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <div
-                className="h-10 w-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: brandColor }}
-              >
-                <Building2 className="h-6 w-6 text-white" aria-hidden="true" />
-              </div>
+              {formattedData.logoUrl ? (
+                <img
+                  src={formattedData.logoUrl}
+                  alt={`${formattedData.name} logo`}
+                  className="h-10 w-10 rounded-lg object-cover border"
+                />
+              ) : (
+                <div
+                  className="h-10 w-10 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: brandColor }}
+                >
+                  <Building2 className="h-6 w-6 text-white" aria-hidden="true" />
+                </div>
+              )}
               <div>
                 <h1 className="text-xl font-bold">{formattedData.name}</h1>
                 <p className="text-xs text-muted-foreground">{formattedData.category || "Brand Dashboard"}</p>

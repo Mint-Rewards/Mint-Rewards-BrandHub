@@ -20,7 +20,8 @@ export interface BrandAnalytics {
     inactive: number;
     expired: number;
   };
-  environmental: {
+  // Omitted by the backend for brands with no environmentalStats.
+  environmental?: {
     totalWasteKg: number;
     co2AvoidedKg: number;
     materialBreakdown: { material: string; weightKg: number }[];
@@ -63,6 +64,50 @@ interface RegisterBrandResponse {
   message?: string;
   [key: string]: unknown;
 }
+
+export interface RegisterOrgPayload {
+  orgName: string;
+  email: string;
+  password: string;
+  brandName: string;
+  logo: File | null;
+}
+
+export interface RegisterOrgResponse {
+  token?: string;
+  orgId?: string;
+  userId?: string;
+  brands?: OrgBrand[];
+  defaultBrandId?: string | null;
+  subscribedModules?: string[];
+  error?: string;
+}
+
+// Org signup against /brandhub/auth/register. Sent as multipart so the
+// optional logo file rides along; the backend accepts JSON or form-data.
+export const registerOrg = async (
+  payload: RegisterOrgPayload,
+): Promise<RegisterOrgResponse> => {
+  const formData = new FormData();
+  formData.append("orgName", payload.orgName);
+  formData.append("email", payload.email);
+  formData.append("password", payload.password);
+  if (payload.brandName) formData.append("brandName", payload.brandName);
+  if (payload.logo) formData.append("logo", payload.logo);
+
+  const response = await fetch(`${getApiBaseUrl()}/brandhub/auth/register`, {
+    method: "POST",
+    body: formData,
+  });
+
+  const data = (await response.json()) as RegisterOrgResponse;
+
+  if (!response.ok) {
+    throw new Error(data.error ?? "Registration failed");
+  }
+
+  return data;
+};
 
 interface FetchBrandsResponse {
   success?: boolean;

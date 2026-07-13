@@ -37,3 +37,47 @@ export const parseCodesInput = (raw: string): ParsedCodes => {
 
 export const isValidPrefix = (prefix: string): boolean =>
   prefix === "" || (prefix.length <= MAX_PREFIX_LENGTH && /^[A-Z0-9\-_]+$/.test(prefix.toUpperCase()));
+
+// Normalizes an uploaded .txt/.csv file's text into the raw form
+// parseCodesInput expects: strip BOM, CSV quoting, and a header row like
+// "code"/"codes"/"promo_code" (which would otherwise pass CODE_PATTERN and
+// become a bogus code).
+export const codesFileToRaw = (text: string): string => {
+  const lines = text
+    .replace(/^﻿/, "")
+    .replace(/"/g, "")
+    .split(/\r?\n/);
+  const firstContent = lines.find((l) => l.trim());
+  if (
+    firstContent &&
+    /^(code|codes|promo[ _-]?codes?|coupon[ _-]?codes?)$/i.test(firstContent.trim())
+  ) {
+    lines.splice(lines.indexOf(firstContent), 1);
+  }
+  return lines.join("\n");
+};
+
+// Client-side download of a deal's codes as .txt (one per line) or .csv
+// (with a "code" header).
+export const downloadCodes = (
+  codes: string[],
+  format: "txt" | "csv",
+  baseName: string,
+): void => {
+  const content =
+    format === "csv" ? ["code", ...codes].join("\n") : codes.join("\n");
+  const slug =
+    baseName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "deal";
+  const blob = new Blob([content], {
+    type: format === "csv" ? "text/csv;charset=utf-8" : "text/plain;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${slug}-codes.${format}`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
