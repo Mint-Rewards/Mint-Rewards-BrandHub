@@ -1,19 +1,10 @@
 import { useMemo, useState } from "react";
-import { Plus, MoreHorizontal, Pencil, Trash2, TrendingUp, Loader2, CalendarIcon, X } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, TrendingUp, Loader2 } from "lucide-react";
 import type { DateRange } from "react-day-picker";
-import { format } from "date-fns";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { Calendar } from "./ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
+import PromotionsFilterBar from "./PromotionsFilterBar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +33,7 @@ import {
 } from "@/actions/brandActions";
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
+import { overlapsRange } from "@/lib/dateRangeFilter";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   PENDING:  { label: "Pending",  className: "bg-warning/10 text-warning border-warning/20" },
@@ -50,20 +42,15 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   EXPIRED:  { label: "Expired",  className: "bg-muted text-muted-foreground border-border" },
 };
 
+const STATUS_FILTER_OPTIONS = [
+  { value: "PENDING", label: "Pending" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
+  { value: "EXPIRED", label: "Expired" },
+];
+
 function statusConfig(raw: string) {
   return STATUS_CONFIG[raw?.toUpperCase()] ?? STATUS_CONFIG.PENDING;
-}
-
-// A campaign matches the date filter if its [start, end] window overlaps the
-// selected [from, to] window — mirrors the backend's overlap semantics so a
-// campaign with no dates is never hidden by a period filter.
-function overlapsRange(campaign: Campaign, range: DateRange | undefined): boolean {
-  if (!range?.from && !range?.to) return true;
-  const start = campaign.startDate ? new Date(campaign.startDate) : null;
-  const end = campaign.endDate ? new Date(campaign.endDate) : null;
-  if (range?.from && end && !Number.isNaN(end.getTime()) && end < range.from) return false;
-  if (range?.to && start && !Number.isNaN(start.getTime()) && start > range.to) return false;
-  return true;
 }
 
 const CampaignsTab: React.FC<{
@@ -156,63 +143,13 @@ const CampaignsTab: React.FC<{
 
         <CardContent>
           {campaigns.length > 0 && (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center mb-4">
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-40">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All statuses</SelectItem>
-                  <SelectItem value="PENDING">Pending</SelectItem>
-                  <SelectItem value="APPROVED">Approved</SelectItem>
-                  <SelectItem value="REJECTED">Rejected</SelectItem>
-                  <SelectItem value="EXPIRED">Expired</SelectItem>
-                </SelectContent>
-              </Select>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" className="justify-start gap-2 font-normal sm:w-64">
-                    <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                    {dateRange?.from ? (
-                      dateRange.to ? (
-                        <>
-                          {format(dateRange.from, "MMM d, yyyy")} –{" "}
-                          {format(dateRange.to, "MMM d, yyyy")}
-                        </>
-                      ) : (
-                        format(dateRange.from, "MMM d, yyyy")
-                      )
-                    ) : (
-                      "Filter by date"
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
-              {hasFilters && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="self-start sm:self-auto"
-                  onClick={() => {
-                    setStatusFilter("all");
-                    setDateRange(undefined);
-                  }}
-                >
-                  <X className="h-3.5 w-3.5 mr-1.5" />
-                  Clear filters
-                </Button>
-              )}
-            </div>
+            <PromotionsFilterBar
+              statusOptions={STATUS_FILTER_OPTIONS}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
           )}
           {campaigns.length > 0 ? (
             filteredCampaigns.length > 0 ? (
