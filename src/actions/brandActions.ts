@@ -393,6 +393,9 @@ export const fetchDealsForBrand = async (brandId: string): Promise<Deal[]> => {
   });
 };
 
+// No `status` in the payload, same as createCampaign — the backend is
+// expected to default new deals to "pending" so they go through admin
+// review instead of going live immediately.
 export const createDeal = async (
   brandId: string,
   payload: {
@@ -539,7 +542,7 @@ export const updateDeal = async (
     endDate: string | null;
     maxUses: number | null;
     minimumPurchase: number | null;
-    status: "active" | "inactive" | "expired";
+    status: "active" | "inactive" | "expired" | "rejected";
   }>,
 ): Promise<Deal> => {
   const response = await fetch(
@@ -564,9 +567,10 @@ export const updateDeal = async (
   return data.deal;
 };
 
-// Brand-side deal update on the scoped endpoint. Deal `status` IS writable
-// here (activate/deactivate) — unlike campaigns, where status is admin
-// moderation state.
+// Brand-side deal update on the scoped endpoint. New deals and edits to a
+// live deal go through admin approval (pending -> active/rejected), same as
+// campaigns; `status` here is only for toggling an already-approved deal
+// active/inactive, not for self-approving.
 export const updateBrandDeal = async (
   brandId: string,
   dealId: string,

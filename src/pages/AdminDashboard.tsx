@@ -189,16 +189,16 @@ const AdminDashboard = () => {
     deal: Deal,
     action: "approve" | "reject",
   ) => {
-    const newStatus = action === "approve" ? "active" : "inactive";
+    const newStatus = action === "approve" ? "active" : "rejected";
 
     try {
-      await updateDeal(deal.brandId ?? "", deal.id, { status: newStatus as "active" | "inactive" });
+      await updateDeal(deal.brandId ?? "", deal.id, { status: newStatus });
       setDeals((prev) =>
         prev.map((d) => (d.id === deal.id ? { ...d, status: newStatus } : d)),
       );
       toast({
-        title: `Deal ${action === "approve" ? "activated" : "deactivated"}`,
-        description: `"${deal.title}" has been ${action === "approve" ? "set to active" : "deactivated"}.`,
+        title: `Deal ${action === "approve" ? "approved" : "rejected"}`,
+        description: `"${deal.title}" has been ${action === "approve" ? "approved" : "rejected"}.`,
         variant: action === "approve" ? "default" : "destructive",
       });
     } catch (error) {
@@ -596,7 +596,7 @@ const AdminDashboard = () => {
                                       : "secondary"
                                 }
                               >
-                                {deal.status}
+                                {deal.status ?? "pending"}
                               </Badge>
                             </div>
                             <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
@@ -629,8 +629,7 @@ const AdminDashboard = () => {
                               <Eye className="h-4 w-4 mr-2" />
                               View Details
                             </Button>
-                            {(deal.status?.toLowerCase() === "inactive" ||
-                              deal.status?.toUpperCase() === "PENDING") && (
+                            {(deal.status?.toLowerCase() ?? "pending") === "pending" && (
                               <>
                                 <Button
                                   variant="success"
@@ -638,7 +637,7 @@ const AdminDashboard = () => {
                                   onClick={() => handleDealApproval(deal, "approve")}
                                 >
                                   <CheckCircle className="h-4 w-4 mr-2" />
-                                  Activate
+                                  Approve
                                 </Button>
                                 <Button
                                   variant="destructive"
@@ -646,7 +645,7 @@ const AdminDashboard = () => {
                                   onClick={() => handleDealApproval(deal, "reject")}
                                 >
                                   <XCircle className="h-4 w-4 mr-2" />
-                                  Deactivate
+                                  Reject
                                 </Button>
                               </>
                             )}

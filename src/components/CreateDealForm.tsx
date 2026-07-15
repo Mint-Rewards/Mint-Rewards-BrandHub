@@ -108,7 +108,7 @@ export function CreateDealForm({
 
       toast({
         title: "Deal submitted",
-        description: "Your deal is now live.",
+        description: "Your deal is pending admin approval.",
       });
 
       onSuccess();

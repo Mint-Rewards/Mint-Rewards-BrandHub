@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info } from "lucide-react";
 import { downloadCodes } from "@/lib/dealCodes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -24,7 +24,6 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -50,7 +49,6 @@ import {
 const editDealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  status: z.enum(["active", "inactive", "expired"]),
   discountPercentage: z.string().optional(),
   discountAmount: z.string().optional(),
   startDate: z.string().optional(),
@@ -62,7 +60,9 @@ const editDealSchema = z.object({
 type EditDealFormData = z.infer<typeof editDealSchema>;
 
 const STATUS_CONFIG = {
+  pending: { label: "Pending", className: "bg-warning/10 text-warning border-warning/20" },
   active: { label: "Active", className: "bg-success/10 text-success border-success/20" },
+  rejected: { label: "Rejected", className: "bg-destructive/10 text-destructive border-destructive/20" },
   inactive: { label: "Inactive", className: "bg-muted text-muted-foreground border-border" },
   expired: { label: "Expired", className: "bg-destructive/10 text-destructive border-destructive/20" },
 } as const;
@@ -114,7 +114,6 @@ const DealsTab: React.FC<{
     editForm.reset({
       title: deal.title,
       description: deal.description ?? "",
-      status: (deal.status as "active" | "inactive" | "expired") ?? "active",
       discountPercentage: deal.discountPercentage?.toString() ?? "",
       discountAmount: deal.discountAmount?.toString() ?? "",
       startDate: deal.startDate ?? "",
@@ -149,7 +148,6 @@ const DealsTab: React.FC<{
       await updateBrandDeal(brandId, editingDeal.id, {
         title: data.title,
         description: data.description || undefined,
-        status: data.status,
         discountPercentage: data.discountPercentage ? parseFloat(data.discountPercentage) : null,
         discountAmount: data.discountAmount ? parseFloat(data.discountAmount) : null,
         ...(addCodes !== undefined ? { addCodes } : {}),
@@ -158,7 +156,14 @@ const DealsTab: React.FC<{
         maxUses: data.maxUses ? parseInt(data.maxUses) : null,
         minimumPurchase: data.minimumPurchase ? parseFloat(data.minimumPurchase) : null,
       });
-      toast({ title: "Deal updated", description: `"${data.title}" has been saved.` });
+      if (editingDeal.status?.toLowerCase() === "active") {
+        toast({
+          title: "Changes saved — deal resubmitted for approval",
+          description: "Your deal will be reviewed again before going live.",
+        });
+      } else {
+        toast({ title: "Deal updated", description: `"${data.title}" has been saved.` });
+      }
       setEditingDeal(null);
       await onDealCreated?.();
     } catch (error) {
@@ -242,7 +247,7 @@ const DealsTab: React.FC<{
           {deals.length > 0 ? (
             <div className="divide-y divide-border">
               {deals.map((deal) => {
-                const statusKey = (deal.status ?? "inactive") as keyof typeof STATUS_CONFIG;
+                const statusKey = (deal.status ?? "inactive").toLowerCase() as keyof typeof STATUS_CONFIG;
                 const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.inactive;
                 const isBusy = busyId === deal.id;
 
@@ -326,7 +331,11 @@ const DealsTab: React.FC<{
                             )}
                             <DropdownMenuItem
                               onClick={() => handleToggle(deal)}
-                              disabled={statusKey === "expired"}
+                              disabled={
+                                statusKey === "expired" ||
+                                statusKey === "pending" ||
+                                statusKey === "rejected"
+                              }
                             >
                               <Power className="h-4 w-4 mr-2" />
                               {statusKey === "active" ? "Deactivate" : "Activate"}
@@ -393,6 +402,13 @@ const DealsTab: React.FC<{
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+              {editingDeal?.status?.toLowerCase() === "active" && (
+                <p className="flex items-start gap-2 rounded-md border border-warning/30 bg-warning/5 px-3 py-2 text-sm text-muted-foreground">
+                  <Info className="h-4 w-4 mt-0.5 shrink-0 text-warning" aria-hidden="true" />
+                  This deal is live. Saving changes will send it back for review before it goes
+                  live again.
+                </p>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={editForm.control}
@@ -401,26 +417,6 @@ const DealsTab: React.FC<{
                     <FormItem>
                       <FormLabel>Title</FormLabel>
                       <FormControl><Input placeholder="Deal title" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="status"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="expired">Expired</SelectItem>
-                        </SelectContent>
-                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -15,8 +15,8 @@
     "semantic_hash": "fa856d82dc4f1ea9c445c40556450228"
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1784127472.690942,
-    "ast_hash": "a9e6c549fbe2029096bf5b937cbc4000",
+    "mtime": 1784128985.932186,
+    "ast_hash": "2acb0d0d21008de6226934ef37403d46",
     "semantic_hash": ""
   },
   ".impeccable/live/config.json": {
@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/actions/brandActions.ts": {
-    "mtime": 1784126766.6651351,
-    "ast_hash": "bcd3912f5781eff3923b732320bc1bca",
+    "mtime": 1784128898.0798287,
+    "ast_hash": "9c2cc952aff75fa543e51eae292e1c04",
     "semantic_hash": ""
   },
   "src/components/AdminProtectedRoute.tsx": {
@@ -430,8 +430,8 @@
     "semantic_hash": "09bd36c7dbd9b2c11bfbe4c97ff3ac51"
   },
   "src/pages/AdminDashboard.tsx": {
-    "mtime": 1784127393.9226074,
-    "ast_hash": "2401a89eb11f657aed2e47f21178b2e3",
+    "mtime": 1784128903.0606756,
+    "ast_hash": "ef4a2bf0876cbea613f3f3f832e2dc0d",
     "semantic_hash": ""
   },
   "src/pages/AdminLogin.tsx": {
@@ -445,8 +445,8 @@
     "semantic_hash": ""
   },
   "src/pages/BrandRegister.tsx": {
-    "mtime": 1784126454.5594983,
-    "ast_hash": "d569c82fe51c5c34abcb82222a382d3d",
+    "mtime": 1784128985.880271,
+    "ast_hash": "3ea51cfcaaa05817420c9ce017468c6e",
     "semantic_hash": ""
   },
   "src/pages/DemoPage.tsx": {
