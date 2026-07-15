@@ -173,7 +173,7 @@ const CampaignsTab: React.FC<{
                       ) : (
                         <div
                           className="mt-0.5 h-10 w-16 rounded-md shrink-0 border"
-                          style={{ backgroundColor: campaign.backgroundColor ?? "#0F172A" }}
+                          style={{ backgroundColor: campaign.backgroundColor ?? "#21242C" }}
                         />
                       )}
                       <div className="min-w-0">
