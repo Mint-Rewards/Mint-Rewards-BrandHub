@@ -18,6 +18,7 @@ import {
   Phone,
   Lock,
   LayoutGrid,
+  LogOut,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useParams, useNavigate } from "react-router-dom";
@@ -32,6 +33,7 @@ import {
 
 import { useToast } from "@/hooks/use-toast";
 import {
+  brandAuth,
   getOrgRole,
   getSubscribedModules,
   hasModule,
@@ -640,6 +642,16 @@ const BrandDashboard = () => {
               </Badge>
               <Button variant="outline" onClick={() => navigate("/")}>
                 Exit Dashboard
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  brandAuth.clearToken();
+                  navigate("/brand/login");
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
               </Button>
             </div>
           </div>

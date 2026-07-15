@@ -503,7 +503,8 @@ export const fetchAllDeals = async (filters?: {
       typeof brand === "object" && brand !== null && "_id" in brand
         ? String((brand as { _id: string })._id)
         : String(brand ?? "");
-    return { ...(d as unknown as Deal), brandId };
+    const docId = String(d._id ?? d.id ?? "");
+    return { ...(d as unknown as Deal), id: docId, _id: docId, brandId };
   });
 };
 
@@ -763,7 +764,8 @@ export const fetchAllCampaigns = async (filters?: {
       typeof brand === "object" && brand !== null && "_id" in brand
         ? String((brand as { _id: string })._id)
         : String(brand ?? "");
-    return { ...(c as unknown as Campaign), brand: brandId };
+    const docId = String(c._id ?? c.id ?? "");
+    return { ...(c as unknown as Campaign), id: docId, _id: docId, brand: brandId };
   });
 };
 

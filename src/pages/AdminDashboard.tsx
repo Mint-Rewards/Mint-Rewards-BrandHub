@@ -227,7 +227,9 @@ const AdminDashboard = () => {
       companyName.toLowerCase().includes(normalizedSearchTerm) ||
       contactEmail.toLowerCase().includes(normalizedSearchTerm);
     const matchesFilter =
-      filterStatus === "all" || getBrandStatus(brand.status) === filterStatus;
+      filterStatus === "all"
+        ? getBrandStatus(brand.status) !== "rejected"
+        : getBrandStatus(brand.status) === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
@@ -329,11 +331,11 @@ const AdminDashboard = () => {
 
           {/* Management Tabs */}
           <Tabs defaultValue="brands" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="brands">Brands</TabsTrigger>
-              <TabsTrigger value="campaigns">Campaign Reviews</TabsTrigger>
-              <TabsTrigger value="deals">Deals</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
+            <TabsList className="flex w-full overflow-x-auto sm:grid sm:grid-cols-4">
+              <TabsTrigger value="brands" className="shrink-0">Brands</TabsTrigger>
+              <TabsTrigger value="campaigns" className="shrink-0">Campaign Reviews</TabsTrigger>
+              <TabsTrigger value="deals" className="shrink-0">Deals</TabsTrigger>
+              <TabsTrigger value="analytics" className="shrink-0">Analytics</TabsTrigger>
             </TabsList>
 
             {/* ── Brands Tab ── */}
@@ -375,7 +377,7 @@ const AdminDashboard = () => {
                     {filteredApplications.map((app) => (
                       <div
                         key={app.id ?? app._id}
-                        className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                        className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                       >
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -416,7 +418,7 @@ const AdminDashboard = () => {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center justify-end gap-2 shrink-0 md:min-w-[220px]">
                           <Button
                             variant="outline"
                             size="sm"
@@ -484,7 +486,7 @@ const AdminDashboard = () => {
                       {campaigns.map((campaign) => (
                         <div
                           key={campaign.id}
-                          className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                          className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -521,7 +523,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center justify-end gap-2 shrink-0 md:min-w-[220px]">
                             <Button
                               variant="outline"
                               size="sm"
@@ -580,7 +582,7 @@ const AdminDashboard = () => {
                       {deals.map((deal) => (
                         <div
                           key={deal.id}
-                          className="flex items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                          className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
                         >
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -618,7 +620,7 @@ const AdminDashboard = () => {
                               </div>
                             </div>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center justify-end gap-2 shrink-0 md:min-w-[220px]">
                             <Button
                               variant="outline"
                               size="sm"
