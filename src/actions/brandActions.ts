@@ -71,6 +71,11 @@ export interface RegisterOrgPayload {
   password: string;
   brandName: string;
   logo: File | null;
+  phone?: string;
+  website?: string;
+  appLink?: string;
+  address?: string;
+  description?: string;
 }
 
 export interface RegisterOrgResponse {
@@ -94,6 +99,17 @@ export const registerOrg = async (
   formData.append("password", payload.password);
   if (payload.brandName) formData.append("brandName", payload.brandName);
   if (payload.logo) formData.append("logo", payload.logo);
+  if (payload.phone) formData.append("phone", payload.phone);
+  if (payload.appLink) formData.append("appLink", payload.appLink);
+  if (payload.address) formData.append("address", payload.address);
+  if (payload.description) formData.append("description", payload.description);
+  // Sent under both keys: the admin view reads `website`, the brand-settings
+  // PATCH endpoint reads `webLink` — same value, two field names in use
+  // across the API surface.
+  if (payload.website) {
+    formData.append("website", payload.website);
+    formData.append("webLink", payload.website);
+  }
 
   const response = await fetch(`${getApiBaseUrl()}/brandhub/auth/register`, {
     method: "POST",

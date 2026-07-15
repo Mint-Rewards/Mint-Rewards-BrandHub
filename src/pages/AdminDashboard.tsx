@@ -777,7 +777,7 @@ const AdminDashboard = () => {
                 ["Category", selectedBrand.category],
                 ["Email", selectedBrand.email],
                 ["Phone", selectedBrand.phone],
-                ["Website", selectedBrand.website],
+                ["Website", selectedBrand.website ?? selectedBrand.webLink],
                 ["App Link", selectedBrand.appLink],
                 ["Address", selectedBrand.address],
                 ["Registration No.", selectedBrand.registrationNumber],
