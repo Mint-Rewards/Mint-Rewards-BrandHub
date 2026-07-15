@@ -48,6 +48,7 @@
   "46": "Mint Rewards Brand Logo",
   "47": "App Shell Entry",
   "48": "Database Seed Script",
+  "49": "graphify",
   "50": "ESLint Config",
   "51": "PostCSS Config",
   "52": "Placeholder Image Asset",
@@ -55,6 +56,7 @@
   "54": "Empty README",
   "55": "Aspect Ratio UI Component",
   "56": "Collapsible UI Component",
+  "57": "scroll-area.tsx",
   "58": "MongoDB Service",
   "59": "Shared Types",
   "60": "Vite Env Types",
@@ -77,7 +79,6 @@
   "78": "graphify reference: incremental update and cluster-only",
   "79": "graphify reference: GitHub clone and cross-repo merge",
   "80": "graphify reference: transcribe video and audio",
-  "82": "CLAUDE.md",
   "83": "CLAUDE.md",
   "84": "extraction-spec.md",
   "85": "PROMPT_build.md",
@@ -159,6 +160,5 @@
   "161": "button.tsx",
   "162": "vercel.json",
   "163": "useToast",
-  "164": "BrandRegister.tsx",
   "165": "README.md"
 }
