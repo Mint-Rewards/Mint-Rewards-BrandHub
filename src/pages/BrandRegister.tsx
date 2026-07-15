@@ -22,7 +22,9 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { registerOrg } from "@/actions/brandActions";
 import { brandAuth, brandSession } from "@/lib/brandAuth";
-import { isValidEmail, minLength } from "@/lib/validators";
+import { isValidEmail, isValidPhone, isValidUrl, minLength } from "@/lib/validators";
+import { CountryPhoneInput } from "@/components/CountryPhoneInput";
+import { Textarea } from "@/components/ui/textarea";
 
 const MAX_LOGO_SIZE_BYTES = 5 * 1024 * 1024;
 const MIN_LOGO_PX = 128;
@@ -41,6 +43,11 @@ const BrandRegister = () => {
     confirmPassword: "",
     brandName: "",
     logo: null as File | null,
+    phone: "",
+    website: "",
+    appLink: "",
+    address: "",
+    description: "",
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
@@ -63,6 +70,11 @@ const BrandRegister = () => {
         return value === formData.password ? "" : "Passwords do not match";
       case "brandName":
         return minLength(value, 2, "Brand name") ?? "";
+      case "phone":
+        return value ? isValidPhone(value) ?? "" : "";
+      case "website":
+      case "appLink":
+        return value ? isValidUrl(value) ?? "" : "";
       default:
         return "";
     }
@@ -149,7 +161,7 @@ const BrandRegister = () => {
   const validateStepFields = (): boolean => {
     const stepFields: Record<number, string[]> = {
       1: ["orgName", "email", "password", "confirmPassword"],
-      2: ["brandName"],
+      2: ["brandName", "phone", "website", "appLink"],
     };
 
     const fields = stepFields[currentStep] ?? [];
@@ -198,6 +210,11 @@ const BrandRegister = () => {
         password: formData.password,
         brandName: formData.brandName,
         logo: formData.logo,
+        phone: formData.phone || undefined,
+        website: formData.website || undefined,
+        appLink: formData.appLink || undefined,
+        address: formData.address || undefined,
+        description: formData.description || undefined,
       });
 
       if (!data.token) {
@@ -383,6 +400,65 @@ const BrandRegister = () => {
                 from Settings.
               </p>
             </div>
+
+            <div className="grid md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <CountryPhoneInput
+                  id="phone"
+                  value={formData.phone}
+                  onChange={(value) => handleInputChange("phone", value)}
+                  onBlur={() => handleBlur("phone")}
+                  invalid={Boolean(errors.phone && touched.phone)}
+                />
+                <FieldError field="phone" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="website">Website</Label>
+                <Input
+                  id="website"
+                  value={formData.website}
+                  onChange={(e) => handleInputChange("website", e.target.value)}
+                  onBlur={() => handleBlur("website")}
+                  placeholder="https://yourbrand.com"
+                  className={errors.website && touched.website ? "border-destructive" : ""}
+                />
+                <FieldError field="website" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="appLink">App Link</Label>
+                <Input
+                  id="appLink"
+                  value={formData.appLink}
+                  onChange={(e) => handleInputChange("appLink", e.target.value)}
+                  onBlur={() => handleBlur("appLink")}
+                  placeholder="https://apps.apple.com/…"
+                  className={errors.appLink && touched.appLink ? "border-destructive" : ""}
+                />
+                <FieldError field="appLink" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  placeholder="Business address"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => handleInputChange("description", e.target.value)}
+                placeholder="Tell us about your brand…"
+                className="resize-none"
+                rows={3}
+              />
+            </div>
           </div>
         );
 
@@ -421,6 +497,26 @@ const BrandRegister = () => {
                     ) : (
                       <p className="text-muted-foreground">None (add later)</p>
                     )}
+                  </div>
+                  <div>
+                    <p className="font-medium">Phone</p>
+                    <p className="text-muted-foreground">{formData.phone || "None (add later)"}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Website</p>
+                    <p className="text-muted-foreground">{formData.website || "None (add later)"}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">App Link</p>
+                    <p className="text-muted-foreground">{formData.appLink || "None (add later)"}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Address</p>
+                    <p className="text-muted-foreground">{formData.address || "None (add later)"}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="font-medium">Description</p>
+                    <p className="text-muted-foreground">{formData.description || "None (add later)"}</p>
                   </div>
                 </div>
               </CardContent>

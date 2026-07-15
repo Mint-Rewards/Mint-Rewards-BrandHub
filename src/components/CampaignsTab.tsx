@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, MoreHorizontal, Pencil, Trash2, TrendingUp, Loader2 } from "lucide-react";
+import type { DateRange } from "react-day-picker";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import PromotionsFilterBar from "./PromotionsFilterBar";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -31,6 +33,7 @@ import {
 } from "@/actions/brandActions";
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
+import { overlapsRange } from "@/lib/dateRangeFilter";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   PENDING:  { label: "Pending",  className: "bg-warning/10 text-warning border-warning/20" },
@@ -38,6 +41,13 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   REJECTED: { label: "Rejected", className: "bg-destructive/10 text-destructive border-destructive/20" },
   EXPIRED:  { label: "Expired",  className: "bg-muted text-muted-foreground border-border" },
 };
+
+const STATUS_FILTER_OPTIONS = [
+  { value: "PENDING", label: "Pending" },
+  { value: "APPROVED", label: "Approved" },
+  { value: "REJECTED", label: "Rejected" },
+  { value: "EXPIRED", label: "Expired" },
+];
 
 function statusConfig(raw: string) {
   return STATUS_CONFIG[raw?.toUpperCase()] ?? STATUS_CONFIG.PENDING;
@@ -60,6 +70,19 @@ const CampaignsTab: React.FC<{
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [deletingCampaign, setDeletingCampaign] = useState<Campaign | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const hasFilters = statusFilter !== "all" || !!dateRange?.from;
+
+  const filteredCampaigns = useMemo(
+    () =>
+      campaigns.filter(
+        (c) =>
+          (statusFilter === "all" || c.status?.toUpperCase() === statusFilter) &&
+          overlapsRange(c, dateRange),
+      ),
+    [campaigns, statusFilter, dateRange],
+  );
 
   const handleCreateSuccess = async () => {
     setCreateOpen(false);
@@ -119,9 +142,19 @@ const CampaignsTab: React.FC<{
         </CardHeader>
 
         <CardContent>
+          {campaigns.length > 0 && (
+            <PromotionsFilterBar
+              statusOptions={STATUS_FILTER_OPTIONS}
+              statusFilter={statusFilter}
+              onStatusFilterChange={setStatusFilter}
+              dateRange={dateRange}
+              onDateRangeChange={setDateRange}
+            />
+          )}
           {campaigns.length > 0 ? (
+            filteredCampaigns.length > 0 ? (
             <div className="divide-y divide-border">
-              {campaigns.map((campaign) => {
+              {filteredCampaigns.map((campaign) => {
                 const config = statusConfig(campaign.status);
                 const isBusy = busyId === campaign.id;
 
@@ -140,7 +173,7 @@ const CampaignsTab: React.FC<{
                       ) : (
                         <div
                           className="mt-0.5 h-10 w-16 rounded-md shrink-0 border"
-                          style={{ backgroundColor: campaign.backgroundColor ?? "#0F172A" }}
+                          style={{ backgroundColor: campaign.backgroundColor ?? "#21242C" }}
                         />
                       )}
                       <div className="min-w-0">
@@ -219,6 +252,24 @@ const CampaignsTab: React.FC<{
                 );
               })}
             </div>
+            ) : (
+              <div className="text-center py-12">
+                <h3 className="text-base font-semibold mb-1">No campaigns match your filters</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
+                  Try a different status or date range.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setDateRange(undefined);
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            )
           ) : (
             <div className="text-center py-12">
               <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">

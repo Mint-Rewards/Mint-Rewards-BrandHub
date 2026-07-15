@@ -21,6 +21,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -107,7 +108,7 @@ export function CreateDealForm({
 
       toast({
         title: "Deal submitted",
-        description: "Your deal is now live.",
+        description: "Your deal is pending admin approval.",
       });
 
       onSuccess();
@@ -195,10 +196,14 @@ export function CreateDealForm({
             name="discountAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Discount Amount (PKR)</FormLabel>
+                <FormLabel>Flat Discount Amount (PKR)</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="10.00" {...field} />
                 </FormControl>
+                <FormDescription>
+                  A fixed rupee amount off, used instead of a percentage. Leave blank if using
+                  the percentage above.
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}

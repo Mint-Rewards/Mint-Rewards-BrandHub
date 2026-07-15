@@ -290,6 +290,16 @@ export interface UserDocument extends User {
   _id: string;
 }
 
+export type DealStatus =
+  | "pending"
+  | "active"
+  | "rejected"
+  | "inactive"
+  | "expired"
+  | "PENDING"
+  | "ACTIVE"
+  | "REJECTED";
+
 export interface Deal {
   id: string;
   _id?: string;
@@ -306,7 +316,7 @@ export interface Deal {
   maxUses?: number | null;
   currentUses?: number | null;
   minimumPurchase?: number | null;
-  status?: string;
+  status?: DealStatus | string;
   createdAt?: string;
   updatedAt?: string;
 }

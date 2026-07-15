@@ -2,7 +2,14 @@ import { Brand, BrandStatus, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
 import { brandAuth, type OrgBrand } from "@/lib/brandAuth";
 
+export interface AnalyticsDateRange {
+  from: Date;
+  to: Date;
+}
+
 export interface BrandAnalytics {
+  // Echoes the campaign period the backend scoped to, or null for all-time.
+  period?: { from: string | null; to: string | null } | null;
   summary: {
     totalCampaigns: number;
     activeCampaigns: number;
@@ -71,6 +78,11 @@ export interface RegisterOrgPayload {
   password: string;
   brandName: string;
   logo: File | null;
+  phone?: string;
+  website?: string;
+  appLink?: string;
+  address?: string;
+  description?: string;
 }
 
 export interface RegisterOrgResponse {
@@ -94,6 +106,17 @@ export const registerOrg = async (
   formData.append("password", payload.password);
   if (payload.brandName) formData.append("brandName", payload.brandName);
   if (payload.logo) formData.append("logo", payload.logo);
+  if (payload.phone) formData.append("phone", payload.phone);
+  if (payload.appLink) formData.append("appLink", payload.appLink);
+  if (payload.address) formData.append("address", payload.address);
+  if (payload.description) formData.append("description", payload.description);
+  // Sent under both keys: the admin view reads `website`, the brand-settings
+  // PATCH endpoint reads `webLink` — same value, two field names in use
+  // across the API surface.
+  if (payload.website) {
+    formData.append("website", payload.website);
+    formData.append("webLink", payload.website);
+  }
 
   const response = await fetch(`${getApiBaseUrl()}/brandhub/auth/register`, {
     method: "POST",
@@ -377,6 +400,9 @@ export const fetchDealsForBrand = async (brandId: string): Promise<Deal[]> => {
   });
 };
 
+// No `status` in the payload, same as createCampaign — the backend is
+// expected to default new deals to "pending" so they go through admin
+// review instead of going live immediately.
 export const createDeal = async (
   brandId: string,
   payload: {
@@ -458,13 +484,26 @@ export const updateBrandSettings = async (
   return data.brand as unknown as Brand;
 };
 
+// Format a Date as a local YYYY-MM-DD so the period sent to the backend
+// matches the day the user picked, without a UTC-midnight shift.
+const toDateParam = (date: Date): string => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 export const fetchBrandAnalytics = async (
   brandId: string,
+  range?: AnalyticsDateRange,
 ): Promise<BrandAnalytics> => {
+  const query = range
+    ? `?from=${toDateParam(range.from)}&to=${toDateParam(range.to)}`
+    : "";
   // Throws the typed 401/402/403/404 errors so Overview can render a real
   // error state instead of silently showing nothing.
   const response = await fetch(
-    `${getApiBaseUrl()}/brandhub/brands/${brandId}/analytics`,
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/analytics${query}`,
     { headers: { ...brandAuth.authHeaders() } },
   );
   throwForBrandApiStatus(response);
@@ -503,7 +542,8 @@ export const fetchAllDeals = async (filters?: {
       typeof brand === "object" && brand !== null && "_id" in brand
         ? String((brand as { _id: string })._id)
         : String(brand ?? "");
-    return { ...(d as unknown as Deal), brandId };
+    const docId = String(d._id ?? d.id ?? "");
+    return { ...(d as unknown as Deal), id: docId, _id: docId, brandId };
   });
 };
 
@@ -522,7 +562,7 @@ export const updateDeal = async (
     endDate: string | null;
     maxUses: number | null;
     minimumPurchase: number | null;
-    status: "active" | "inactive" | "expired";
+    status: "active" | "inactive" | "expired" | "rejected";
   }>,
 ): Promise<Deal> => {
   const response = await fetch(
@@ -547,9 +587,10 @@ export const updateDeal = async (
   return data.deal;
 };
 
-// Brand-side deal update on the scoped endpoint. Deal `status` IS writable
-// here (activate/deactivate) — unlike campaigns, where status is admin
-// moderation state.
+// Brand-side deal update on the scoped endpoint. New deals and edits to a
+// live deal go through admin approval (pending -> active/rejected), same as
+// campaigns; `status` here is only for toggling an already-approved deal
+// active/inactive, not for self-approving.
 export const updateBrandDeal = async (
   brandId: string,
   dealId: string,
@@ -763,7 +804,8 @@ export const fetchAllCampaigns = async (filters?: {
       typeof brand === "object" && brand !== null && "_id" in brand
         ? String((brand as { _id: string })._id)
         : String(brand ?? "");
-    return { ...(c as unknown as Campaign), brand: brandId };
+    const docId = String(c._id ?? c.id ?? "");
+    return { ...(c as unknown as Campaign), id: docId, _id: docId, brand: brandId };
   });
 };
 

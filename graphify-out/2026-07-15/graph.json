@@ -5627,7 +5627,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_integrations_database_client",
-      "community": 161,
+      "community": 168,
       "norm_label": "client.ts"
     },
     {
@@ -5637,7 +5637,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_integrations_supabase_client",
-      "community": 57,
+      "community": 161,
       "norm_label": "client.ts"
     },
     {
@@ -9411,7 +9411,7 @@
       "contributor": null,
       "community": 87,
       "norm_label": "graphify /graphify trigger (root claude.md)",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
     },
     {
       "label": "Step 0 - GitHub repos and multi-path merge",
@@ -25079,7 +25079,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "src_main",
-      "target": "src_integrations_database_client",
+      "target": "src_integrations_supabase_client",
       "confidence_score": 1.0
     },
     {
@@ -25470,7 +25470,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L488",
+      "source_location": "L464",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_getorgrole"
@@ -25503,7 +25503,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L487",
+      "source_location": "L463",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_getsubscribedmodules"
@@ -25536,7 +25536,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L490",
+      "source_location": "L466",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_hasmodule"
@@ -30511,5 +30511,5 @@
       "source_file": ".specify/memory/AGENTS.md"
     }
   ],
-  "built_at_commit": "ed86735e477d598fbcc228dbd0eb21ae051f9cfb"
+  "built_at_commit": "d252100923e97c913d2c71348066c46350bc7e85"
 }
