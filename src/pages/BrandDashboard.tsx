@@ -13,14 +13,22 @@ import {
   Building2,
   Clock,
   AlertCircle,
+  CalendarIcon,
   Eye,
   Mail,
-  Phone,
   Lock,
   LayoutGrid,
   LogOut,
 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   BrandNotFoundError,
@@ -54,9 +62,22 @@ const BrandDashboard = () => {
   const [brandData, setBrandData] = useState<Brand>();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
+  // All-time analytics — the stable figures the ESG/board-report tab reads.
+  // Never scoped to a period, so those numbers don't shift under the reader.
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+  // Period-scoped analytics — drives the Overview tab, which owns the picker.
+  const [overviewAnalytics, setOverviewAnalytics] =
+    useState<BrandAnalytics | null>(null);
+  const [overviewLoading, setOverviewLoading] = useState(true);
+  const [overviewError, setOverviewError] = useState<string | null>(null);
+  // Campaign analytics period. Defaults to month-to-date (first of the current
+  // month → today), the common reporting window for brand managers.
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    const now = new Date();
+    return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: now };
+  });
   // Tabs are state-driven (no sub-routes), so "route-level" module gating
   // happens here: deep links to /dashboard/:brandId always land on a tab the
   // user is allowed to see, and tab switches are validated.
@@ -107,28 +128,70 @@ const BrandDashboard = () => {
       setDeals(data);
     };
 
-    const fetchAnalytics = async () => {
-      if (!brandId) return;
+    fetchBrandData();
+    fetchCampaigns();
+    fetchDeals();
+  }, [brandId, navigate, toast]);
+
+  // All-time analytics — loaded once per brand, independent of the picker.
+  useEffect(() => {
+    if (!brandId) return;
+    let cancelled = false;
+    const run = async () => {
       setAnalyticsLoading(true);
       setAnalyticsError(null);
       try {
         const data = await fetchBrandAnalytics(brandId);
-        setAnalytics(data);
+        if (!cancelled) setAnalytics(data);
       } catch (error) {
         // Typed 402/403 messages from throwForBrandApiStatus read well as-is.
-        setAnalyticsError(
-          error instanceof Error ? error.message : "Failed to load analytics.",
-        );
+        if (!cancelled) {
+          setAnalyticsError(
+            error instanceof Error ? error.message : "Failed to load analytics.",
+          );
+        }
       } finally {
-        setAnalyticsLoading(false);
+        if (!cancelled) setAnalyticsLoading(false);
       }
     };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [brandId]);
 
-    fetchBrandData();
-    fetchCampaigns();
-    fetchDeals();
-    fetchAnalytics();
-  }, [brandId, navigate, toast]);
+  // Period-scoped analytics for the Overview tab — re-queries the backend
+  // whenever the reporting period changes, rather than relabelling stale data.
+  const rangeFrom = dateRange?.from ? dateRange.from.getTime() : null;
+  const rangeTo = dateRange?.to ? dateRange.to.getTime() : null;
+  useEffect(() => {
+    if (!brandId) return;
+    let cancelled = false;
+    const run = async () => {
+      setOverviewLoading(true);
+      setOverviewError(null);
+      try {
+        const range =
+          rangeFrom !== null && rangeTo !== null
+            ? { from: new Date(rangeFrom), to: new Date(rangeTo) }
+            : undefined;
+        const data = await fetchBrandAnalytics(brandId, range);
+        if (!cancelled) setOverviewAnalytics(data);
+      } catch (error) {
+        if (!cancelled) {
+          setOverviewError(
+            error instanceof Error ? error.message : "Failed to load analytics.",
+          );
+        }
+      } finally {
+        if (!cancelled) setOverviewLoading(false);
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [brandId, rangeFrom, rangeTo]);
 
   const refreshCampaigns = async () => {
     if (!brandId) return;
@@ -358,11 +421,12 @@ const BrandDashboard = () => {
           <div className="space-y-3">
             <div className="flex items-center space-x-3">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">support@mintrewards.com</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">+1 (555) 123-4567</span>
+              <a
+                href="mailto:engineering@mymintrewards.com"
+                className="text-sm text-primary underline-offset-4 hover:underline"
+              >
+                engineering@mymintrewards.com
+              </a>
             </div>
             <div className="flex items-center space-x-3">
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -529,10 +593,62 @@ const BrandDashboard = () => {
         {showReporting && (
           <>
             <TabsContent value="overview" className="space-y-6">
+              <div
+                className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                style={{
+                  borderColor: brandColor + "33",
+                  backgroundColor: brandColor + "0a",
+                }}
+              >
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Statistics Period
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Campaign metrics reflect this range. Environmental and deal
+                    totals are all-time.
+                  </p>
+                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="justify-start gap-2 font-normal"
+                    >
+                      <CalendarIcon
+                        className="h-4 w-4"
+                        style={{ color: brandColor }}
+                      />
+                      {dateRange?.from ? (
+                        dateRange.to ? (
+                          <>
+                            {format(dateRange.from, "MMM d, yyyy")} –{" "}
+                            {format(dateRange.to, "MMM d, yyyy")}
+                          </>
+                        ) : (
+                          format(dateRange.from, "MMM d, yyyy")
+                        )
+                      ) : (
+                        "Select dates"
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={dateRange?.from}
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
               <OverviewTab
-                analytics={analytics}
-                loading={analyticsLoading}
-                error={analyticsError}
+                analytics={overviewAnalytics}
+                loading={overviewLoading}
+                error={overviewError}
                 brandColor={brandColor}
               />
             </TabsContent>

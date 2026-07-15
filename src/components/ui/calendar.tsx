@@ -29,7 +29,14 @@ function Calendar({
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
+        // The month/year dropdowns already name the caption; hide the
+        // redundant text label in dropdown layouts so it isn't shown twice.
+        caption_label: cn(
+          "text-sm font-medium",
+          (captionLayout === "dropdown" ||
+            captionLayout === "dropdown-buttons") &&
+            "sr-only",
+        ),
         caption_dropdowns: "flex justify-center gap-1",
         dropdown: "rounded-md border border-input bg-background text-sm px-1 py-0.5 focus:outline-none focus:ring-2 focus:ring-ring",
         dropdown_month: "text-sm",

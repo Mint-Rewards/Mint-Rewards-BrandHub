@@ -180,6 +180,11 @@ const OverviewTab: React.FC<{
       )}
 
       {/* Summary stats — always from analytics.summary, never derived client-side */}
+      <div className="space-y-2">
+      <p className="text-xs font-medium text-muted-foreground">
+        Campaign performance{" "}
+        <span className="text-muted-foreground/70">· selected period</span>
+      </p>
       <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
         <div className="p-4">
           <div className="flex items-center gap-2 mb-1">
@@ -216,9 +221,14 @@ const OverviewTab: React.FC<{
           <p className="text-2xl font-bold text-foreground">{summary.totalCampaigns}</p>
         </div>
       </div>
+      </div>
 
-      {/* Environmental KPIs — real backend figures */}
+      {/* Environmental KPIs — real backend figures, always all-time */}
       {environmental && (
+        <div className="space-y-2">
+        <p className="text-xs font-medium text-muted-foreground">
+          Environmental impact <span className="text-muted-foreground/70">· all-time</span>
+        </p>
         <div className="grid grid-cols-2 divide-x divide-border border border-border rounded-lg overflow-hidden">
           <div className="p-4">
             <p className="text-xs font-medium text-muted-foreground">Waste Collected</p>
@@ -232,6 +242,7 @@ const OverviewTab: React.FC<{
               {formatKg(environmental.co2AvoidedKg)}
             </p>
           </div>
+        </div>
         </div>
       )}
 

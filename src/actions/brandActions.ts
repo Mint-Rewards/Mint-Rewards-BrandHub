@@ -2,7 +2,14 @@ import { Brand, BrandStatus, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
 import { brandAuth, type OrgBrand } from "@/lib/brandAuth";
 
+export interface AnalyticsDateRange {
+  from: Date;
+  to: Date;
+}
+
 export interface BrandAnalytics {
+  // Echoes the campaign period the backend scoped to, or null for all-time.
+  period?: { from: string | null; to: string | null } | null;
   summary: {
     totalCampaigns: number;
     activeCampaigns: number;
@@ -477,13 +484,26 @@ export const updateBrandSettings = async (
   return data.brand as unknown as Brand;
 };
 
+// Format a Date as a local YYYY-MM-DD so the period sent to the backend
+// matches the day the user picked, without a UTC-midnight shift.
+const toDateParam = (date: Date): string => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
+
 export const fetchBrandAnalytics = async (
   brandId: string,
+  range?: AnalyticsDateRange,
 ): Promise<BrandAnalytics> => {
+  const query = range
+    ? `?from=${toDateParam(range.from)}&to=${toDateParam(range.to)}`
+    : "";
   // Throws the typed 401/402/403/404 errors so Overview can render a real
   // error state instead of silently showing nothing.
   const response = await fetch(
-    `${getApiBaseUrl()}/brandhub/brands/${brandId}/analytics`,
+    `${getApiBaseUrl()}/brandhub/brands/${brandId}/analytics${query}`,
     { headers: { ...brandAuth.authHeaders() } },
   );
   throwForBrandApiStatus(response);
