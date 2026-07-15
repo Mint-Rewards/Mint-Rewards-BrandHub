@@ -5597,7 +5597,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_integrations_database_client",
-      "community": 161,
+      "community": 168,
       "norm_label": "client.ts"
     },
     {
@@ -5607,7 +5607,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_integrations_supabase_client",
-      "community": 168,
+      "community": 161,
       "norm_label": "client.ts"
     },
     {
@@ -9351,7 +9351,7 @@
       "contributor": null,
       "community": 87,
       "norm_label": "graphify /graphify trigger (root claude.md)",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
     },
     {
       "label": "Step 0 - GitHub repos and multi-path merge",
@@ -24999,7 +24999,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "src_main",
-      "target": "src_integrations_database_client",
+      "target": "src_integrations_supabase_client",
       "confidence_score": 1.0
     },
     {
