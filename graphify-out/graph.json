@@ -9411,7 +9411,7 @@
       "contributor": null,
       "community": 87,
       "norm_label": "graphify /graphify trigger (root claude.md)",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
     },
     {
       "label": "Step 0 - GitHub repos and multi-path merge",
@@ -25470,7 +25470,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L464",
+      "source_location": "L488",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_getorgrole"
@@ -25503,7 +25503,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L463",
+      "source_location": "L487",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_getsubscribedmodules"
@@ -25536,7 +25536,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L466",
+      "source_location": "L490",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_hasmodule"
@@ -30511,5 +30511,5 @@
       "source_file": ".specify/memory/AGENTS.md"
     }
   ],
-  "built_at_commit": "d252100923e97c913d2c71348066c46350bc7e85"
+  "built_at_commit": "cb6d9721f050850608daeb3184d61e252f548dc5"
 }

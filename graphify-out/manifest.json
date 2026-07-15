@@ -15,8 +15,8 @@
     "semantic_hash": "fa856d82dc4f1ea9c445c40556450228"
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1784141802.0708604,
-    "ast_hash": "971654e21b931b8d9a9e59f06c441eae",
+    "mtime": 1784143248.8325865,
+    "ast_hash": "97ab9049a3fb0e6f409b7e0ae0515199",
     "semantic_hash": ""
   },
   ".impeccable/live/config.json": {
@@ -430,8 +430,8 @@
     "semantic_hash": "09bd36c7dbd9b2c11bfbe4c97ff3ac51"
   },
   "src/pages/AdminDashboard.tsx": {
-    "mtime": 1784136411.3774881,
-    "ast_hash": "055371fef30b7d3553347a264cdac8be",
+    "mtime": 1784143248.7807899,
+    "ast_hash": "d723f75f4613e32e2e4335c4472b9ba4",
     "semantic_hash": ""
   },
   "src/pages/AdminLogin.tsx": {
@@ -440,8 +440,8 @@
     "semantic_hash": "25e4fe412f6c0248c1183feb4454ea60"
   },
   "src/pages/BrandDashboard.tsx": {
-    "mtime": 1784139399.9865217,
-    "ast_hash": "bdafa444ce73d196f682a79a4739a349",
+    "mtime": 1784143041.329542,
+    "ast_hash": "4915e52bea45dae4356adc946ab72e08",
     "semantic_hash": ""
   },
   "src/pages/BrandRegister.tsx": {

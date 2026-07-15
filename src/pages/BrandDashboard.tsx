@@ -62,6 +62,9 @@ const BrandDashboard = () => {
   const [brandData, setBrandData] = useState<Brand>();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
+  const [campaignsError, setCampaignsError] = useState(false);
+  const [dealsError, setDealsError] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
   // All-time analytics — the stable figures the ESG/board-report tab reads.
   // Never scoped to a period, so those numbers don't shift under the reader.
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
@@ -114,18 +117,24 @@ const BrandDashboard = () => {
 
     const fetchCampaigns = async () => {
       if (!brandId) return;
+      setCampaignsError(false);
       try {
         const data = await fetchCampaignsForBrand(brandId);
         setCampaigns(data);
       } catch {
-        // silently ignore
+        setCampaignsError(true);
       }
     };
 
     const fetchDeals = async () => {
       if (!brandId) return;
-      const data = await fetchDealsForBrand(brandId);
-      setDeals(data);
+      setDealsError(false);
+      try {
+        const data = await fetchDealsForBrand(brandId);
+        setDeals(data);
+      } catch {
+        setDealsError(true);
+      }
     };
 
     fetchBrandData();
@@ -198,15 +207,21 @@ const BrandDashboard = () => {
     try {
       const data = await fetchCampaignsForBrand(brandId);
       setCampaigns(data);
+      setCampaignsError(false);
     } catch {
-      // silently ignore
+      setCampaignsError(true);
     }
   };
 
   const refreshDeals = async () => {
     if (!brandId) return;
-    const data = await fetchDealsForBrand(brandId);
-    setDeals(data);
+    try {
+      const data = await fetchDealsForBrand(brandId);
+      setDeals(data);
+      setDealsError(false);
+    } catch {
+      setDealsError(true);
+    }
   };
 
   const applyUpdatedBrand = (brand: Brand) => {
@@ -286,14 +301,23 @@ const BrandDashboard = () => {
   }
 
   const isApproved = brandData.status?.toLowerCase() === "approved";
+  const submissionDate = brandData.createdAt
+    ? new Date(brandData.createdAt)
+    : null;
+  const brandRefId = brandData.id ?? brandData._id ?? "";
   const formattedData = {
-    name: brandData.brandName,
+    name: brandData.brandName || "Untitled brand",
     companyName: brandData.companyName,
     category: brandData.category,
     status: brandData.status,
-    submissionDate: new Date(brandData.createdAt ?? "").toLocaleDateString(),
+    submissionDate:
+      submissionDate && !Number.isNaN(submissionDate.getTime())
+        ? submissionDate.toLocaleDateString()
+        : "N/A",
     estimatedApproval: "2-3 business days",
-    referenceNumber: `REF-${(brandData.id ?? brandData._id ?? "").substring(0, 8).toUpperCase()}`,
+    referenceNumber: brandRefId
+      ? `REF-${brandRefId.substring(0, 8).toUpperCase()}`
+      : "N/A",
     contactEmail: brandData.email || "N/A",
     contactPhone: brandData.phone || "N/A",
     website: brandData.website,
@@ -653,7 +677,28 @@ const BrandDashboard = () => {
               />
             </TabsContent>
 
-            <TabsContent value="promotions">
+            <TabsContent value="promotions" className="space-y-4">
+              {(campaignsError || dealsError) && (
+                <div className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-destructive">
+                    {campaignsError && dealsError
+                      ? "Failed to load campaigns and deals."
+                      : campaignsError
+                        ? "Failed to load campaigns."
+                        : "Failed to load deals."}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (campaignsError) refreshCampaigns();
+                      if (dealsError) refreshDeals();
+                    }}
+                  >
+                    Try again
+                  </Button>
+                </div>
+              )}
               <PromotionsTab
                 campaigns={campaigns}
                 deals={deals}
@@ -724,28 +769,36 @@ const BrandDashboard = () => {
         {/* Brand color accent line */}
         <div className="h-0.5 w-full" style={{ backgroundColor: brandColor }} />
         <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              {formattedData.logoUrl ? (
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center space-x-4">
+              {formattedData.logoUrl && !logoFailed ? (
                 <img
                   src={formattedData.logoUrl}
                   alt={`${formattedData.name} logo`}
-                  className="h-10 w-10 rounded-lg object-cover border"
+                  className="h-10 w-10 flex-shrink-0 rounded-lg object-cover border"
+                  onError={() => setLogoFailed(true)}
                 />
               ) : (
                 <div
-                  className="h-10 w-10 rounded-lg flex items-center justify-center"
+                  className="h-10 w-10 flex-shrink-0 rounded-lg flex items-center justify-center"
                   style={{ backgroundColor: brandColor }}
                 >
                   <Building2 className="h-6 w-6 text-white" aria-hidden="true" />
                 </div>
               )}
-              <div>
-                <h1 className="text-xl font-bold">{formattedData.name}</h1>
-                <p className="text-xs text-muted-foreground">{formattedData.category || "Brand Dashboard"}</p>
+              <div className="min-w-0">
+                <h1
+                  className="truncate text-xl font-bold"
+                  title={formattedData.name}
+                >
+                  {formattedData.name}
+                </h1>
+                <p className="truncate text-xs text-muted-foreground">
+                  {formattedData.category || "Brand Dashboard"}
+                </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-wrap items-center gap-3">
               <Badge
                 variant="outline"
                 style={{

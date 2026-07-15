@@ -62,6 +62,24 @@ const AdminDashboard = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [rejectDialog, setRejectDialog] = useState<{ brandId: string; reason: string } | null>(null);
+  const [campaignsDealsError, setCampaignsDealsError] = useState(false);
+  // Tracks in-flight approve/reject calls per item so a rapid double-click
+  // can't fire the same PATCH twice (or race two different outcomes).
+  const [pendingActions, setPendingActions] = useState<Set<string>>(new Set());
+
+  const withPending = async (key: string, action: () => Promise<void>) => {
+    if (pendingActions.has(key)) return;
+    setPendingActions((prev) => new Set(prev).add(key));
+    try {
+      await action();
+    } finally {
+      setPendingActions((prev) => {
+        const next = new Set(prev);
+        next.delete(key);
+        return next;
+      });
+    }
+  };
 
   useEffect(() => {
     if (!adminAuth.isLoggedIn()) {
@@ -95,8 +113,10 @@ const AdminDashboard = () => {
     try {
       const data = await fetchAllCampaigns();
       setCampaigns(data);
+      setCampaignsDealsError(false);
     } catch (error) {
       console.error("Error fetching campaigns:", error);
+      setCampaignsDealsError(true);
     }
   }, []);
 
@@ -104,8 +124,10 @@ const AdminDashboard = () => {
     try {
       const data = await fetchAllDeals();
       setDeals(data);
+      setCampaignsDealsError(false);
     } catch (error) {
       console.error("Error fetching deals:", error);
+      setCampaignsDealsError(true);
     }
   }, []);
 
@@ -116,14 +138,25 @@ const AdminDashboard = () => {
   }, [fetchApplications, fetchCampaigns, fetchDeals]);
 
   const handleApproval = async (brandId: string, status: "APPROVED" | "REJECTED", reason?: string) => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/brands/${brandId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-        ...adminAuth.authHeaders(),
-      },
-      body: JSON.stringify({ status, reason }),
-    });
+    let res: Response;
+    try {
+      res = await fetch(`${import.meta.env.VITE_API_URL}/brands/${brandId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          ...adminAuth.authHeaders(),
+        },
+        body: JSON.stringify({ status, reason }),
+      });
+    } catch (error) {
+      console.error("Network error updating brand status:", error);
+      toast({
+        title: "Network error",
+        description: "Couldn't reach the server. Check your connection and try again.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     if (res.status === 401) {
       adminAuth.clearToken();
@@ -154,8 +187,11 @@ const AdminDashboard = () => {
 
   const confirmRejectBrand = () => {
     if (!rejectDialog) return;
-    handleApproval(rejectDialog.brandId, "REJECTED", rejectDialog.reason.trim() || undefined);
+    const { brandId, reason } = rejectDialog;
     setRejectDialog(null);
+    withPending(`brand:${brandId}`, () =>
+      handleApproval(brandId, "REJECTED", reason.trim() || undefined),
+    );
   };
 
   const handleCampaignApproval = async (
@@ -179,7 +215,7 @@ const AdminDashboard = () => {
       console.error("Error updating campaign:", error);
       toast({
         title: "Error",
-        description: "Failed to update campaign status",
+        description: "Failed to update campaign status. Check your connection and try again.",
         variant: "destructive",
       });
     }
@@ -205,7 +241,7 @@ const AdminDashboard = () => {
       console.error("Error updating deal:", error);
       toast({
         title: "Error",
-        description: "Failed to update deal status",
+        description: "Failed to update deal status. Check your connection and try again.",
         variant: "destructive",
       });
     }
@@ -329,6 +365,24 @@ const AdminDashboard = () => {
             </div>
           </div>
 
+          {campaignsDealsError && (
+            <div className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+              <span className="text-destructive">
+                Failed to load campaigns and deals. Stats and tabs below may be incomplete.
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  fetchCampaigns();
+                  fetchDeals();
+                }}
+              >
+                Try again
+              </Button>
+            </div>
+          )}
+
           {/* Management Tabs */}
           <Tabs defaultValue="brands" className="space-y-6">
             <TabsList className="flex w-full overflow-x-auto sm:grid sm:grid-cols-4">
@@ -359,8 +413,9 @@ const AdminDashboard = () => {
                       />
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Filter className="h-4 w-4 text-muted-foreground" />
+                      <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
                       <select
+                        aria-label="Filter brands by status"
                         value={filterStatus}
                         onChange={(e) => setFilterStatus(e.target.value)}
                         className="px-3 py-2 border border-border rounded-md bg-background"
@@ -427,30 +482,40 @@ const AdminDashboard = () => {
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Button>
-                          {isPending(app.status) && (
-                            <>
-                              <Button
-                                variant="success"
-                                size="sm"
-                                onClick={() =>
-                                  handleApproval((app.id ?? app._id) as string, "APPROVED")
-                                }
-                              >
-                                <CheckCircle className="h-4 w-4 mr-2" />
-                                Approve
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() =>
-                                  handleRejectBrand((app.id ?? app._id) as string)
-                                }
-                              >
-                                <XCircle className="h-4 w-4 mr-2" />
-                                Reject
-                              </Button>
-                            </>
-                          )}
+                          {isPending(app.status) && (() => {
+                            const brandId = (app.id ?? app._id) as string;
+                            const isBusy = pendingActions.has(`brand:${brandId}`);
+                            return (
+                              <>
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  disabled={isBusy}
+                                  onClick={() =>
+                                    withPending(`brand:${brandId}`, () =>
+                                      handleApproval(brandId, "APPROVED"),
+                                    )
+                                  }
+                                >
+                                  {isBusy ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                  )}
+                                  Approve
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={isBusy}
+                                  onClick={() => handleRejectBrand(brandId)}
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Reject
+                                </Button>
+                              </>
+                            );
+                          })()}
                         </div>
                       </div>
                     ))}
@@ -532,26 +597,43 @@ const AdminDashboard = () => {
                               <Eye className="h-4 w-4 mr-2" />
                               View Details
                             </Button>
-                            {campaign.status?.toUpperCase() === "PENDING" && (
-                              <>
-                                <Button
-                                  variant="success"
-                                  size="sm"
-                                  onClick={() => handleCampaignApproval(campaign, "approve")}
-                                >
-                                  <CheckCircle className="h-4 w-4 mr-2" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => handleCampaignApproval(campaign, "reject")}
-                                >
-                                  <XCircle className="h-4 w-4 mr-2" />
-                                  Reject
-                                </Button>
-                              </>
-                            )}
+                            {campaign.status?.toUpperCase() === "PENDING" && (() => {
+                              const isBusy = pendingActions.has(`campaign:${campaign.id}`);
+                              return (
+                                <>
+                                  <Button
+                                    variant="success"
+                                    size="sm"
+                                    disabled={isBusy}
+                                    onClick={() =>
+                                      withPending(`campaign:${campaign.id}`, () =>
+                                        handleCampaignApproval(campaign, "approve"),
+                                      )
+                                    }
+                                  >
+                                    {isBusy ? (
+                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    ) : (
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                    )}
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={isBusy}
+                                    onClick={() =>
+                                      withPending(`campaign:${campaign.id}`, () =>
+                                        handleCampaignApproval(campaign, "reject"),
+                                      )
+                                    }
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Reject
+                                  </Button>
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                       ))}
@@ -629,26 +711,43 @@ const AdminDashboard = () => {
                               <Eye className="h-4 w-4 mr-2" />
                               View Details
                             </Button>
-                            {(deal.status?.toLowerCase() ?? "pending") === "pending" && (
-                              <>
-                                <Button
-                                  variant="success"
-                                  size="sm"
-                                  onClick={() => handleDealApproval(deal, "approve")}
-                                >
-                                  <CheckCircle className="h-4 w-4 mr-2" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  variant="destructive"
-                                  size="sm"
-                                  onClick={() => handleDealApproval(deal, "reject")}
-                                >
-                                  <XCircle className="h-4 w-4 mr-2" />
-                                  Reject
-                                </Button>
-                              </>
-                            )}
+                            {(deal.status?.toLowerCase() ?? "pending") === "pending" && (() => {
+                              const isBusy = pendingActions.has(`deal:${deal.id}`);
+                              return (
+                                <>
+                                  <Button
+                                    variant="success"
+                                    size="sm"
+                                    disabled={isBusy}
+                                    onClick={() =>
+                                      withPending(`deal:${deal.id}`, () =>
+                                        handleDealApproval(deal, "approve"),
+                                      )
+                                    }
+                                  >
+                                    {isBusy ? (
+                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                    ) : (
+                                      <CheckCircle className="h-4 w-4 mr-2" />
+                                    )}
+                                    Approve
+                                  </Button>
+                                  <Button
+                                    variant="destructive"
+                                    size="sm"
+                                    disabled={isBusy}
+                                    onClick={() =>
+                                      withPending(`deal:${deal.id}`, () =>
+                                        handleDealApproval(deal, "reject"),
+                                      )
+                                    }
+                                  >
+                                    <XCircle className="h-4 w-4 mr-2" />
+                                    Reject
+                                  </Button>
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                       ))}
@@ -875,7 +974,13 @@ const AdminDashboard = () => {
             <Button variant="outline" onClick={() => setRejectDialog(null)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={confirmRejectBrand}>
+            <Button
+              variant="destructive"
+              disabled={
+                !!rejectDialog && pendingActions.has(`brand:${rejectDialog.brandId}`)
+              }
+              onClick={confirmRejectBrand}
+            >
               <XCircle className="h-4 w-4 mr-2" aria-hidden="true" />
               Reject Brand
             </Button>
