@@ -1,6 +1,13 @@
 node_modules/
+dist/
 .env
 .env.local
+
+# macOS
+.DS_Store
+
+# Finder/duplicate copies
+* 2.*
 
 # Ralph Wiggum
 logs/
