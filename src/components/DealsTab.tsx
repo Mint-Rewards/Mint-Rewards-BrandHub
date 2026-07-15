@@ -1,11 +1,22 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info } from "lucide-react";
+import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info, CalendarIcon, X } from "lucide-react";
+import type { DateRange } from "react-day-picker";
+import { format } from "date-fns";
 import { downloadCodes } from "@/lib/dealCodes";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Calendar } from "./ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -67,6 +78,18 @@ const STATUS_CONFIG = {
   expired: { label: "Expired", className: "bg-destructive/10 text-destructive border-destructive/20" },
 } as const;
 
+// A deal matches the date filter if its [start, end] window overlaps the
+// selected [from, to] window — same overlap semantics as the campaign and
+// backend analytics filters, so a deal with no dates is never hidden.
+function overlapsRange(deal: Deal, range: DateRange | undefined): boolean {
+  if (!range?.from && !range?.to) return true;
+  const start = deal.startDate ? new Date(deal.startDate) : null;
+  const end = deal.endDate ? new Date(deal.endDate) : null;
+  if (range?.from && end && !Number.isNaN(end.getTime()) && end < range.from) return false;
+  if (range?.to && start && !Number.isNaN(start.getTime()) && start > range.to) return false;
+  return true;
+}
+
 const DealsTab: React.FC<{
   deals: Deal[];
   onDealCreated?: () => Promise<void>;
@@ -87,6 +110,19 @@ const DealsTab: React.FC<{
   const [addCodesOpen, setAddCodesOpen] = useState(false);
   const [addCodesValue, setAddCodesValue] = useState<DealCodesValue>(emptyDealCodesValue);
   const [addCodesError, setAddCodesError] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const hasFilters = statusFilter !== "all" || !!dateRange?.from;
+
+  const filteredDeals = useMemo(
+    () =>
+      deals.filter(
+        (d) =>
+          (statusFilter === "all" || (d.status ?? "inactive").toLowerCase() === statusFilter) &&
+          overlapsRange(d, dateRange),
+      ),
+    [deals, statusFilter, dateRange],
+  );
 
   const editForm = useForm<EditDealFormData>({
     resolver: zodResolver(editDealSchema),
@@ -244,9 +280,70 @@ const DealsTab: React.FC<{
         </CardHeader>
 
         <CardContent>
+          {deals.length > 0 && (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center mb-4">
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-40">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All statuses</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="rejected">Rejected</SelectItem>
+                  <SelectItem value="inactive">Inactive</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                </SelectContent>
+              </Select>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="justify-start gap-2 font-normal sm:w-64">
+                    <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+                    {dateRange?.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "MMM d, yyyy")} –{" "}
+                          {format(dateRange.to, "MMM d, yyyy")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "MMM d, yyyy")
+                      )
+                    ) : (
+                      "Filter by date"
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange?.from}
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    numberOfMonths={2}
+                  />
+                </PopoverContent>
+              </Popover>
+              {hasFilters && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="self-start sm:self-auto"
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setDateRange(undefined);
+                  }}
+                >
+                  <X className="h-3.5 w-3.5 mr-1.5" />
+                  Clear filters
+                </Button>
+              )}
+            </div>
+          )}
           {deals.length > 0 ? (
+            filteredDeals.length > 0 ? (
             <div className="divide-y divide-border">
-              {deals.map((deal) => {
+              {filteredDeals.map((deal) => {
                 const statusKey = (deal.status ?? "inactive").toLowerCase() as keyof typeof STATUS_CONFIG;
                 const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.inactive;
                 const isBusy = busyId === deal.id;
@@ -360,6 +457,24 @@ const DealsTab: React.FC<{
                 );
               })}
             </div>
+            ) : (
+              <div className="text-center py-12">
+                <h3 className="text-base font-semibold mb-1">No deals match your filters</h3>
+                <p className="text-sm text-muted-foreground mb-4 max-w-xs mx-auto">
+                  Try a different status or date range.
+                </p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setDateRange(undefined);
+                  }}
+                >
+                  Clear filters
+                </Button>
+              </div>
+            )
           ) : (
             <div className="text-center py-12">
               <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">

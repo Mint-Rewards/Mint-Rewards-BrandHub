@@ -605,8 +605,8 @@ const BrandDashboard = () => {
                     Statistics Period
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Campaign metrics reflect this range. Environmental and deal
-                    totals are all-time.
+                    Campaign and deal metrics reflect this range.
+                    Environmental totals are all-time.
                   </p>
                 </div>
                 <Popover>

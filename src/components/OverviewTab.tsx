@@ -555,7 +555,9 @@ const OverviewTab: React.FC<{
                 <Tag className="h-5 w-5 text-muted-foreground" />
                 <span>Deal Inventory</span>
               </CardTitle>
-              <CardDescription>Status of your promotional deals</CardDescription>
+              <CardDescription>
+                Status of your promotional deals · selected period
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
