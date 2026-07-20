@@ -7,16 +7,18 @@ import { cn } from "@/lib/utils";
 // Common audience segments for a rewards/sustainability campaign. Anything the
 // brand needs beyond these is added through the "Others" chip.
 const PREDEFINED_AUDIENCES = [
-  "Gen Z",
-  "Millennials",
+  "Women",
+  "Men",
+  "Aged 18-24",
+  "Aged 25-34",
+  "Aged 35-44",
+  "Aged 45-54",
+  "Aged 55+",
   "Students",
   "Young Professionals",
   "Families",
-  "Eco-conscious",
-  "Budget-conscious",
   "Frequent Shoppers",
   "New Customers",
-  "Loyalty Members",
 ];
 
 // The field is persisted as a single comma-joined string, so it round-trips
