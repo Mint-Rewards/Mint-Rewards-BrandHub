@@ -4,7 +4,7 @@ import { AlertCircle, BarChart3, Recycle, TrendingUp, Users } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isCampaignApproved, isCampaignLiveNow } from "@/lib/metrics";
+import { isCampaignLiveNow } from "@/lib/metrics";
 import OverviewLifecycle from "./OverviewLifecycle";
 import OverviewPortfolioMix from "./OverviewPortfolioMix";
 import OverviewAttention from "./OverviewAttention";
@@ -150,13 +150,6 @@ const OverviewTab: React.FC<{
     ? campaigns!.filter(isCampaignLiveNow).length
     : summary.activeCampaigns;
   const totalCampaigns = campaignsReady ? campaigns!.length : summary.totalCampaigns;
-  // Redemptions are all-time, so they're measured against every campaign that
-  // was ever approved — including ended ones — not just today's live set. The
-  // backend exposes no equivalent aggregate, so without the list we say nothing
-  // rather than quote a denominator that means something else.
-  const approvedCampaigns = campaignsReady
-    ? campaigns!.filter(isCampaignApproved).length
-    : null;
 
   const activeDeals = dealsReady ? deals!.filter((d) => d.status === "active").length : 0;
   const totalDeals = dealsReady ? deals!.length : analytics.dealStats.total;
@@ -231,7 +224,9 @@ const OverviewTab: React.FC<{
             label="Total Redemptions"
             value={summary.totalRedemptions.toLocaleString()}
             context={
-              activeDeals !== null
+              // Without the deal list `activeDeals` is 0, which would read as a
+              // confirmed zero rather than "not loaded yet" — so say nothing.
+              dealsReady
                 ? `across ${plural(activeDeals, "approved deal", "approved deals")}`
                 : undefined
             }
