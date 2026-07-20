@@ -579,7 +579,7 @@ export const updateDeal = async (
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        ...brandAuth.authHeaders(),
+        ...adminAuth.authHeaders(),
       },
       body: JSON.stringify(payload),
     },
