@@ -1,16 +1,16 @@
 # Graph Report - Mint-Rewards-BrandHub  (2026-07-20)
 
 ## Corpus Check
-- 147 files · ~809,628 words
+- 134 files · ~800,535 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1170 nodes · 1833 edges · 173 communities (85 shown, 88 thin omitted)
-- Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 44 edges (avg confidence: 0.81)
+- 1110 nodes · 1785 edges · 159 communities (76 shown, 83 thin omitted)
+- Extraction: 97% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 44 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `cf0300ba`
+- Built from commit: `b7d77d61`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -68,28 +68,17 @@
 - [[_COMMUNITY_robots.txt|robots.txt]]
 - [[_COMMUNITY_Empty README|Empty README]]
 - [[_COMMUNITY_client.ts|client.ts]]
-- [[_COMMUNITY_2. Colors The Two-Layer Palette|2. Colors: The Two-Layer Palette]]
 - [[_COMMUNITY_brandAuth.ts|brandAuth.ts]]
 - [[_COMMUNITY_Brand Hub repo audit|Brand Hub repo audit]]
 - [[_COMMUNITY_Constitution — Mint Rewards BrandHub|Constitution — Mint Rewards BrandHub]]
 - [[_COMMUNITY_Acceptance Criteria|Acceptance Criteria]]
 - [[_COMMUNITY_graphify reference extra exports and benchmark|graphify reference: extra exports and benchmark]]
 - [[_COMMUNITY_2026-06-26T13-53-39Z__src-pages-index-tsx|2026-06-26T13-53-39Z__src-pages-index-tsx.md]]
-- [[_COMMUNITY_Product|Product]]
 - [[_COMMUNITY_2026-06-20T10-48-58Z__src-pages-branddashboard-tsx|2026-06-20T10-48-58Z__src-pages-branddashboard-tsx.md]]
 - [[_COMMUNITY_2026-06-26T14-12-15Z__src-components-siteheader-tsx|2026-06-26T14-12-15Z__src-components-siteheader-tsx.md]]
-- [[_COMMUNITY_dropdown-menu.tsx|dropdown-menu.tsx]]
 - [[_COMMUNITY_graphify reference query, path, explain|graphify reference: query, path, explain]]
 - [[_COMMUNITY_Agent Instructions|Agent Instructions]]
-- [[_COMMUNITY_graphify reference add a URL and watch a folder|graphify reference: add a URL and watch a folder]]
-- [[_COMMUNITY_graphify reference commit hook and native CLAUDE.md integration|graphify reference: commit hook and native CLAUDE.md integration]]
-- [[_COMMUNITY_graphify reference incremental update and cluster-only|graphify reference: incremental update and cluster-only]]
-- [[_COMMUNITY_graphify reference GitHub clone and cross-repo merge|graphify reference: GitHub clone and cross-repo merge]]
-- [[_COMMUNITY_graphify reference transcribe video and audio|graphify reference: transcribe video and audio]]
-- [[_COMMUNITY_dropdown-menu.tsx|dropdown-menu.tsx]]
-- [[_COMMUNITY_dealCodes.ts|dealCodes.ts]]
 - [[_COMMUNITY_CLAUDE|CLAUDE.md]]
-- [[_COMMUNITY_extraction-spec|extraction-spec.md]]
 - [[_COMMUNITY_PROMPT_build|PROMPT_build.md]]
 - [[_COMMUNITY_PROMPT_plan|PROMPT_plan.md]]
 - [[_COMMUNITY_graphify graphify trigger (root CLAUDE.md)|graphify /graphify trigger (root CLAUDE.md)]]
@@ -169,11 +158,10 @@
 - [[_COMMUNITY_button.tsx|button.tsx]]
 - [[_COMMUNITY_vercel.json|vercel.json]]
 - [[_COMMUNITY_ModuleNotSubscribedError|ModuleNotSubscribedError]]
-- [[_COMMUNITY_scroll-area.tsx|scroll-area.tsx]]
-- [[_COMMUNITY_slider.tsx|slider.tsx]]
-- [[_COMMUNITY_switch.tsx|switch.tsx]]
 - [[_COMMUNITY_client.ts|client.ts]]
-- [[_COMMUNITY_InsufficientPermissionError|InsufficientPermissionError]]
+- [[_COMMUNITY_client.ts|client.ts]]
+- [[_COMMUNITY_renderDesignVisual|renderDesignVisual]]
+- [[_COMMUNITY_2026-07-20T16-45-49Z__src-pages-branddashboard-tsx|2026-07-20T16-45-49Z__src-pages-branddashboard-tsx.md]]
 
 ## God Nodes (most connected - your core abstractions)
 1. `cn()` - 75 edges
@@ -188,8 +176,6 @@
 10. `CardDescription` - 16 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `RegisterOrgResponse` --references--> `OrgBrand`  [EXTRACTED]
-  src/actions/brandActions.ts → src/lib/brandAuth.ts
 - `BreadcrumbSeparator()` --calls--> `cn()`  [EXTRACTED]
   src/components/ui/breadcrumb.tsx → src/lib/utils.ts
 - `BreadcrumbEllipsis()` --calls--> `cn()`  [EXTRACTED]
@@ -198,6 +184,8 @@
   src/components/ui/command.tsx → src/lib/utils.ts
 - `ContextMenuShortcut()` --calls--> `cn()`  [EXTRACTED]
   src/components/ui/context-menu.tsx → src/lib/utils.ts
+- `DropdownMenuShortcut()` --calls--> `cn()`  [EXTRACTED]
+  src/components/ui/dropdown-menu.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - 1-file cycle: `src/components/ui/sonner.tsx -> src/components/ui/sonner.tsx`
@@ -211,7 +199,7 @@
 - **Design Governance Document Set** — design, product, ui_audit [INFERRED 0.80]
 - **Ralph Loop Autonomous Workflow Documents** — specify_memory_constitution, specify_memory_agents, prompt_build, prompt_plan [EXTRACTED 1.00]
 
-## Communities (173 total, 88 thin omitted)
+## Communities (159 total, 83 thin omitted)
 
 ### Community 0 - "Brand Admin Routing & Campaign Forms"
 Cohesion: 0.22
@@ -234,44 +222,44 @@ Cohesion: 0.07
 Nodes (28): devDependencies, autoprefixer, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, lovable-tagger (+20 more)
 
 ### Community 5 - "Site Header & UI Sheet/Separator"
-Cohesion: 0.07
-Nodes (30): Separator, Sidebar, SidebarContent, SidebarContext, SidebarFooter, SidebarGroup, SidebarGroupAction, SidebarGroupContent (+22 more)
+Cohesion: 0.05
+Nodes (38): SiteHeaderProps, Separator, SheetContent, SheetContentProps, SheetDescription, SheetFooter(), SheetHeader(), SheetOverlay (+30 more)
 
 ### Community 6 - "Campaigns Tab Component"
 Cohesion: 0.08
 Nodes (25): 1. Overview, 2. Colors: The Two-Layer Palette, 3. Typography, 4. Elevation, 5. Components, 6. Do's and Don'ts, Analytics Period Selector (Signature Component), Buttons (+17 more)
 
 ### Community 7 - "npm devDependencies"
-Cohesion: 0.08
-Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
+Cohesion: 0.10
+Nodes (24): CountryPhoneInput(), CountryPhoneInputProps, ButtonProps, buttonVariants, Calendar(), CalendarProps, CURRENT_YEAR, DrawerContent (+16 more)
 
 ### Community 8 - "Toast Component"
-Cohesion: 0.11
-Nodes (22): Toast, ToastAction, ToastActionElement, ToastClose, ToastDescription, ToastProps, ToastTitle, toastVariants (+14 more)
+Cohesion: 0.12
+Nodes (21): Toast, ToastAction, ToastActionElement, ToastClose, ToastDescription, ToastProps, ToastTitle, toastVariants (+13 more)
 
 ### Community 9 - "Overview Tab Analytics"
 Cohesion: 0.12
-Nodes (31): AnalyticsDateRange, BrandNotFoundError, CampaignSummary, createCampaign(), createDeal(), createOrgBrand(), deleteCampaign(), deleteDeal() (+23 more)
+Nodes (32): AnalyticsDateRange, BrandNotFoundError, CampaignSummary, createCampaign(), createDeal(), createOrgBrand(), deleteCampaign(), deleteDeal() (+24 more)
 
 ### Community 10 - "TS App Config"
 Cohesion: 0.09
 Nodes (22): compilerOptions, allowImportingTsExtensions, baseUrl, ignoreDeprecations, isolatedModules, jsx, lib, module (+14 more)
 
 ### Community 11 - "Avatar & Checkbox UI"
-Cohesion: 0.06
-Nodes (39): CampaignFormData, campaignSchema, CreateCampaignForm(), getContrastingTextColor(), CreateDealFormProps, DealFormData, dealSchema, StatusOption (+31 more)
+Cohesion: 0.12
+Nodes (23): CampaignFormData, campaignSchema, CreateCampaignForm(), getContrastingTextColor(), CreateDealFormProps, DealFormData, dealSchema, SettingsFormData (+15 more)
 
 ### Community 12 - "Button & Calendar UI"
-Cohesion: 0.14
-Nodes (18): CountryPhoneInput(), CountryPhoneInputProps, ButtonProps, buttonVariants, Calendar(), CalendarProps, CURRENT_YEAR, Pagination() (+10 more)
+Cohesion: 0.24
+Nodes (10): STATUS_CONFIG, STATUS_FILTER_OPTIONS, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter(), AlertDialogHeader() (+2 more)
 
 ### Community 13 - "shadcn Components Config"
-Cohesion: 0.21
-Nodes (9): SiteHeaderProps, SheetContent, SheetContentProps, SheetDescription, SheetFooter(), SheetHeader(), SheetOverlay, SheetTitle (+1 more)
+Cohesion: 0.17
+Nodes (11): Menubar, MenubarCheckboxItem, MenubarContent, MenubarItem, MenubarLabel, MenubarRadioItem, MenubarSeparator, MenubarShortcut() (+3 more)
 
 ### Community 14 - "drawer.tsx"
-Cohesion: 0.25
-Nodes (6): DrawerContent, DrawerDescription, DrawerFooter(), DrawerHeader(), DrawerOverlay, DrawerTitle
+Cohesion: 0.21
+Nodes (8): validateLogoDimensions(), validateLogoFileBasics(), isValidEmail(), isValidPhone(), isValidUrl(), minLength(), BrandRegister(), formHasInput()
 
 ### Community 15 - "Campaign Form Screenshot & Fields"
 Cohesion: 0.22
@@ -298,8 +286,8 @@ Cohesion: 0.21
 Nodes (12): Dashboard - Users Impact (Screenshot), Sustainability Analytics Dashboard, User Community Impact Summary Panel, Environmental Equivalents Panel, Impact Company / Impact Users Toggle, Analytics Sub-tabs (Impact, Rewards, Users, Brands, Sector Performance), Metric Summary Row (Wastage, CO2, Recycled, Users, Active Users), Brand Dashboard Overview Tab (+4 more)
 
 ### Community 21 - "Menubar UI Component"
-Cohesion: 0.17
-Nodes (11): Menubar, MenubarCheckboxItem, MenubarContent, MenubarItem, MenubarLabel, MenubarRadioItem, MenubarSeparator, MenubarShortcut() (+3 more)
+Cohesion: 0.18
+Nodes (9): Command, CommandDialogProps, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator (+1 more)
 
 ### Community 22 - "Future Projections Dashboard Screenshot"
 Cohesion: 0.27
@@ -318,8 +306,8 @@ Cohesion: 0.12
 Nodes (15): compilerOptions, allowImportingTsExtensions, isolatedModules, lib, module, moduleDetection, moduleResolution, noEmit (+7 more)
 
 ### Community 26 - "Context Menu UI Component"
-Cohesion: 0.20
-Nodes (9): ContextMenuCheckboxItem, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuRadioItem, ContextMenuSeparator, ContextMenuShortcut(), ContextMenuSubContent (+1 more)
+Cohesion: 0.24
+Nodes (8): StatusOption, SelectContent, SelectItem, SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator, SelectTrigger
 
 ### Community 27 - "Campaigns & Discounts Performance Screenshot"
 Cohesion: 0.28
@@ -342,12 +330,12 @@ Cohesion: 0.32
 Nodes (8): Brand Dashboard - Overview Tab, Performance Highlights (Waste, CO2, Users, Recycling), Performance Summary (Strengths & Opportunities), Your Performance vs Category (progress bar comparison), Sector Performance Overview (Brand vs Technology Category Average), Sustainability Analytics Dashboard, Sustainability Metrics & Recent Activity summary cards, Dashboard - Sector Performance: Brand vs Category Average
 
 ### Community 32 - "Breadcrumb UI Component"
-Cohesion: 0.25
-Nodes (7): Breadcrumb, BreadcrumbEllipsis(), BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator()
+Cohesion: 0.20
+Nodes (9): DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut(), DropdownMenuSubContent (+1 more)
 
 ### Community 33 - "toggle-group.tsx"
-Cohesion: 0.33
-Nodes (5): ToggleGroup, ToggleGroupContext, ToggleGroupItem, Toggle, toggleVariants
+Cohesion: 0.25
+Nodes (7): Breadcrumb, BreadcrumbEllipsis(), BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator()
 
 ### Community 34 - "Navigation Menu UI Component"
 Cohesion: 0.25
@@ -358,8 +346,8 @@ Cohesion: 0.38
 Nodes (7): Brand Approved Welcome Banner, Brand Dashboard Header (Dummy Brand, Active status, Exit Dashboard), Campaign Management Panel, Campaigns Tab Screen (Brand Dashboard), Create Campaign Button, Dashboard Navigation Tabs (Overview, Campaigns, Deals, Settings), Empty State: No Campaigns Yet
 
 ### Community 36 - "Toggle Group UI Component"
-Cohesion: 0.40
-Nodes (4): Alert, AlertDescription, AlertTitle, alertVariants
+Cohesion: 0.29
+Nodes (6): DialogContent, DialogDescription, DialogFooter(), DialogHeader(), DialogOverlay, DialogTitle
 
 ### Community 37 - "Deals Form Screenshot & Fields"
 Cohesion: 0.40
@@ -387,11 +375,15 @@ Nodes (11): AI Slop Verdict, Brand Hub UI Audit, Design Quality (Phase 3 — Cri
 
 ### Community 43 - "Sonner Toaster"
 Cohesion: 0.08
-Nodes (15): AccordionContent, AccordionItem, AccordionTrigger, Avatar, AvatarFallback, AvatarImage, Checkbox, HoverCardContent (+7 more)
+Nodes (16): AccordionContent, AccordionItem, AccordionTrigger, Checkbox, HoverCardContent, RadioGroup, RadioGroupItem, ScrollArea (+8 more)
 
 ### Community 44 - "Accordion UI Component"
 Cohesion: 0.18
 Nodes (7): ChartConfig, ChartContainer, ChartContext, ChartContextProps, ChartLegendContent, ChartTooltipContent, THEMES
+
+### Community 49 - "graphify"
+Cohesion: 0.40
+Nodes (4): Alert, AlertDescription, AlertTitle, alertVariants
 
 ### Community 54 - "Empty README"
 Cohesion: 0.36
@@ -399,15 +391,11 @@ Nodes (8): Invoke-RalphLoop(), Resolve-RalphMode(), Test-YoloEnabled(), Write-Ra
 
 ### Community 57 - "client.ts"
 Cohesion: 0.50
-Nodes (3): `<file>:<line>` — <one-line title> [Readability | Performance | Best practice], Output format, Task
-
-### Community 63 - "2. Colors: The Two-Layer Palette"
-Cohesion: 0.22
-Nodes (8): graphify reference: extra exports and benchmark, Step 6b - Wiki (only if --wiki flag), Step 7 - Neo4j export (only if --neo4j or --neo4j-push flag), Step 7a - FalkorDB export (only if --falkordb or --falkordb-push flag), Step 7b - SVG export (only if --svg flag), Step 7c - GraphML export (only if --graphml flag), Step 7d - MCP server (only if --mcp flag), Step 8 - Token reduction benchmark (only if total_words > 5000)
+Nodes (3): Avatar, AvatarFallback, AvatarImage
 
 ### Community 64 - "brandAuth.ts"
-Cohesion: 0.16
-Nodes (11): InsufficientPermissionError, CampaignsTab(), CreateDealForm(), DealsTab(), EditDealFormData, editDealSchema, STATUS_CONFIG, STATUS_FILTER_OPTIONS (+3 more)
+Cohesion: 0.14
+Nodes (12): InsufficientPermissionError, ModuleNotSubscribedError, CampaignsTab(), CreateDealForm(), DealsTab(), EditDealFormData, editDealSchema, STATUS_CONFIG (+4 more)
 
 ### Community 65 - "Brand Hub repo audit"
 Cohesion: 0.22
@@ -429,10 +417,6 @@ Nodes (7): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overa
 Cohesion: 0.25
 Nodes (7): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overall Impression, Persona Red Flags, Priority Issues, What's Working
 
-### Community 70 - "Product"
-Cohesion: 0.33
-Nodes (5): For /graphify explain, For /graphify path, graphify reference: query, path, explain, Step 0 — Constrained query expansion (REQUIRED before traversal), Step 1 — Traversal
-
 ### Community 71 - "2026-06-20T10-48-58Z__src-pages-branddashboard-tsx.md"
 Cohesion: 0.33
 Nodes (5): Agent Instructions, Quick Reference, The Magic Word, You're in a Ralph Loop if:, You're in Interactive Chat if:
@@ -440,10 +424,6 @@ Nodes (5): Agent Instructions, Quick Reference, The Magic Word, You're in a Ralp
 ### Community 72 - "2026-06-26T14-12-15Z__src-components-siteheader-tsx.md"
 Cohesion: 0.70
 Nodes (4): print_latest_output(), ralph-loop-codex.sh script, show_help(), watch_latest_output()
-
-### Community 73 - "dropdown-menu.tsx"
-Cohesion: 0.18
-Nodes (9): Command, CommandDialogProps, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList, CommandSeparator (+1 more)
 
 ### Community 74 - "graphify reference: query, path, explain"
 Cohesion: 0.70
@@ -453,72 +433,52 @@ Nodes (4): print_latest_output(), ralph-loop-gemini.sh script, show_help(), watc
 Cohesion: 0.70
 Nodes (4): print_latest_output(), ralph-loop.sh script, show_help(), watch_latest_output()
 
-### Community 76 - "graphify reference: add a URL and watch a folder"
-Cohesion: 0.50
-Nodes (3): For /graphify add, For --watch, graphify reference: add a URL and watch a folder
-
-### Community 77 - "graphify reference: commit hook and native CLAUDE.md integration"
-Cohesion: 0.50
-Nodes (3): For git commit hook, For native CLAUDE.md integration, graphify reference: commit hook and native CLAUDE.md integration
-
-### Community 78 - "graphify reference: incremental update and cluster-only"
-Cohesion: 0.50
-Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
-
-### Community 81 - "dropdown-menu.tsx"
-Cohesion: 0.29
-Nodes (6): DialogContent, DialogDescription, DialogFooter(), DialogHeader(), DialogOverlay, DialogTitle
-
-### Community 82 - "dealCodes.ts"
-Cohesion: 0.40
-Nodes (4): SelectLabel, SelectScrollDownButton, SelectScrollUpButton, SelectSeparator
-
 ### Community 161 - "button.tsx"
 Cohesion: 0.06
-Nodes (62): BrandAnalytics, App(), queryClient, AdminProtectedRoute(), BrandProtectedRoute(), CAMPAIGN_STATUS_STYLES, CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS (+54 more)
+Nodes (68): BrandAnalytics, App(), queryClient, AdminProtectedRoute(), BrandProtectedRoute(), CAMPAIGN_STATUS_STYLES, CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS (+60 more)
 
 ### Community 166 - "ModuleNotSubscribedError"
 Cohesion: 0.22
 Nodes (8): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overall Impression, Persona Red Flags, Priority Issues, Questions to Consider, What's Working
 
-### Community 167 - "scroll-area.tsx"
-Cohesion: 0.24
-Nodes (10): STATUS_CONFIG, STATUS_FILTER_OPTIONS, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter(), AlertDialogHeader() (+2 more)
-
-### Community 168 - "slider.tsx"
-Cohesion: 0.22
-Nodes (11): CodesMode, DealCodesInput(), DealCodesInputProps, DealCodesValue, emptyDealCodesValue, resolveDealCodes(), codesFileToRaw(), downloadCodes() (+3 more)
-
-### Community 169 - "switch.tsx"
-Cohesion: 0.20
-Nodes (9): DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuShortcut(), DropdownMenuSubContent (+1 more)
-
 ### Community 170 - "client.ts"
 Cohesion: 0.67
 Nodes (3): Toaster(), ToasterProps, sonner
+
+### Community 172 - "client.ts"
+Cohesion: 0.22
+Nodes (11): CodesMode, DealCodesInput(), DealCodesInputProps, DealCodesValue, emptyDealCodesValue, resolveDealCodes(), codesFileToRaw(), downloadCodes() (+3 more)
+
+### Community 231 - "renderDesignVisual"
+Cohesion: 0.20
+Nodes (9): ContextMenuCheckboxItem, ContextMenuContent, ContextMenuItem, ContextMenuLabel, ContextMenuRadioItem, ContextMenuSeparator, ContextMenuShortcut(), ContextMenuSubContent (+1 more)
+
+### Community 346 - "2026-07-20T16-45-49Z__src-pages-branddashboard-tsx.md"
+Cohesion: 0.22
+Nodes (8): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overall Impression, Persona Red Flags, Priority Issues, Questions to Consider, What's Working
 
 ## Ambiguous Edges - Review These
 - `Dashboard - Future Projections Screenshot` → `Dashboard - Overview Screenshot (inferred prior tab)`  [AMBIGUOUS]
   screenshots/07 - Dashboard - Future Projections.png · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **614 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+609 more)
+- **578 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+573 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **88 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **83 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Dashboard - Future Projections Screenshot` and `Dashboard - Overview Screenshot (inferred prior tab)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `cn()` connect `Button & Calendar UI` to `Site Header & UI Sheet/Separator`, `Toast Component`, `Avatar & Checkbox UI`, `shadcn Components Config`, `drawer.tsx`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`, `Breadcrumb UI Component`, `button.tsx`, `Navigation Menu UI Component`, `toggle-group.tsx`, `Toggle Group UI Component`, `Input OTP UI Component`, `scroll-area.tsx`, `switch.tsx`, `Sonner Toaster`, `Accordion UI Component`, `dropdown-menu.tsx`, `dropdown-menu.tsx`, `dealCodes.ts`?**
-  _High betweenness centrality (0.092) - this node is a cross-community bridge._
+- **Why does `cn()` connect `npm devDependencies` to `Site Header & UI Sheet/Separator`, `Toast Component`, `Avatar & Checkbox UI`, `Button & Calendar UI`, `shadcn Components Config`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`, `Breadcrumb UI Component`, `button.tsx`, `toggle-group.tsx`, `Navigation Menu UI Component`, `Toggle Group UI Component`, `Input OTP UI Component`, `Sonner Toaster`, `Accordion UI Component`, `graphify`, `client.ts`, `renderDesignVisual`?**
+  _High betweenness centrality (0.101) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `npm Dependencies` to `client.ts`, `Dashboard Feature Docs`, `Input OTP UI Component`?**
-  _High betweenness centrality (0.066) - this node is a cross-community bridge._
+  _High betweenness centrality (0.075) - this node is a cross-community bridge._
 - **Why does `input-otp` connect `Input OTP UI Component` to `npm Dependencies`?**
-  _High betweenness centrality (0.045) - this node is a cross-community bridge._
+  _High betweenness centrality (0.051) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _631 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _595 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Brand API Actions & Analytics Types` be split into smaller, more focused modules?**
   _Cohesion score 0.07207207207207207 - nodes in this community are weakly interconnected._
 - **Should `npm Dependencies` be split into smaller, more focused modules?**
