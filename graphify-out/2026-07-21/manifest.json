@@ -15,8 +15,8 @@
     "semantic_hash": "fa856d82dc4f1ea9c445c40556450228"
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1784581770.5145009,
-    "ast_hash": "5bdf83ec69331cef5933bca93b86a25d",
+    "mtime": 1784586477.445024,
+    "ast_hash": "55a254fd8fc91b7a77f452ec274ad4f4",
     "semantic_hash": ""
   },
   ".impeccable/live/config.json": {
@@ -95,8 +95,8 @@
     "semantic_hash": "ddbb77208f9d67b727997567381de4b4"
   },
   "src/components/CampaignsTab.tsx": {
-    "mtime": 1784147281.340173,
-    "ast_hash": "216bcd01bd536c00770f5422c88d8d49",
+    "mtime": 1784585286.9141526,
+    "ast_hash": "a3c6f50716ff7d8cfb4c59ae44a8f8c3",
     "semantic_hash": ""
   },
   "src/components/CreateCampaignForm.tsx": {
@@ -105,18 +105,18 @@
     "semantic_hash": ""
   },
   "src/components/CreateDealForm.tsx": {
-    "mtime": 1784566872.812531,
-    "ast_hash": "0dbb888eb65f59db69e51c121091bac2",
+    "mtime": 1784585058.091577,
+    "ast_hash": "4521b40c0152b3e210dc7b1650138b13",
     "semantic_hash": ""
   },
   "src/components/DealsTab.tsx": {
-    "mtime": 1784578091.0223467,
-    "ast_hash": "521b95274a263434a1c63042b45cdb1d",
+    "mtime": 1784585298.325959,
+    "ast_hash": "1d78fa46607c8b5ffee4e2f3b775c380",
     "semantic_hash": ""
   },
   "src/components/OverviewTab.tsx": {
-    "mtime": 1784579755.4154823,
-    "ast_hash": "0949de546c93fdb210bf8f109a519491",
+    "mtime": 1784585890.8138645,
+    "ast_hash": "bc278c1d43b8ace1ccf050c572617986",
     "semantic_hash": ""
   },
   "src/components/SettingsTab.tsx": {
@@ -440,13 +440,13 @@
     "semantic_hash": "25e4fe412f6c0248c1183feb4454ea60"
   },
   "src/pages/BrandDashboard.tsx": {
-    "mtime": 1784581723.7682898,
-    "ast_hash": "21df4e9546b3c207877080032a2d6ac1",
+    "mtime": 1784585880.5353866,
+    "ast_hash": "76a2e7b8ef989be732b22308d96d4220",
     "semantic_hash": ""
   },
   "src/pages/BrandRegister.tsx": {
-    "mtime": 1784581770.4646723,
-    "ast_hash": "97eefc913d17b163606920d07942658e",
+    "mtime": 1784586477.3918674,
+    "ast_hash": "f899ba5bd107a5ad1676060ca811bc24",
     "semantic_hash": ""
   },
   "src/pages/DemoPage.tsx": {
@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "src/components/EsgTab.tsx": {
-    "mtime": 1784579105.645981,
-    "ast_hash": "b0b7ac97ec483ae99a65280956972333",
+    "mtime": 1784582894.6180353,
+    "ast_hash": "fa0e8392754541e9685ea1f237673253",
     "semantic_hash": ""
   },
   "src/components/MintTraceTab.tsx": {
@@ -1350,8 +1350,8 @@
     "semantic_hash": ""
   },
   "src/lib/metrics.ts": {
-    "mtime": 1784579809.9995816,
-    "ast_hash": "aef7a6c5f89ce6d1162afd6ed4162a44",
+    "mtime": 1784584951.2676754,
+    "ast_hash": "e4f75a297f8b6e1725b3147d282827e3",
     "semantic_hash": ""
   },
   "src/lib/dealStatus.ts": {
@@ -1365,8 +1365,8 @@
     "semantic_hash": ""
   },
   "src/components/OverviewLifecycle.tsx": {
-    "mtime": 1784580153.4739316,
-    "ast_hash": "92bf06d46c83dea7b6b7b56cd003c100",
+    "mtime": 1784584961.579376,
+    "ast_hash": "287340e4f8b5052cf0b10e989987a348",
     "semantic_hash": ""
   },
   "src/components/OverviewPortfolioMix.tsx": {

@@ -107,14 +107,6 @@ const BrandDashboard = () => {
 
       try {
         const brand = await fetchBrandById(brandId);
-        // TEMP DEBUG — remove once the Settings field discrepancies are diagnosed.
-        console.log("[BrandData debug]", {
-          website: brand.website,
-          webLink: brand.webLink,
-          contactName: brand.contactName,
-          phone: brand.phone,
-          email: brand.email,
-        });
         setBrandData(brand);
       } catch (error) {
         // 404 covers stale cached brand links and foreign/orphan ids alike —

@@ -146,24 +146,6 @@ const OverviewTab: React.FC<{
   const campaignsReady = campaignsLoaded && Boolean(campaigns) && !campaignsUnavailable;
   const dealsReady = dealsLoaded && Boolean(deals) && !dealsUnavailable;
 
-  // TEMP DEBUG — remove once the Active Campaigns discrepancy is diagnosed.
-  console.log("[ActiveCampaigns debug]", {
-    campaignsReady,
-    campaignsLoaded,
-    campaignsUnavailable,
-    campaignsCount: campaigns?.length,
-    summaryActiveCampaigns: summary.activeCampaigns,
-    summaryTotalCampaigns: summary.totalCampaigns,
-    campaigns: campaigns?.map((c) => ({
-      id: c.id ?? c._id,
-      status: c.status,
-      statusJson: JSON.stringify(c.status),
-      startDate: c.startDate,
-      endDate: c.endDate,
-      isLive: isCampaignLiveNow(c),
-    })),
-  });
-
   const activeCampaigns = campaignsReady
     ? campaigns!.filter(isCampaignLiveNow).length
     : summary.activeCampaigns;

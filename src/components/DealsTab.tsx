@@ -43,6 +43,15 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
 import { overlapsRange } from "@/lib/dateRangeFilter";
+import { toMs } from "@/lib/metrics";
+
+// Pending first (needs attention), then Active (the approved equivalent for
+// deals), then Rejected; anything else (Inactive/Expired) sinks to the bottom.
+const STATUS_SORT_RANK: Record<string, number> = {
+  pending: 0,
+  active: 1,
+  rejected: 2,
+};
 import {
   DealCodesInput,
   emptyDealCodesValue,
@@ -98,11 +107,18 @@ const DealsTab: React.FC<{
 
   const filteredDeals = useMemo(
     () =>
-      deals.filter(
-        (d) =>
-          (statusFilter === "all" || (d.status ?? "inactive").toLowerCase() === statusFilter) &&
-          overlapsRange(d, dateRange),
-      ),
+      deals
+        .filter(
+          (d) =>
+            (statusFilter === "all" || (d.status ?? "inactive").toLowerCase() === statusFilter) &&
+            overlapsRange(d, dateRange),
+        )
+        .sort((a, b) => {
+          const rankA = STATUS_SORT_RANK[(a.status ?? "").toLowerCase()] ?? 3;
+          const rankB = STATUS_SORT_RANK[(b.status ?? "").toLowerCase()] ?? 3;
+          if (rankA !== rankB) return rankA - rankB;
+          return toMs(b.startDate, -Infinity) - toMs(a.startDate, -Infinity);
+        }),
     [deals, statusFilter, dateRange],
   );
 

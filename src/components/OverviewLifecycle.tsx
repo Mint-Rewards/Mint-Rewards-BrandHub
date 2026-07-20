@@ -43,7 +43,7 @@ type Tone =
   | { kind: "brand"; alpha: string }
   | { kind: "class"; className: string };
 
-// Live and scheduled carry the brand's own color (they're the brand's active
+// Live and Scheduled carry the brand's own color (they're the brand's active
 // surface area); moderation and end states use the shared status vocabulary.
 const BUCKET_TONES: Record<LifecycleBucket, Tone> = {
   live: { kind: "brand", alpha: "" },

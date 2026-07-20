@@ -195,8 +195,12 @@ const BrandRegister = () => {
         return minLength(value, 2, "Brand name") ?? "";
       case "category":
         return !value ? "Category is required" : "";
+      case "contactName":
+        return !value ? "Contact name is required" : "";
       case "phone":
         return !value ? "Phone number is required" : (isValidPhone(value) ?? "");
+      case "address":
+        return !value ? "Address is required" : "";
       case "website":
       case "appLink":
         // return value ? isValidUrl(value) ?? "" : "";
@@ -264,7 +268,7 @@ const BrandRegister = () => {
   const validateStepFields = (): boolean => {
     const stepFields: Record<number, string[]> = {
       1: ["orgName", "email", "password", "confirmPassword"],
-      2: ["brandName", "category", "phone", "website", "appLink"],
+      2: ["brandName", "category", "contactName", "phone", "website", "appLink", "address"],
     };
 
     const fields = stepFields[currentStep] ?? [];
@@ -653,13 +657,18 @@ const BrandRegister = () => {
 
               <div className="mt-5 grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="contactName">Contact Name</Label>
+                  <Label htmlFor="contactName">Contact Name *</Label>
                   <Input
                     id="contactName"
                     value={formData.contactName}
                     onChange={(e) => handleInputChange("contactName", e.target.value)}
+                    onBlur={() => handleBlur("contactName")}
                     placeholder="Primary contact person"
+                    aria-invalid={isInvalid("contactName")}
+                    aria-describedby={describedBy("contactName")}
+                    className={errors.contactName && touched.contactName ? "border-destructive" : ""}
                   />
+                  <FieldError field="contactName" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone *</Label>
@@ -702,13 +711,18 @@ const BrandRegister = () => {
                   <FieldError field="appLink" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
+                  <Label htmlFor="address">Address *</Label>
                   <Input
                     id="address"
                     value={formData.address}
                     onChange={(e) => handleInputChange("address", e.target.value)}
+                    onBlur={() => handleBlur("address")}
                     placeholder="Business address"
+                    aria-invalid={isInvalid("address")}
+                    aria-describedby={describedBy("address")}
+                    className={errors.address && touched.address ? "border-destructive" : ""}
                   />
+                  <FieldError field="address" />
                 </div>
               </div>
             </div>
@@ -733,11 +747,11 @@ const BrandRegister = () => {
               "None (add later)"
             ),
           },
-          { label: "Contact Name", value: formData.contactName || "None (add later)" },
+          { label: "Contact Name", value: formData.contactName },
           { label: "Phone", value: formData.phone },
           { label: "Website", value: formData.website || "None (add later)" },
           { label: "App Link", value: formData.appLink || "None (add later)" },
-          { label: "Address", value: formData.address || "None (add later)" },
+          { label: "Address", value: formData.address},
           { label: "Description", value: formData.description || "None (add later)" },
         ];
 

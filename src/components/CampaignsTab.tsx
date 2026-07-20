@@ -34,6 +34,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
 import { overlapsRange } from "@/lib/dateRangeFilter";
+import { toMs } from "@/lib/metrics";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   PENDING:  { label: "Pending",  className: "bg-warning/10 text-warning border-warning/20" },
@@ -48,6 +49,14 @@ const STATUS_FILTER_OPTIONS = [
   { value: "REJECTED", label: "Rejected" },
   { value: "EXPIRED", label: "Expired" },
 ];
+
+// Pending first (needs attention), then Approved, then Rejected; anything
+// else (e.g. Expired) sinks to the bottom.
+const STATUS_SORT_RANK: Record<string, number> = {
+  PENDING: 0,
+  APPROVED: 1,
+  REJECTED: 2,
+};
 
 function statusConfig(raw: string) {
   return STATUS_CONFIG[raw?.toUpperCase()] ?? STATUS_CONFIG.PENDING;
@@ -76,11 +85,18 @@ const CampaignsTab: React.FC<{
 
   const filteredCampaigns = useMemo(
     () =>
-      campaigns.filter(
-        (c) =>
-          (statusFilter === "all" || c.status?.toUpperCase() === statusFilter) &&
-          overlapsRange(c, dateRange),
-      ),
+      campaigns
+        .filter(
+          (c) =>
+            (statusFilter === "all" || c.status?.toUpperCase() === statusFilter) &&
+            overlapsRange(c, dateRange),
+        )
+        .sort((a, b) => {
+          const rankA = STATUS_SORT_RANK[a.status?.toUpperCase() ?? ""] ?? 3;
+          const rankB = STATUS_SORT_RANK[b.status?.toUpperCase() ?? ""] ?? 3;
+          if (rankA !== rankB) return rankA - rankB;
+          return toMs(b.startDate, -Infinity) - toMs(a.startDate, -Infinity);
+        }),
     [campaigns, statusFilter, dateRange],
   );
 
