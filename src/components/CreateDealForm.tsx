@@ -38,7 +38,7 @@ import {
   resolveDealCodes,
   type DealCodesValue,
 } from "@/components/DealCodesInput";
-import { isValidDateRange, startOfDay } from "@/lib/validators";
+import { isValidDateRange, startOfDay, today } from "@/lib/validators";
 
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -305,7 +305,12 @@ export function CreateDealForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => !!startDay && date <= startDay}
+                      // A deal may be backdated to start in the past, but it
+                      // must not be created already expired — so the end date
+                      // is bounded by today as well as by the start date.
+                      disabled={(date) =>
+                        date < today() || (!!startDay && date <= startDay)
+                      }
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
