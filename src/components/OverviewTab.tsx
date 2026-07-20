@@ -231,7 +231,7 @@ const OverviewTab: React.FC<{
             label="Total Redemptions"
             value={summary.totalRedemptions.toLocaleString()}
             context={
-              approvedCampaigns !== null
+              activeDeals !== null
                 ? `across ${plural(activeDeals, "approved deal", "approved deals")}`
                 : undefined
             }

@@ -281,7 +281,7 @@ const EsgTab: React.FC<{
       label: "Total Redemptions",
       value: analytics.summary.totalRedemptions,
       context:
-        approvedCampaigns !== null
+        activeDeals !== null
           ? `across ${plural(activeDeals, "approved deal", "approved deals")}`
           : undefined,
     },
