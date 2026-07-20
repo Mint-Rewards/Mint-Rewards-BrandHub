@@ -271,8 +271,8 @@ const AdminDashboard = () => {
 
   // Approved items surface first, rejected items sink to the bottom,
   // pending items stay in the middle (in their existing relative order).
-  const APPROVED_RANK = 0;
-  const PENDING_RANK = 1;
+  const APPROVED_RANK = 1;
+  const PENDING_RANK = 0;
   const REJECTED_RANK = 2;
 
   const brandStatusRank = (status?: string) => {

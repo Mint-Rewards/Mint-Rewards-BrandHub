@@ -32,6 +32,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { createCampaign, updateBrandCampaign } from "@/actions/brandActions";
+import { TargetAudienceChips } from "@/components/TargetAudienceChips";
 import { Campaign } from "@/types";
 
 const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
@@ -513,9 +514,13 @@ export function CreateCampaignForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Target Audience</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Describe your target audience..." {...field} />
-              </FormControl>
+              <TargetAudienceChips
+                value={field.value ?? ""}
+                onChange={field.onChange}
+              />
+              <p className="text-xs text-muted-foreground">
+                Select all that apply, or add your own with “Others”.
+              </p>
               <FormMessage />
             </FormItem>
           )}

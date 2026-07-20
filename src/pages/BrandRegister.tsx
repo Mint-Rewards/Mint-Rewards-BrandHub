@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -33,6 +33,17 @@ import { isValidEmail, isValidPhone, isValidUrl, minLength } from "@/lib/validat
 import { CountryPhoneInput } from "@/components/CountryPhoneInput";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   MAX_LOGO_SIZE_BYTES,
   MIN_LOGO_PX,
   RECOMMENDED_LOGO_PX,
@@ -53,32 +64,130 @@ const BRAND_CATEGORIES = [
   "Other",
 ];
 
+const DRAFT_STORAGE_KEY = "brandhub:register-draft";
+
+const INITIAL_FORM = {
+  orgName: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  brandName: "",
+  category: "",
+  logo: null as File | null,
+  phone: "",
+  website: "",
+  appLink: "",
+  address: "",
+  description: "",
+};
+
+type RegisterForm = typeof INITIAL_FORM;
+
+// Fields safe to persist across a refresh: everything except the credentials
+// and the binary logo. Passwords are never written to storage.
+type PersistableDraft = Partial<
+  Omit<RegisterForm, "password" | "confirmPassword" | "logo">
+>;
+
+const loadDraft = (): PersistableDraft | null => {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as PersistableDraft) : null;
+  } catch {
+    return null;
+  }
+};
+
+// A draft is only worth restoring (and worth keeping in storage) once the user
+// has actually entered something — an all-empty object is a fresh start.
+const draftHasContent = (draft: PersistableDraft): boolean =>
+  Object.values(draft).some(
+    (value) => typeof value === "string" && value.trim() !== "",
+  );
+
+// True once the user has entered anything worth confirming before we discard it.
+const formHasInput = (data: RegisterForm): boolean =>
+  Object.entries(data).some(([key, value]) =>
+    key === "logo"
+      ? value !== null
+      : typeof value === "string" && value.trim() !== "",
+  );
+
 const BrandRegister = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    orgName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-    brandName: "",
-    category: "",
-    logo: null as File | null,
-    phone: "",
-    website: "",
-    appLink: "",
-    address: "",
-    description: "",
+
+  // Rehydrate a saved draft synchronously so there's no empty-then-filled flash.
+  // Credentials and the logo are always reset — never restored from storage.
+  const draftRestoredRef = useRef(false);
+  const [formData, setFormData] = useState<RegisterForm>(() => {
+    const draft = loadDraft();
+    if (draft && draftHasContent(draft)) draftRestoredRef.current = true;
+    return { ...INITIAL_FORM, ...draft, password: "", confirmPassword: "", logo: null };
   });
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+  // Persist a recoverable draft (never credentials or the binary logo) so an
+  // accidental refresh or interruption doesn't wipe the user's progress.
+  useEffect(() => {
+    const draft: PersistableDraft = {
+      orgName: formData.orgName,
+      email: formData.email,
+      brandName: formData.brandName,
+      category: formData.category,
+      phone: formData.phone,
+      website: formData.website,
+      appLink: formData.appLink,
+      address: formData.address,
+      description: formData.description,
+    };
+    try {
+      // Only keep a draft while there's something to recover; clear it once the
+      // form is empty again so a later visit reads as a fresh start.
+      if (draftHasContent(draft)) {
+        sessionStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draft));
+      } else {
+        sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      }
+    } catch {
+      // Storage full or unavailable (e.g. private mode) — recovery is best-effort.
+    }
+  }, [formData]);
+
+  // Let the user know once when we've brought their details back.
+  useEffect(() => {
+    if (draftRestoredRef.current) {
+      draftRestoredRef.current = false;
+      toast({
+        title: "Draft restored",
+        description:
+          "We brought back the details you'd entered. Re-enter your password to continue.",
+      });
+    }
+    // Run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Warn before an actual page unload (refresh/close/external nav) while the
+  // form holds unsaved input. In-app (SPA) navigation does not trigger this.
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (isSubmitting || !formHasInput(formData)) return;
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [formData, isSubmitting]);
+
   const totalSteps = 3;
+  const isDirty = formHasInput(formData);
 
   const getFieldError = (field: string, value: string): string => {
     switch (field) {
@@ -100,7 +209,7 @@ const BrandRegister = () => {
         return !value ? "Phone number is required" : (isValidPhone(value) ?? "");
       case "website":
       case "appLink":
-        return value ? isValidUrl(value) ?? "" : "";
+        // return value ? isValidUrl(value) ?? "" : "";
       default:
         return "";
     }
@@ -189,6 +298,15 @@ const BrandRegister = () => {
     return !hasError;
   };
 
+  // Move keyboard focus to the first field in an error state so keyboard and
+  // screen-reader users are taken straight to what needs fixing.
+  const focusFirstInvalid = () => {
+    requestAnimationFrame(() => {
+      const el = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+      el?.focus();
+    });
+  };
+
   const nextStep = () => {
     if (validateStepFields()) {
       setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
@@ -198,11 +316,31 @@ const BrandRegister = () => {
         description: "Fill in all required fields correctly before proceeding",
         variant: "destructive",
       });
+      focusFirstInvalid();
     }
   };
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleStartOver = () => {
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
+    setLogoPreview(null);
+    setFormData({ ...INITIAL_FORM });
+    setErrors({});
+    setTouched({});
+    setShowPassword(false);
+    setCurrentStep(1);
+    try {
+      sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+    } catch {
+      // Storage unavailable — the empty-form effect clears the draft anyway.
+    }
+    toast({
+      title: "Form cleared",
+      description: "You're starting fresh from step 1.",
+    });
   };
 
   const handleSubmit = async () => {
@@ -224,6 +362,13 @@ const BrandRegister = () => {
 
       if (!data.token) {
         throw new Error("No token received from server");
+      }
+
+      // Registration succeeded — the draft is no longer needed.
+      try {
+        sessionStorage.removeItem(DRAFT_STORAGE_KEY);
+      } catch {
+        // Ignore — storage may be unavailable.
       }
 
       // Same session bootstrap as login so the user lands signed in.
@@ -255,9 +400,25 @@ const BrandRegister = () => {
     }
   };
 
+  const isInvalid = (field: string) => Boolean(errors[field] && touched[field]);
+
+  // Build an aria-describedby string linking the input to any persistent hint
+  // plus its error message (when one is rendered).
+  const describedBy = (field: string, ...extraIds: string[]) => {
+    const ids = extraIds.filter(Boolean);
+    if (errors[field]) ids.push(`${field}-error`);
+    return ids.length ? ids.join(" ") : undefined;
+  };
+
   const FieldError = ({ field }: { field: string }) =>
     errors[field] ? (
-      <p className="text-xs text-destructive mt-1">{errors[field]}</p>
+      <p
+        id={`${field}-error`}
+        role="alert"
+        className="text-xs text-destructive mt-1"
+      >
+        {errors[field]}
+      </p>
     ) : null;
 
   const renderStepContent = () => {
@@ -269,10 +430,13 @@ const BrandRegister = () => {
               <Label htmlFor="orgName">Organisation Name *</Label>
               <Input
                 id="orgName"
+                autoComplete="organization"
                 value={formData.orgName}
                 onChange={(e) => handleInputChange("orgName", e.target.value)}
                 onBlur={() => handleBlur("orgName")}
                 placeholder="Enter your organisation name"
+                aria-invalid={isInvalid("orgName")}
+                aria-describedby={describedBy("orgName")}
                 className={errors.orgName && touched.orgName ? "border-destructive" : ""}
               />
               <FieldError field="orgName" />
@@ -282,10 +446,13 @@ const BrandRegister = () => {
               <Input
                 id="email"
                 type="email"
+                autoComplete="email"
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 onBlur={() => handleBlur("email")}
                 placeholder="you@company.com"
+                aria-invalid={isInvalid("email")}
+                aria-describedby={describedBy("email")}
                 className={errors.email && touched.email ? "border-destructive" : ""}
               />
               <FieldError field="email" />
@@ -297,10 +464,13 @@ const BrandRegister = () => {
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
+                    autoComplete="new-password"
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
                     onBlur={() => handleBlur("password")}
                     placeholder="At least 8 characters"
+                    aria-invalid={isInvalid("password")}
+                    aria-describedby={describedBy("password")}
                     className={`pr-10 ${errors.password && touched.password ? "border-destructive" : ""}`}
                   />
                   <button
@@ -319,10 +489,13 @@ const BrandRegister = () => {
                 <Input
                   id="confirmPassword"
                   type={showPassword ? "text" : "password"}
+                  autoComplete="new-password"
                   value={formData.confirmPassword}
                   onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
                   onBlur={() => handleBlur("confirmPassword")}
                   placeholder="Re-enter your password"
+                  aria-invalid={isInvalid("confirmPassword")}
+                  aria-describedby={describedBy("confirmPassword")}
                   className={errors.confirmPassword && touched.confirmPassword ? "border-destructive" : ""}
                 />
                 <FieldError field="confirmPassword" />
@@ -333,225 +506,254 @@ const BrandRegister = () => {
 
       case 2:
         return (
-          <div className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="brandName">Brand Name *</Label>
-              <Input
-                id="brandName"
-                value={formData.brandName}
-                onChange={(e) => handleInputChange("brandName", e.target.value)}
-                onBlur={() => handleBlur("brandName")}
-                placeholder="Enter your first brand's name"
-                className={errors.brandName && touched.brandName ? "border-destructive" : ""}
-              />
-              <FieldError field="brandName" />
-              <p className="text-xs text-muted-foreground">
-                Your organisation's first brand. You can add more later.
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="category">Category *</Label>
-              <Select value={formData.category} onValueChange={handleCategoryChange}>
-                <SelectTrigger
-                  id="category"
-                  className={errors.category && touched.category ? "border-destructive" : ""}
+          <div className="space-y-8">
+            {/* Group 1 — who the brand is */}
+            <div role="group" aria-labelledby="group-identity">
+              <div className="space-y-1">
+                <h4
+                  id="group-identity"
+                  className="text-base font-semibold text-foreground"
                 >
-                  <SelectValue placeholder="Select a category" />
-                </SelectTrigger>
-                <SelectContent>
-                  {BRAND_CATEGORIES.map((option) => (
-                    <SelectItem key={option} value={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError field="category" />
-            </div>
+                  Brand identity
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  How your brand appears across MintRewards.
+                </p>
+              </div>
 
-            <div className="space-y-4">
-              <Label>
-                Brand Logo (square, {RECOMMENDED_LOGO_PX}×{RECOMMENDED_LOGO_PX}px
-                recommended, min {MIN_LOGO_PX}×{MIN_LOGO_PX}px, max 5 MB)
-              </Label>
-              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                {formData.logo && logoPreview ? (
-                  <div className="space-y-4">
-                    <div className="flex justify-center">
-                      <img
-                        src={logoPreview}
-                        alt="Logo preview"
-                        className="h-32 w-32 object-cover rounded-lg border"
-                      />
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {formData.logo.name}
-                    </p>
-                    <Button variant="outline" onClick={removeLogo}>
-                      Remove Logo
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    <Upload className="h-12 w-12 text-muted-foreground mx-auto" />
-                    <div>
-                      <p className="text-sm font-medium">Upload your brand logo</p>
-                      <p className="text-xs text-muted-foreground">
-                        Square PNG, JPG, or WebP — {RECOMMENDED_LOGO_PX}×
-                        {RECOMMENDED_LOGO_PX}px recommended
-                      </p>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      onChange={handleFileUpload}
-                      className="hidden"
-                      id="logo-upload"
-                    />
-                    <Button variant="outline" asChild>
-                      <label htmlFor="logo-upload" className="cursor-pointer">
-                        Choose File
-                      </label>
-                    </Button>
-                  </div>
-                )}
-              </div>
-              {errors.logo && (
-                <p className="text-xs text-destructive">{errors.logo}</p>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Shown in your dashboard header. Optional — you can add it later
-                from Settings.
-              </p>
-            </div>
+              <div className="mt-5 space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="brandName">Brand Name *</Label>
+                  <Input
+                    id="brandName"
+                    value={formData.brandName}
+                    onChange={(e) => handleInputChange("brandName", e.target.value)}
+                    onBlur={() => handleBlur("brandName")}
+                    placeholder="Enter your first brand's name"
+                    aria-invalid={isInvalid("brandName")}
+                    aria-describedby={describedBy("brandName", "brandName-hint")}
+                    className={errors.brandName && touched.brandName ? "border-destructive" : ""}
+                  />
+                  <FieldError field="brandName" />
+                  <p id="brandName-hint" className="text-xs text-muted-foreground">
+                    Your organisation's first brand. You can add more later.
+                  </p>
+                </div>
 
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone *</Label>
-                <CountryPhoneInput
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(value) => handleInputChange("phone", value)}
-                  onBlur={() => handleBlur("phone")}
-                  invalid={Boolean(errors.phone && touched.phone)}
-                />
-                <FieldError field="phone" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="website">Website</Label>
-                <Input
-                  id="website"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
-                  onBlur={() => handleBlur("website")}
-                  placeholder="https://yourbrand.com"
-                  className={errors.website && touched.website ? "border-destructive" : ""}
-                />
-                <FieldError field="website" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="appLink">App Link</Label>
-                <Input
-                  id="appLink"
-                  value={formData.appLink}
-                  onChange={(e) => handleInputChange("appLink", e.target.value)}
-                  onBlur={() => handleBlur("appLink")}
-                  placeholder="https://apps.apple.com/…"
-                  className={errors.appLink && touched.appLink ? "border-destructive" : ""}
-                />
-                <FieldError field="appLink" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="Business address"
-                />
-              </div>
-            </div>
+                <div className="space-y-2">
+                  <Label htmlFor="category">Category *</Label>
+                  <Select value={formData.category} onValueChange={handleCategoryChange}>
+                    <SelectTrigger
+                      id="category"
+                      aria-invalid={isInvalid("category")}
+                      aria-describedby={describedBy("category")}
+                      className={errors.category && touched.category ? "border-destructive" : ""}
+                    >
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {BRAND_CATEGORIES.map((option) => (
+                        <SelectItem key={option} value={option}>
+                          {option}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FieldError field="category" />
+                </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
-                placeholder="Tell us about your brand…"
-                className="resize-none"
-                rows={3}
-              />
-            </div>
-          </div>
-        );
-
-      case 3:
-        return (
-          <div className="space-y-6">
-            <Card className="bg-muted/50">
-              <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2">
-                  <CheckCircle className="h-5 w-5 text-success" />
-                  Registration Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <p className="font-medium">Organisation</p>
-                    <p className="text-muted-foreground">{formData.orgName}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Email</p>
-                    <p className="text-muted-foreground">{formData.email}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Brand Name</p>
-                    <p className="text-muted-foreground">{formData.brandName}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Category</p>
-                    <p className="text-muted-foreground">{formData.category}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Logo</p>
-                    {logoPreview ? (
-                      <img
-                        src={logoPreview}
-                        alt="Logo"
-                        className="h-12 w-12 object-cover rounded-lg border mt-1"
-                      />
+                <div className="space-y-4">
+                  <Label>
+                    Brand Logo (square, {RECOMMENDED_LOGO_PX}×{RECOMMENDED_LOGO_PX}px
+                    recommended, min {MIN_LOGO_PX}×{MIN_LOGO_PX}px, max 5 MB)
+                  </Label>
+                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                    {formData.logo && logoPreview ? (
+                      <div className="space-y-4">
+                        <div className="flex justify-center">
+                          <img
+                            src={logoPreview}
+                            alt="Logo preview"
+                            className="h-32 w-32 object-cover rounded-lg border"
+                          />
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          {formData.logo.name}
+                        </p>
+                        <Button variant="outline" onClick={removeLogo}>
+                          Remove Logo
+                        </Button>
+                      </div>
                     ) : (
-                      <p className="text-muted-foreground">None (add later)</p>
+                      <div className="space-y-4">
+                        <Upload className="h-12 w-12 text-muted-foreground mx-auto" />
+                        <div>
+                          <p className="text-sm font-medium">Upload your brand logo</p>
+                          <p className="text-xs text-muted-foreground">
+                            Square PNG, JPG, or WebP — {RECOMMENDED_LOGO_PX}×
+                            {RECOMMENDED_LOGO_PX}px recommended
+                          </p>
+                        </div>
+                        <input
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp"
+                          onChange={handleFileUpload}
+                          className="hidden"
+                          id="logo-upload"
+                        />
+                        <Button variant="outline" asChild>
+                          <label htmlFor="logo-upload" className="cursor-pointer">
+                            Choose File
+                          </label>
+                        </Button>
+                      </div>
                     )}
                   </div>
-                  <div>
-                    <p className="font-medium">Phone</p>
-                    <p className="text-muted-foreground">{formData.phone}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Website</p>
-                    <p className="text-muted-foreground">{formData.website || "None (add later)"}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">App Link</p>
-                    <p className="text-muted-foreground">{formData.appLink || "None (add later)"}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium">Address</p>
-                    <p className="text-muted-foreground">{formData.address || "None (add later)"}</p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="font-medium">Description</p>
-                    <p className="text-muted-foreground">{formData.description || "None (add later)"}</p>
-                  </div>
+                  {errors.logo && (
+                    <p role="alert" className="text-xs text-destructive">{errors.logo}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Shown in your dashboard header. Optional — you can add it later
+                    from Settings.
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => handleInputChange("description", e.target.value)}
+                    placeholder="Tell us about your brand…"
+                    className="resize-none"
+                    rows={3}
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="border-t border-border" />
+
+            {/* Group 2 — where to find the brand */}
+            <div role="group" aria-labelledby="group-contact">
+              <div className="space-y-1">
+                <h4
+                  id="group-contact"
+                  className="text-base font-semibold text-foreground"
+                >
+                  Contact &amp; links
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  Where members can find and reach your brand.
+                </p>
+              </div>
+
+              <div className="mt-5 grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone *</Label>
+                  <CountryPhoneInput
+                    id="phone"
+                    value={formData.phone}
+                    onChange={(value) => handleInputChange("phone", value)}
+                    onBlur={() => handleBlur("phone")}
+                    invalid={Boolean(errors.phone && touched.phone)}
+                    describedById={describedBy("phone")}
+                  />
+                  <FieldError field="phone" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website</Label>
+                  <Input
+                    id="website"
+                    value={formData.website}
+                    onChange={(e) => handleInputChange("website", e.target.value)}
+                    onBlur={() => handleBlur("website")}
+                    placeholder="https://yourbrand.com"
+                    aria-invalid={isInvalid("website")}
+                    aria-describedby={describedBy("website")}
+                    className={errors.website && touched.website ? "border-destructive" : ""}
+                  />
+                  <FieldError field="website" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="appLink">App Link</Label>
+                  <Input
+                    id="appLink"
+                    value={formData.appLink}
+                    onChange={(e) => handleInputChange("appLink", e.target.value)}
+                    onBlur={() => handleBlur("appLink")}
+                    placeholder="https://apps.apple.com/…"
+                    aria-invalid={isInvalid("appLink")}
+                    aria-describedby={describedBy("appLink")}
+                    className={errors.appLink && touched.appLink ? "border-destructive" : ""}
+                  />
+                  <FieldError field="appLink" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange("address", e.target.value)}
+                    placeholder="Business address"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         );
+
+      case 3: {
+        const summaryRows: { label: string; value: React.ReactNode }[] = [
+          { label: "Organisation", value: formData.orgName },
+          { label: "Email", value: formData.email },
+          { label: "Brand Name", value: formData.brandName },
+          { label: "Category", value: formData.category },
+          {
+            label: "Logo",
+            value: logoPreview ? (
+              <img
+                src={logoPreview}
+                alt="Brand logo"
+                className="h-12 w-12 rounded-lg border object-cover"
+              />
+            ) : (
+              "None (add later)"
+            ),
+          },
+          { label: "Phone", value: formData.phone },
+          { label: "Website", value: formData.website || "None (add later)" },
+          { label: "App Link", value: formData.appLink || "None (add later)" },
+          { label: "Address", value: formData.address || "None (add later)" },
+          { label: "Description", value: formData.description || "None (add later)" },
+        ];
+
+        return (
+          <div className="space-y-5">
+            <div className="flex items-center gap-2">
+              <CheckCircle className="h-5 w-5 text-success" aria-hidden="true" />
+              <h4 className="text-base font-semibold text-foreground">
+                Registration summary
+              </h4>
+            </div>
+            <dl className="divide-y divide-border">
+              {summaryRows.map(({ label, value }) => (
+                <div
+                  key={label}
+                  className="flex flex-col gap-0.5 py-3 sm:flex-row sm:items-start sm:gap-4"
+                >
+                  <dt className="text-sm font-medium text-foreground sm:w-40 sm:shrink-0">
+                    {label}
+                  </dt>
+                  <dd className="min-w-0 break-words text-sm text-muted-foreground">
+                    {value}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        );
+      }
 
       default:
         return null;
@@ -563,7 +765,7 @@ const BrandRegister = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-card/50 backdrop-blur-sm">
+      <header className="border-b bg-card">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
@@ -585,11 +787,41 @@ const BrandRegister = () => {
       <div className="container mx-auto px-6 py-8 max-w-4xl">
         {/* Progress Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-6">
             <h1 className="text-3xl font-bold">Create Your Organisation</h1>
-            <span className="text-sm text-muted-foreground tabular-nums">
-              Step {currentStep} of {totalSteps}
-            </span>
+            <div className="flex items-center gap-3">
+              {isDirty && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      Start over
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Start over?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This clears everything you've entered, removes your saved
+                        draft, and returns you to step 1. This can't be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Keep editing</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleStartOver}>
+                        Start over
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+              <span className="text-sm text-muted-foreground tabular-nums">
+                Step {currentStep} of {totalSteps}
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-0">
             {stepTitles.map((title, index) => {
@@ -622,7 +854,7 @@ const BrandRegister = () => {
         </div>
 
         {/* Form Content */}
-        <Card className="border-0 bg-card/60 backdrop-blur-sm shadow-lg">
+        <Card>
           <CardHeader>
             <CardTitle className="text-xl">{stepTitles[currentStep - 1]}</CardTitle>
             <CardDescription>
@@ -646,12 +878,12 @@ const BrandRegister = () => {
           </Button>
 
           {currentStep < totalSteps ? (
-            <Button onClick={nextStep} variant="gradient">
+            <Button onClick={nextStep}>
               Next
               <ArrowRight className="h-4 w-4 ml-2" />
             </Button>
           ) : (
-            <Button onClick={handleSubmit} variant="gradient" disabled={isSubmitting}>
+            <Button onClick={handleSubmit} disabled={isSubmitting}>
               {isSubmitting ? "Creating…" : "Create Organisation"}
             </Button>
           )}

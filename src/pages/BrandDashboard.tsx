@@ -674,6 +674,14 @@ const BrandDashboard = () => {
                 loading={overviewLoading}
                 error={overviewError}
                 brandColor={brandColor}
+                campaigns={campaigns}
+                deals={deals}
+                campaignsUnavailable={campaignsError}
+                dealsUnavailable={dealsError}
+                period={{
+                  from: dateRange?.from ?? null,
+                  to: dateRange?.to ?? null,
+                }}
               />
             </TabsContent>
 

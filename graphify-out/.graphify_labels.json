@@ -166,5 +166,10 @@
   "164": "hasPermission",
   "165": "README.md",
   "166": "ModuleNotSubscribedError",
-  "167": "client.ts"
+  "167": "scroll-area.tsx",
+  "168": "slider.tsx",
+  "169": "switch.tsx",
+  "170": "client.ts",
+  "171": "InsufficientPermissionError",
+  "172": "client.ts"
 }

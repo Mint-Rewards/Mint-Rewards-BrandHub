@@ -15,8 +15,8 @@
     "semantic_hash": "fa856d82dc4f1ea9c445c40556450228"
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1784542586.5908012,
-    "ast_hash": "42233b4c3485c4ead74a6d43713e326b",
+    "mtime": 1784564199.4407501,
+    "ast_hash": "3ce16e4be5cb04008842975b18afa91b",
     "semantic_hash": ""
   },
   ".impeccable/live/config.json": {
@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/actions/brandActions.ts": {
-    "mtime": 1784147281.3397338,
-    "ast_hash": "d6616371cf685cb0e6deabcc4347a46c",
+    "mtime": 1784549841.6780457,
+    "ast_hash": "e097679e569b7ff0866f37cca7ed8457",
     "semantic_hash": ""
   },
   "src/components/AdminProtectedRoute.tsx": {
@@ -105,8 +105,8 @@
     "semantic_hash": ""
   },
   "src/components/CreateDealForm.tsx": {
-    "mtime": 1784147281.3404598,
-    "ast_hash": "75aa4b5beaa6c2b05d45fb2a1fe7ab22",
+    "mtime": 1784553645.9501088,
+    "ast_hash": "29f00b21c70f2da0c865c4f842c29f98",
     "semantic_hash": ""
   },
   "src/components/DealsTab.tsx": {
@@ -115,13 +115,13 @@
     "semantic_hash": ""
   },
   "src/components/OverviewTab.tsx": {
-    "mtime": 1784147281.3416672,
-    "ast_hash": "aa5e57c8b637e1d24dc40cdeabdc6bd4",
+    "mtime": 1784564192.5147033,
+    "ast_hash": "50851e3028c3bfac93daa20b76099905",
     "semantic_hash": ""
   },
   "src/components/SettingsTab.tsx": {
-    "mtime": 1784126454.558745,
-    "ast_hash": "945b06584f8a6fd56ccd3f35b66717d0",
+    "mtime": 1784563762.8623285,
+    "ast_hash": "d660a9591ecdf8baa24b35c9c399f539",
     "semantic_hash": ""
   },
   "src/components/SiteHeader.tsx": {
@@ -430,8 +430,8 @@
     "semantic_hash": "09bd36c7dbd9b2c11bfbe4c97ff3ac51"
   },
   "src/pages/AdminDashboard.tsx": {
-    "mtime": 1784542586.535209,
-    "ast_hash": "30d17db1559eda3f0b4738cfdba48895",
+    "mtime": 1784553821.7571206,
+    "ast_hash": "3a3edca54045283984b5ee054818db10",
     "semantic_hash": ""
   },
   "src/pages/AdminLogin.tsx": {
@@ -440,13 +440,13 @@
     "semantic_hash": "25e4fe412f6c0248c1183feb4454ea60"
   },
   "src/pages/BrandDashboard.tsx": {
-    "mtime": 1784147281.3445294,
-    "ast_hash": "4915e52bea45dae4356adc946ab72e08",
+    "mtime": 1784564199.3912861,
+    "ast_hash": "b6b35543d71c08dbd056cf2b012e407f",
     "semantic_hash": ""
   },
   "src/pages/BrandRegister.tsx": {
-    "mtime": 1784147281.3449128,
-    "ast_hash": "3ea51cfcaaa05817420c9ce017468c6e",
+    "mtime": 1784562962.284758,
+    "ast_hash": "45fe611ff45965b16f1fb77a20b0c06c",
     "semantic_hash": ""
   },
   "src/pages/DemoPage.tsx": {
@@ -460,8 +460,8 @@
     "semantic_hash": "f96fc2f9c0f9cc0d2dbc00a961e044f7"
   },
   "src/pages/Index.tsx": {
-    "mtime": 1784126454.559664,
-    "ast_hash": "ac9357693c58920643869482fb28e604",
+    "mtime": 1784551996.755125,
+    "ast_hash": "f5eeef8fb11ddb3d497d113b3e3aa22f",
     "semantic_hash": ""
   },
   "src/pages/NotFound.tsx": {
@@ -515,8 +515,8 @@
     "semantic_hash": "f8861384f420982162988fce48a8692b"
   },
   ".claude/CLAUDE.md": {
-    "mtime": 1784136092.5865152,
-    "ast_hash": "c94c7776bc8a0d7d092c87b28a0954f5",
+    "mtime": 1784551445.9383519,
+    "ast_hash": "aec0875dda4268302790aa7e8ee3ce5a",
     "semantic_hash": ""
   },
   ".claude/skills/graphify/SKILL.md": {
@@ -740,8 +740,8 @@
     "semantic_hash": ""
   },
   "src/components/CountryPhoneInput.tsx": {
-    "mtime": 1784126454.5574722,
-    "ast_hash": "6648f871a889323712853124b689056f",
+    "mtime": 1784553030.9833326,
+    "ast_hash": "3466d67e34439e8d6d18c8c6f4468b1f",
     "semantic_hash": ""
   },
   "src/components/DealCodesInput.tsx": {
@@ -760,8 +760,8 @@
     "semantic_hash": ""
   },
   "src/components/PromotionsTab.tsx": {
-    "mtime": 1784126454.5585926,
-    "ast_hash": "01bf8a99fad1d40a61ff7e3b4799578d",
+    "mtime": 1784553974.9569077,
+    "ast_hash": "f0077a4d2b0fdfb39a52a9a886f4b09b",
     "semantic_hash": ""
   },
   "src/lib/dealCodes.ts": {
@@ -777,6 +777,36 @@
   "src/lib/dateRangeFilter.ts": {
     "mtime": 1784147281.3427722,
     "ast_hash": "0a6c051f1394388e2b548651ff3d6d51",
+    "semantic_hash": ""
+  },
+  "src/lib/logoUpload.ts": {
+    "mtime": 1784549725.1540625,
+    "ast_hash": "817e22e7466588670e3147597d3eecd5",
+    "semantic_hash": ""
+  },
+  ".claude/agents/code-improver.md": {
+    "mtime": 1784551112.8201828,
+    "ast_hash": "2db26925a140046f9f04437085d5f726",
+    "semantic_hash": ""
+  },
+  ".claude/agents/deep-reasoner.md": {
+    "mtime": 1784551112.8206966,
+    "ast_hash": "03930ef60a5ee008c881f1713ef95a50",
+    "semantic_hash": ""
+  },
+  ".claude/agents/fast-worker.md": {
+    "mtime": 1784551112.8213494,
+    "ast_hash": "acc18c9fee21730562388e1de530ce0b",
+    "semantic_hash": ""
+  },
+  ".impeccable/critique/2026-07-20T12-32-51Z__src-pages-brandregister-tsx.md": {
+    "mtime": 1784550771.6089137,
+    "ast_hash": "0e00dbe1e0cdc4965653c53485bdd0dd",
+    "semantic_hash": ""
+  },
+  ".impeccable/critique/2026-07-20T13-02-14Z__src-pages-brandregister-tsx.md": {
+    "mtime": 1784552534.769926,
+    "ast_hash": "2465f9786e4ed1b3297632c254f2e80a",
     "semantic_hash": ""
   }
 }

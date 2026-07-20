@@ -10,6 +10,7 @@ interface CountryPhoneInputProps {
   onBlur?: () => void;
   disabled?: boolean;
   invalid?: boolean;
+  describedById?: string;
 }
 
 export function CountryPhoneInput({
@@ -19,6 +20,7 @@ export function CountryPhoneInput({
   onBlur,
   disabled,
   invalid,
+  describedById,
 }: CountryPhoneInputProps) {
   return (
     <PhoneInput
@@ -33,7 +35,13 @@ export function CountryPhoneInput({
       inputClass={cn("country-phone-input__field", invalid && "country-phone-input__field--invalid")}
       buttonClass="country-phone-input__button"
       dropdownClass="country-phone-input__dropdown"
-      inputProps={{ id, name: id, autoComplete: "tel" }}
+      inputProps={{
+        id,
+        name: id,
+        autoComplete: "tel",
+        "aria-invalid": invalid || undefined,
+        "aria-describedby": describedById,
+      }}
     />
   );
 }

@@ -43,9 +43,9 @@ const settingsSchema = z.object({
     .refine((value) => !value || isValidPhone(value) === null, "Enter a valid international phone number")
     .optional(),
   webLink: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
-  appLink: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+  appLink: z.string().optional(),
   description: z.string().optional(),
-  address: z.string().optional(),
+  address: z.string().min(1, "Address is required"),
   themeColor: z
     .string()
     .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Use a valid hex colour")

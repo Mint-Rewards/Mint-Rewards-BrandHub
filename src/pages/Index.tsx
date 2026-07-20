@@ -55,7 +55,7 @@ const Index = () => {
             <Button variant="secondary" onClick={() => navigate('/brand/login')}>
               Brand Login
             </Button>
-            <Button variant="gradient" onClick={() => navigate('/register')}>
+            <Button onClick={() => navigate('/register')}>
               Get Started
             </Button>
           </>
@@ -78,7 +78,7 @@ const Index = () => {
             application, you're live.
           </p>
           <div className="flex flex-col items-center gap-4">
-            <Button size="lg" variant="gradient" onClick={() => navigate('/register')}>
+            <Button size="lg" onClick={() => navigate('/register')}>
               Register Your Brand
               <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
             </Button>
@@ -181,7 +181,7 @@ const Index = () => {
             Submit your brand registration and our team will review your application
             within 2–3 business days.
           </p>
-          <Button size="lg" variant="gradient" onClick={() => navigate('/register')}>
+          <Button size="lg" onClick={() => navigate('/register')}>
             Register Your Brand
             <ArrowRight className="ml-2 h-4 w-4" aria-hidden="true" />
           </Button>

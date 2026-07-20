@@ -1,4 +1,5 @@
 import type { BrandAnalytics } from "@/actions/brandActions";
+import type { Campaign, Deal } from "@/types";
 import {
   AlertCircle,
   Award,
@@ -82,6 +83,36 @@ const CAMPAIGN_STATUS_STYLES: Record<string, { label: string; className: string 
 const formatKg = (kg: number) =>
   kg >= 1000 ? `${(kg / 1000).toFixed(1)}K kg` : `${kg.toLocaleString()} kg`;
 
+// --- Point-in-time count helpers (see the derivation note inside OverviewTab) ---
+
+// Parse an ISO date to epoch ms, falling back for missing/invalid values.
+const toMs = (value: string | null | undefined, fallback: number): number => {
+  if (!value) return fallback;
+  const ms = new Date(value).getTime();
+  return Number.isNaN(ms) ? fallback : ms;
+};
+
+// A record belongs to the selected period when its [startDate, endDate] window
+// overlaps [from, to]. Missing edges are treated as open-ended.
+const overlapsPeriod = (
+  startDate: string | null | undefined,
+  endDate: string | null | undefined,
+  from: number | null,
+  to: number | null,
+): boolean =>
+  toMs(startDate, -Infinity) <= (to ?? Infinity) &&
+  toMs(endDate, Infinity) >= (from ?? -Infinity);
+
+// An "active" campaign is APPROVED and live in its own date window today.
+const isCampaignLiveNow = (campaign: Campaign): boolean => {
+  if (String(campaign.status ?? "").toUpperCase() !== "APPROVED") return false;
+  const now = Date.now();
+  return (
+    now >= toMs(campaign.startDate, -Infinity) &&
+    now <= toMs(campaign.endDate, Infinity)
+  );
+};
+
 const OverviewSkeleton = () => (
   <div className="space-y-6">
     <div className="grid grid-cols-2 md:grid-cols-4 gap-px border border-border rounded-lg overflow-hidden">
@@ -108,7 +139,23 @@ const OverviewTab: React.FC<{
   loading?: boolean;
   error?: string | null;
   brandColor?: string;
-}> = ({ analytics, loading, error, brandColor = "#008081" }) => {
+  // The real campaign/deal lists (source of truth for point-in-time counts).
+  campaigns?: Campaign[];
+  deals?: Deal[];
+  campaignsUnavailable?: boolean;
+  dealsUnavailable?: boolean;
+  period?: { from: Date | null; to: Date | null };
+}> = ({
+  analytics,
+  loading,
+  error,
+  brandColor = "#008081",
+  campaigns,
+  deals,
+  campaignsUnavailable = false,
+  dealsUnavailable = false,
+  period,
+}) => {
   if (loading) return <OverviewSkeleton />;
 
   if (error || !analytics) {
@@ -125,7 +172,7 @@ const OverviewTab: React.FC<{
     );
   }
 
-  const { summary, campaigns, dealStats } = analytics;
+  const { summary } = analytics;
   // The backend omits `environmental` for brands with no environmentalStats;
   // default to zeros so a fresh brand renders instead of crashing.
   const environmental = analytics.environmental ?? {
@@ -134,9 +181,89 @@ const OverviewTab: React.FC<{
     materialBreakdown: [],
   };
 
+  // Point-in-time counts (active/total campaigns, deal buckets, status split)
+  // are derived from the real campaign/deal lists — the same source the
+  // Promotions tab manages — scoped to the selected period by date-window
+  // overlap. The period-aggregated analytics summary measures activity *within*
+  // the window, so its counts drift from what is actually live; we fall back to
+  // it only when a list failed to load. Redemptions and unique users remain
+  // genuine period analytics.
+  const periodFrom = period?.from ? period.from.getTime() : null;
+  const periodTo = period?.to ? period.to.getTime() : null;
+
+  const campaignsReady = Boolean(campaigns) && !campaignsUnavailable;
+  const dealsReady = Boolean(deals) && !dealsUnavailable;
+
+  const campaignsInPeriod =
+    campaigns && !campaignsUnavailable
+      ? campaigns.filter((c) =>
+          overlapsPeriod(c.startDate, c.endDate, periodFrom, periodTo),
+        )
+      : [];
+  const dealsInPeriod =
+    deals && !dealsUnavailable
+      ? deals.filter((d) =>
+          overlapsPeriod(d.startDate, d.endDate, periodFrom, periodTo),
+        )
+      : [];
+
+  const activeCampaigns = campaignsReady
+    ? campaignsInPeriod.filter(isCampaignLiveNow).length
+    : summary.activeCampaigns;
+  const totalCampaigns = campaignsReady
+    ? campaignsInPeriod.length
+    : summary.totalCampaigns;
+
+  const dealCounts = dealsReady
+    ? {
+        total: dealsInPeriod.length,
+        active: dealsInPeriod.filter(
+          (d) => (d.status ?? "").toLowerCase() === "active",
+        ).length,
+        inactive: dealsInPeriod.filter(
+          (d) => (d.status ?? "").toLowerCase() === "inactive",
+        ).length,
+        expired: dealsInPeriod.filter(
+          (d) => (d.status ?? "").toLowerCase() === "expired",
+        ).length,
+      }
+    : analytics.dealStats;
+
+  const campaignByStatus: Record<string, number> = campaignsReady
+    ? campaignsInPeriod.reduce<Record<string, number>>((acc, c) => {
+        const key = String(c.status ?? "").toUpperCase();
+        if (key) acc[key] = (acc[key] ?? 0) + 1;
+        return acc;
+      }, {})
+    : analytics.campaigns.byStatus;
+
+  // Per-campaign redemptions are genuine period analytics; join them onto the
+  // real campaign list by id so the performance list stays accurate.
+  const redemptionsById = new Map(
+    (analytics.campaigns.list ?? []).map((c) => [c.id, c.redemptions]),
+  );
+  const campaignList: {
+    id: string;
+    name: string;
+    status: string;
+    redemptions: number;
+  }[] = campaignsReady
+    ? campaignsInPeriod.map((c) => ({
+        id: c.id,
+        name: c.name ?? "Untitled campaign",
+        status: String(c.status ?? "").toUpperCase(),
+        redemptions: redemptionsById.get(c.id) ?? 0,
+      }))
+    : (analytics.campaigns.list ?? []).map((c) => ({
+        id: c.id,
+        name: c.name,
+        status: c.status,
+        redemptions: c.redemptions,
+      }));
+
   const hasAnyData =
-    summary.totalCampaigns > 0 ||
-    dealStats.total > 0 ||
+    totalCampaigns > 0 ||
+    dealCounts.total > 0 ||
     (environmental?.totalWasteKg ?? 0) > 0;
 
   const breakdown = (environmental?.materialBreakdown ?? []).map((item, index) => ({
@@ -191,7 +318,7 @@ const OverviewTab: React.FC<{
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground">Active Campaigns</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{summary.activeCampaigns}</p>
+          <p className="text-2xl font-bold text-foreground">{activeCampaigns}</p>
         </div>
         <div className="p-4">
           <div className="flex items-center gap-2 mb-1">
@@ -218,7 +345,7 @@ const OverviewTab: React.FC<{
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
             <span className="text-xs font-medium text-muted-foreground">Total Campaigns</span>
           </div>
-          <p className="text-2xl font-bold text-foreground">{summary.totalCampaigns}</p>
+          <p className="text-2xl font-bold text-foreground">{totalCampaigns}</p>
         </div>
       </div>
       </div>
@@ -494,7 +621,7 @@ const OverviewTab: React.FC<{
                         status === "EXPIRED" ? "text-muted-foreground" : "text-foreground"
                       }`}
                     >
-                      {campaigns.byStatus[status] ?? 0}
+                      {campaignByStatus[status] ?? 0}
                     </p>
                     <span
                       className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${CAMPAIGN_STATUS_STYLES[status].className}`}
@@ -506,8 +633,8 @@ const OverviewTab: React.FC<{
               </div>
 
               <div className="space-y-3">
-                {campaigns.list.length > 0 ? (
-                  campaigns.list.slice(0, 5).map((campaign) => {
+                {campaignList.length > 0 ? (
+                  campaignList.slice(0, 5).map((campaign) => {
                     const style =
                       CAMPAIGN_STATUS_STYLES[campaign.status] ?? CAMPAIGN_STATUS_STYLES.EXPIRED;
                     return (
@@ -562,19 +689,19 @@ const OverviewTab: React.FC<{
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
                 <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-foreground">{dealStats.total}</p>
+                  <p className="text-2xl font-bold text-foreground">{dealCounts.total}</p>
                   <p className="text-sm text-muted-foreground mt-1">Total Deals</p>
                 </div>
                 <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-success">{dealStats.active}</p>
+                  <p className="text-2xl font-bold text-success">{dealCounts.active}</p>
                   <p className="text-sm text-muted-foreground mt-1">Active</p>
                 </div>
                 <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-foreground">{dealStats.inactive}</p>
+                  <p className="text-2xl font-bold text-foreground">{dealCounts.inactive}</p>
                   <p className="text-sm text-muted-foreground mt-1">Inactive</p>
                 </div>
                 <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-muted-foreground">{dealStats.expired}</p>
+                  <p className="text-2xl font-bold text-muted-foreground">{dealCounts.expired}</p>
                   <p className="text-sm text-muted-foreground mt-1">Expired</p>
                 </div>
               </div>
