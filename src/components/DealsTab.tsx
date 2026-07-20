@@ -43,7 +43,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
 import { overlapsRange } from "@/lib/dateRangeFilter";
-import { toMs } from "@/lib/metrics";
+import { effectiveDealStatus, toMs } from "@/lib/metrics";
 
 // Pending first (needs attention), then Active (the approved equivalent for
 // deals), then Rejected; anything else (Inactive/Expired) sinks to the bottom.
@@ -120,12 +120,15 @@ const DealsTab: React.FC<{
       deals
         .filter(
           (d) =>
-            (statusFilter === "all" || (d.status ?? "inactive").toLowerCase() === statusFilter) &&
+            (statusFilter === "all" ||
+              (effectiveDealStatus(d) || "inactive") === statusFilter) &&
             overlapsRange(d, dateRange),
         )
         .sort((a, b) => {
-          const rankA = STATUS_SORT_RANK[(a.status ?? "").toLowerCase()] ?? 3;
-          const rankB = STATUS_SORT_RANK[(b.status ?? "").toLowerCase()] ?? 3;
+          // `expired` is absent from the rank map, so expired deals sink to the
+          // bottom alongside anything else unranked.
+          const rankA = STATUS_SORT_RANK[effectiveDealStatus(a)] ?? 3;
+          const rankB = STATUS_SORT_RANK[effectiveDealStatus(b)] ?? 3;
           if (rankA !== rankB) return rankA - rankB;
           return toMs(b.startDate, -Infinity) - toMs(a.startDate, -Infinity);
         }),
@@ -315,7 +318,8 @@ const DealsTab: React.FC<{
             filteredDeals.length > 0 ? (
             <div className="divide-y divide-border">
               {filteredDeals.map((deal) => {
-                const statusKey = (deal.status ?? "inactive").toLowerCase() as keyof typeof STATUS_CONFIG;
+                const statusKey = (effectiveDealStatus(deal) ||
+                  "inactive") as keyof typeof STATUS_CONFIG;
                 const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.inactive;
                 const isBusy = busyId === deal.id;
 

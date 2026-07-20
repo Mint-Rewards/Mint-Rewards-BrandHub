@@ -34,7 +34,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
 import { overlapsRange } from "@/lib/dateRangeFilter";
-import { toMs } from "@/lib/metrics";
+import { effectiveCampaignStatus, toMs } from "@/lib/metrics";
 
 const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   PENDING:  { label: "Pending",  className: "bg-warning/10 text-warning border-warning/20" },
@@ -88,12 +88,15 @@ const CampaignsTab: React.FC<{
       campaigns
         .filter(
           (c) =>
-            (statusFilter === "all" || c.status?.toUpperCase() === statusFilter) &&
+            (statusFilter === "all" ||
+              effectiveCampaignStatus(c) === statusFilter) &&
             overlapsRange(c, dateRange),
         )
         .sort((a, b) => {
-          const rankA = STATUS_SORT_RANK[a.status?.toUpperCase() ?? ""] ?? 3;
-          const rankB = STATUS_SORT_RANK[b.status?.toUpperCase() ?? ""] ?? 3;
+          // EXPIRED is absent from the rank map, so expired campaigns sink to
+          // the bottom alongside anything else unranked.
+          const rankA = STATUS_SORT_RANK[effectiveCampaignStatus(a)] ?? 3;
+          const rankB = STATUS_SORT_RANK[effectiveCampaignStatus(b)] ?? 3;
           if (rankA !== rankB) return rankA - rankB;
           return toMs(b.startDate, -Infinity) - toMs(a.startDate, -Infinity);
         }),
@@ -171,7 +174,7 @@ const CampaignsTab: React.FC<{
             filteredCampaigns.length > 0 ? (
             <div className="divide-y divide-border">
               {filteredCampaigns.map((campaign) => {
-                const config = statusConfig(campaign.status);
+                const config = statusConfig(effectiveCampaignStatus(campaign));
                 const isBusy = busyId === campaign.id;
 
                 return (

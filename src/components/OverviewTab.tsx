@@ -4,7 +4,7 @@ import { AlertCircle, BarChart3, Recycle, TrendingUp, Users } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "./ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isCampaignLiveNow } from "@/lib/metrics";
+import { effectiveDealStatus, isCampaignLiveNow } from "@/lib/metrics";
 import OverviewLifecycle from "./OverviewLifecycle";
 import OverviewPortfolioMix from "./OverviewPortfolioMix";
 import OverviewAttention from "./OverviewAttention";
@@ -151,7 +151,9 @@ const OverviewTab: React.FC<{
     : summary.activeCampaigns;
   const totalCampaigns = campaignsReady ? campaigns!.length : summary.totalCampaigns;
 
-  const activeDeals = dealsReady ? deals!.filter((d) => d.status === "active").length : 0;
+  const activeDeals = dealsReady
+    ? deals!.filter((d) => effectiveDealStatus(d) === "active").length
+    : 0;
   const totalDeals = dealsReady ? deals!.length : analytics.dealStats.total;
 
   const redemptionsPerUser =

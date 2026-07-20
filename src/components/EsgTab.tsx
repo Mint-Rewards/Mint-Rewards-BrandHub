@@ -33,7 +33,12 @@ import {
   YAxis,
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
-import { isCampaignLiveNow, toMs } from "@/lib/metrics";
+import {
+  effectiveCampaignStatus,
+  effectiveDealStatus,
+  isCampaignLiveNow,
+  toMs,
+} from "@/lib/metrics";
 import { dealStatusConfig } from "@/lib/dealStatus";
 
 // Append two-digit hex alpha to a hex color string for opacity variants
@@ -195,7 +200,7 @@ const EsgTab: React.FC<{
   // period-scoped totals instead, per this tab's headline/breakdown split.
   const totalDeals = dealsReady ? deals!.length : analytics.dealStats.total;
   const activeDeals = dealsReady
-    ? deals!.filter((d) => (d.status ?? "").toLowerCase() === "active").length
+    ? deals!.filter((d) => effectiveDealStatus(d) === "active").length
     : analytics.dealStats.active;
 
   // The backend omits `environmental` for brands with no environmentalStats;
@@ -345,7 +350,7 @@ const EsgTab: React.FC<{
 
   const campaignByStatus: Record<string, number> = campaignsReady
     ? campaignsInScope.reduce<Record<string, number>>((acc, c) => {
-        const key = String(c.status ?? "").toUpperCase();
+        const key = effectiveCampaignStatus(c);
         if (key) acc[key] = (acc[key] ?? 0) + 1;
         return acc;
       }, {})
@@ -380,7 +385,7 @@ const EsgTab: React.FC<{
   // Deals also carry pending/rejected statuses, so the three named buckets
   // don't account for the total on their own — everything else lands in
   // `other` and Total always reconciles with the parts.
-  const dealStatusOf = (deal: Deal) => (deal.status ?? "").toLowerCase();
+  const dealStatusOf = (deal: Deal) => effectiveDealStatus(deal);
   const dealCounts = dealsReady
     ? {
         total: dealsInScope.length,
@@ -700,7 +705,8 @@ const EsgTab: React.FC<{
                 {campaignList.length > 0 ? (
                   campaignList.slice(0, 5).map((campaign) => {
                     const style =
-                      CAMPAIGN_STATUS_STYLES[campaign.status] ?? CAMPAIGN_STATUS_STYLES.EXPIRED;
+                      CAMPAIGN_STATUS_STYLES[effectiveCampaignStatus(campaign)] ??
+                      CAMPAIGN_STATUS_STYLES.EXPIRED;
                     return (
                       <div
                         key={campaign.id}
@@ -798,7 +804,7 @@ const EsgTab: React.FC<{
                 <div className="space-y-3 mt-6">
                   {dealsInScope.length > 0 ? (
                     dealsInScope.slice(0, 5).map((deal) => {
-                      const config = dealStatusConfig(deal.status);
+                      const config = dealStatusConfig(effectiveDealStatus(deal));
                       const codeCount = deal.codeCount ?? deal.codes?.length ?? 0;
                       const meta = [
                         deal.discountPercentage != null ? `${deal.discountPercentage}% off` : null,

@@ -47,6 +47,28 @@ export interface DatedRecord {
   endDate?: string | null;
 }
 
+// Statuses that a closed date window is allowed to override. A rejected,
+// pending or draft record keeps its own status forever: "never approved" and
+// "ran its course" are different facts, and collapsing them would hide a
+// moderation backlog behind a muted Expired chip.
+const EXPIRABLE_STATUSES = new Set(["approved", "active", "inactive"]);
+
+// True for a record whose end date has passed while its stored status still
+// claims otherwise. The backend flips these itself eventually; until it does,
+// the UI must not show a green Active badge on a deal that ended last week.
+export const hasExpired = (record: DatedRecord): boolean =>
+  EXPIRABLE_STATUSES.has(String(record.status ?? "").toLowerCase()) &&
+  endBoundaryMs(record.endDate, Infinity) < Date.now();
+
+// The status a record should be *presented* as. Campaign statuses are
+// UPPERCASE across the API and deal statuses lowercase, and every call site
+// already compares in its own casing — hence one rule, two wrappers.
+export const effectiveCampaignStatus = (record: DatedRecord): string =>
+  hasExpired(record) ? "EXPIRED" : String(record.status ?? "").toUpperCase();
+
+export const effectiveDealStatus = (record: DatedRecord): string =>
+  hasExpired(record) ? "expired" : String(record.status ?? "").toLowerCase();
+
 export type LifecycleBucket =
   | "awaiting"
   | "draft"
