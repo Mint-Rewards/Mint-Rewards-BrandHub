@@ -56,7 +56,6 @@ const editDealSchema = z.object({
   discountAmount: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  maxUses: z.string().optional(),
   minimumPurchase: z.string().optional(),
 });
 
@@ -142,7 +141,6 @@ const DealsTab: React.FC<{
       discountAmount: deal.discountAmount?.toString() ?? "",
       startDate: deal.startDate ?? "",
       endDate: deal.endDate ?? "",
-      maxUses: deal.maxUses?.toString() ?? "",
       minimumPurchase: deal.minimumPurchase?.toString() ?? "",
     });
     setExistingCodesOpen(false);
@@ -158,26 +156,37 @@ const DealsTab: React.FC<{
     // "Add more codes" is optional — only include addCodes when the section is
     // open and has input; validation errors block the save so nothing is lost.
     let addCodes: string[] | { count: number; prefix?: string } | undefined;
+    let addedCodesCount = 0;
     if (addCodesOpen && (addCodesValue.rawCodes.trim() || addCodesValue.mode === "generate")) {
       const resolved = resolveDealCodes(addCodesValue);
       if ("error" in resolved) {
         setAddCodesError(resolved.error);
         return;
       }
-      addCodes = "codes" in resolved ? resolved.codes : resolved.generateCodes;
+      if ("codes" in resolved) {
+        addCodes = resolved.codes;
+        addedCodesCount = resolved.codes.length;
+      } else {
+        addCodes = resolved.generateCodes;
+        addedCodesCount = resolved.generateCodes.count;
+      }
     }
     setAddCodesError(null);
     setBusyId(editingDeal.id);
     try {
+      // Maximum uses always equals the total number of codes on the deal —
+      // only recompute it when the code inventory actually changes.
+      const existingCodeCount = editingDeal.codeCount ?? editingDeal.codes?.length ?? 0;
       await updateBrandDeal(brandId, editingDeal.id, {
         title: data.title,
         description: data.description || undefined,
         discountPercentage: data.discountPercentage ? parseFloat(data.discountPercentage) : null,
         discountAmount: data.discountAmount ? parseFloat(data.discountAmount) : null,
-        ...(addCodes !== undefined ? { addCodes } : {}),
+        ...(addCodes !== undefined
+          ? { addCodes, maxUses: existingCodeCount + addedCodesCount }
+          : {}),
         startDate: data.startDate || null,
         endDate: data.endDate || null,
-        maxUses: data.maxUses ? parseInt(data.maxUses) : null,
         minimumPurchase: data.minimumPurchase ? parseFloat(data.minimumPurchase) : null,
       });
       if (editingDeal.status?.toLowerCase() === "active") {
@@ -497,17 +506,6 @@ const DealsTab: React.FC<{
                 />
                 <FormField
                   control={editForm.control}
-                  name="maxUses"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max Uses</FormLabel>
-                      <FormControl><Input type="number" placeholder="100" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
@@ -546,12 +544,17 @@ const DealsTab: React.FC<{
               {/* Existing codes are immutable — the backend only appends. */}
               <div className="rounded-md border p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">
-                    Promo codes
-                    <span className="text-muted-foreground font-normal">
-                      {" "}— {editingDeal?.codes?.length ?? editingDeal?.codeCount ?? 0} on this deal
-                    </span>
-                  </p>
+                  <div>
+                    <p className="text-sm font-medium">
+                      Promo codes
+                      <span className="text-muted-foreground font-normal">
+                        {" "}— {editingDeal?.codes?.length ?? editingDeal?.codeCount ?? 0} on this deal
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Maximum uses matches the code count — one redemption per code.
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2">
                     {(editingDeal?.codes?.length ?? 0) > 0 && (
                       <>

@@ -1,6 +1,6 @@
 // Client-side mirror of the backend's deal-code rules (4–32 chars, A-Z 0-9 - _
-// after trim/uppercase/dedupe, max 500 per deal). The backend remains
-// authoritative — its 400 messages are surfaced verbatim in the forms.
+// after trim/uppercase, unique per deal, max 500 per deal). The backend
+// remains authoritative — its 400 messages are surfaced verbatim in the forms.
 
 export const MAX_CODES = 500;
 export const MAX_PREFIX_LENGTH = 10;
@@ -9,12 +9,14 @@ export const CODE_PATTERN = /^[A-Z0-9\-_]{4,32}$/;
 export interface ParsedCodes {
   codes: string[];
   rejected: { line: string; reason: string }[];
+  duplicateCount: number;
 }
 
 export const parseCodesInput = (raw: string): ParsedCodes => {
   const seen = new Set<string>();
   const codes: string[] = [];
   const rejected: { line: string; reason: string }[] = [];
+  let duplicateCount = 0;
 
   for (const piece of raw.split(/[\n,]+/)) {
     const line = piece.trim();
@@ -25,14 +27,19 @@ export const parseCodesInput = (raw: string): ParsedCodes => {
     } else if (!CODE_PATTERN.test(code)) {
       rejected.push({ line, reason: "only letters, numbers, - and _ allowed" });
     } else if (seen.has(code)) {
-      // duplicates are silently collapsed, same as the backend
+      // Flag duplicates explicitly rather than silently collapsing them —
+      // maxUses is derived from this count, so a quiet drop would leave the
+      // brand thinking they issued more unique codes than they actually did.
+      // Counted rather than listed line-by-line: a summary is more useful
+      // than a long repeat of codes the user can already see above.
+      duplicateCount += 1;
     } else {
       seen.add(code);
       codes.push(code);
     }
   }
 
-  return { codes, rejected };
+  return { codes, rejected, duplicateCount };
 };
 
 export const isValidPrefix = (prefix: string): boolean =>

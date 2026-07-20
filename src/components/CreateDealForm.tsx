@@ -55,10 +55,6 @@ const dealSchema = z.object({
   //   .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
   startDate: z.date({ required_error: "Start date is required" }),
   endDate: z.date({ required_error: "End date is required" }),
-  maxUses: z
-    .string()
-    .min(1, "Maximum uses is required")
-    .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, "Enter a whole number greater than 0"),
   minimumPurchase: z
     .string()
     .min(1, "Minimum purchase is required")
@@ -89,7 +85,6 @@ export function CreateDealForm({
       description: "",
       discountPercentage: "",
       // discountAmount: "",
-      maxUses: "",
       minimumPurchase: "",
     },
   });
@@ -103,6 +98,9 @@ export function CreateDealForm({
     setCodesError(null);
     setIsSubmitting(true);
     try {
+      // Maximum uses always equals the number of codes on the deal — one
+      // redemption per unique code — so it's derived here, not user-entered.
+      const maxUses = "codes" in resolved ? resolved.codes.length : resolved.generateCodes.count;
       await createDeal(brandId, {
         ...resolved,
         title: data.title,
@@ -111,7 +109,7 @@ export function CreateDealForm({
         // discountAmount: parseFloat(data.discountAmount),
         startDate: format(data.startDate, "yyyy-MM-dd"),
         endDate: format(data.endDate, "yyyy-MM-dd"),
-        maxUses: parseInt(data.maxUses),
+        maxUses,
         minimumPurchase: parseFloat(data.minimumPurchase),
       });
 
@@ -162,6 +160,9 @@ export function CreateDealForm({
         <div className="space-y-2">
           <FormLabel>Promo Codes</FormLabel>
           <DealCodesInput idPrefix="create-deal" value={codesValue} onChange={setCodesValue} />
+          <p className="text-xs text-muted-foreground">
+            Each code is redeemable once, by one user.
+          </p>
           {codesError && <p className="text-sm font-medium text-destructive">{codesError}</p>}
         </div>
 
@@ -302,35 +303,19 @@ export function CreateDealForm({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="maxUses"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maximum Uses *</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="100" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="minimumPurchase"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Minimum Purchase (PKR) *</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="50.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="minimumPurchase"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Minimum Purchase (PKR) *</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="50.00" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end space-x-3">
           <Button type="button" variant="outline" onClick={onCancel}>
