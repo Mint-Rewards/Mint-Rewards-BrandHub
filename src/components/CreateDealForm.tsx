@@ -38,7 +38,7 @@ import {
   resolveDealCodes,
   type DealCodesValue,
 } from "@/components/DealCodesInput";
-import { isValidDateRange, startOfDay, today } from "@/lib/validators";
+import { isValidDateRange, startOfDay } from "@/lib/validators";
 
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -305,9 +305,7 @@ export function CreateDealForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) =>
-                        date < today() || (!!startDay && date <= startDay)
-                      }
+                      disabled={(date) => !!startDay && date <= startDay}
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
