@@ -71,7 +71,7 @@ const BrandRegister = () => {
       case "brandName":
         return minLength(value, 2, "Brand name") ?? "";
       case "phone":
-        return value ? isValidPhone(value) ?? "" : "";
+        return !value ? "Phone number is required" : (isValidPhone(value) ?? "");
       case "website":
       case "appLink":
         return value ? isValidUrl(value) ?? "" : "";
@@ -403,7 +403,7 @@ const BrandRegister = () => {
 
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
+                <Label htmlFor="phone">Phone *</Label>
                 <CountryPhoneInput
                   id="phone"
                   value={formData.phone}
@@ -500,7 +500,7 @@ const BrandRegister = () => {
                   </div>
                   <div>
                     <p className="font-medium">Phone</p>
-                    <p className="text-muted-foreground">{formData.phone || "None (add later)"}</p>
+                    <p className="text-muted-foreground">{formData.phone}</p>
                   </div>
                   <div>
                     <p className="font-medium">Website</p>

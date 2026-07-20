@@ -142,6 +142,14 @@ const getApiBaseUrl = () =>
   import.meta.env.VITE_API_URL ??
   "https://mint-rewards-mern-next-js.vercel.app/api";
 
+// The list endpoint's raw records aren't guaranteed to be camelCase (seen
+// in the wild as snake_case `created_at`); normalize the same way
+// fetchBrandById does for a single record.
+const normalizeBrandDates = (brand: Brand): Brand => ({
+  ...brand,
+  createdAt: brand.createdAt ?? (brand as Record<string, unknown>).created_at as string | undefined,
+});
+
 export const fetchBrands = async (): Promise<Brand[]> => {
   const response = await fetch(`${getApiBaseUrl()}/brands`, {
     headers: adminAuth.authHeaders(),
@@ -154,7 +162,7 @@ export const fetchBrands = async (): Promise<Brand[]> => {
   const data = (await response.json()) as Brand[] | FetchBrandsResponse;
 
   if (Array.isArray(data)) {
-    return data;
+    return data.map(normalizeBrandDates);
   }
 
   if (data.success === false) {
@@ -162,7 +170,7 @@ export const fetchBrands = async (): Promise<Brand[]> => {
   }
 
   if (Array.isArray(data.brands)) {
-    return data.brands;
+    return data.brands.map(normalizeBrandDates);
   }
 
   return [];

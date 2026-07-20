@@ -42,12 +42,27 @@ import {
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  discountPercentage: z.string().optional(),
-  discountAmount: z.string().optional(),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-  maxUses: z.string().optional(),
-  minimumPurchase: z.string().optional(),
+  discountPercentage: z
+    .string()
+    .min(1, "Discount percentage is required")
+    .refine(
+      (v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100,
+      "Enter a percentage between 0 and 100",
+    ),
+  discountAmount: z
+    .string()
+    .min(1, "Flat discount amount is required")
+    .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
+  startDate: z.date({ required_error: "Start date is required" }),
+  endDate: z.date({ required_error: "End date is required" }),
+  maxUses: z
+    .string()
+    .min(1, "Maximum uses is required")
+    .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, "Enter a whole number greater than 0"),
+  minimumPurchase: z
+    .string()
+    .min(1, "Minimum purchase is required")
+    .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
 });
 
 type DealFormData = z.infer<typeof dealSchema>;
@@ -92,18 +107,12 @@ export function CreateDealForm({
         ...resolved,
         title: data.title,
         description: data.description || undefined,
-        discountPercentage: data.discountPercentage
-          ? parseInt(data.discountPercentage)
-          : null,
-        discountAmount: data.discountAmount
-          ? parseFloat(data.discountAmount)
-          : null,
-        startDate: data.startDate ? format(data.startDate, "yyyy-MM-dd") : null,
-        endDate: data.endDate ? format(data.endDate, "yyyy-MM-dd") : null,
-        maxUses: data.maxUses ? parseInt(data.maxUses) : null,
-        minimumPurchase: data.minimumPurchase
-          ? parseFloat(data.minimumPurchase)
-          : null,
+        discountPercentage: parseInt(data.discountPercentage),
+        discountAmount: parseFloat(data.discountAmount),
+        startDate: format(data.startDate, "yyyy-MM-dd"),
+        endDate: format(data.endDate, "yyyy-MM-dd"),
+        maxUses: parseInt(data.maxUses),
+        minimumPurchase: parseFloat(data.minimumPurchase),
       });
 
       toast({
@@ -176,7 +185,7 @@ export function CreateDealForm({
             name="discountPercentage"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Discount Percentage (%)</FormLabel>
+                <FormLabel>Discount Percentage (%) *</FormLabel>
                 <FormControl>
                   <Input
                     type="number"
@@ -196,13 +205,12 @@ export function CreateDealForm({
             name="discountAmount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Flat Discount Amount (PKR)</FormLabel>
+                <FormLabel>Flat Discount Amount (PKR) *</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="10.00" {...field} />
                 </FormControl>
                 <FormDescription>
-                  A fixed rupee amount off, used instead of a percentage. Leave blank if using
-                  the percentage above.
+                  A fixed rupee amount off, applied alongside the percentage discount above.
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -216,7 +224,7 @@ export function CreateDealForm({
             name="startDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Start Date</FormLabel>
+                <FormLabel>Start Date *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -257,7 +265,7 @@ export function CreateDealForm({
             name="endDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>End Date</FormLabel>
+                <FormLabel>End Date *</FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -300,7 +308,7 @@ export function CreateDealForm({
             name="maxUses"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Maximum Uses</FormLabel>
+                <FormLabel>Maximum Uses *</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="100" {...field} />
                 </FormControl>
@@ -314,7 +322,7 @@ export function CreateDealForm({
             name="minimumPurchase"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Minimum Purchase (PKR)</FormLabel>
+                <FormLabel>Minimum Purchase (PKR) *</FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="50.00" {...field} />
                 </FormControl>
