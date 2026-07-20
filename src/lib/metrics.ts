@@ -39,6 +39,13 @@ export const isCampaignLiveNow = (campaign: Campaign): boolean => {
   );
 };
 
+// Every campaign that has ever been approved, whether or not its date window
+// still contains today. This is the denominator for all-time figures like
+// redemptions: a campaign that ended last month still earned the redemptions
+// it earned, so scoping them to `isCampaignLiveNow` would flatter the average.
+export const isCampaignApproved = (campaign: Campaign): boolean =>
+  String(campaign.status ?? "").toUpperCase() === "APPROVED";
+
 // Anything with a moderation status and a date window — campaigns and deals
 // both satisfy this, which is why the bucketing below is shared.
 export interface DatedRecord {

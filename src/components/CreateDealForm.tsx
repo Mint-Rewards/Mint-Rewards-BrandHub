@@ -38,6 +38,7 @@ import {
   resolveDealCodes,
   type DealCodesValue,
 } from "@/components/DealCodesInput";
+import { isValidDateRange, startOfDay, today } from "@/lib/validators";
 
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -59,6 +60,15 @@ const dealSchema = z.object({
     .string()
     .min(1, "Minimum purchase is required")
     .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
+}).superRefine((data, ctx) => {
+  const message = isValidDateRange(data.startDate, data.endDate);
+  if (!message) return;
+  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endDate"], message });
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    path: ["startDate"],
+    message: "Start date must be before the end date",
+  });
 });
 
 type DealFormData = z.infer<typeof dealSchema>;
@@ -88,6 +98,10 @@ export function CreateDealForm({
       minimumPurchase: "",
     },
   });
+
+  // Each picker bounds the other so an invalid range can't be selected at all.
+  const startDay = startOfDay(form.watch("startDate"));
+  const endDay = startOfDay(form.watch("endDate"));
 
   const onSubmit = async (data: DealFormData) => {
     const resolved = resolveDealCodes(codesValue);
@@ -250,6 +264,7 @@ export function CreateDealForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      disabled={(date) => !!endDay && date >= endDay}
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
@@ -290,7 +305,9 @@ export function CreateDealForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) =>
+                        date < today() || (!!startDay && date <= startDay)
+                      }
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />

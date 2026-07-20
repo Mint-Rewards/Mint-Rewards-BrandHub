@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { registerOrg, updateBrandSettings } from "@/actions/brandActions";
+import { registerOrg } from "@/actions/brandActions";
 import { brandAuth, brandSession } from "@/lib/brandAuth";
 import { isValidEmail, isValidPhone, isValidUrl, minLength } from "@/lib/validators";
 import { BRAND_CATEGORIES } from "@/lib/brandCategories";
@@ -202,8 +202,9 @@ const BrandRegister = () => {
       case "address":
         return !value ? "Address is required" : "";
       case "website":
+        return !value ? "Website is required" : (isValidUrl(value) ?? "");
       case "appLink":
-        // return value ? isValidUrl(value) ?? "" : "";
+        return value ? isValidUrl(value) ?? "" : "";
       default:
         return "";
     }
@@ -371,18 +372,6 @@ const BrandRegister = () => {
       const brands = data.brands ?? [];
       brandSession.setBrands(brands);
       brandSession.setSubscribedModules(data.subscribedModules ?? []);
-
-      // The quick org-signup flow synthesizes a placeholder brand email
-      // (brand-<id>@brandhub.local) since the schema needs a unique value
-      // per brand at creation time. Overwrite it with the address the user
-      // actually registered with so Settings shows the real contact email.
-      if (data.defaultBrandId) {
-        try {
-          await updateBrandSettings(data.defaultBrandId, { email: formData.email });
-        } catch {
-          // Best-effort repair — a failure here shouldn't block onboarding.
-        }
-      }
 
       toast({
         title: "Organisation Created!",
@@ -683,7 +672,7 @@ const BrandRegister = () => {
                   <FieldError field="phone" />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="website">Website</Label>
+                  <Label htmlFor="website">Website *</Label>
                   <Input
                     id="website"
                     value={formData.website}
@@ -749,7 +738,7 @@ const BrandRegister = () => {
           },
           { label: "Contact Name", value: formData.contactName },
           { label: "Phone", value: formData.phone },
-          { label: "Website", value: formData.website || "None (add later)" },
+          { label: "Website", value: formData.website },
           { label: "App Link", value: formData.appLink || "None (add later)" },
           { label: "Address", value: formData.address},
           { label: "Description", value: formData.description || "None (add later)" },

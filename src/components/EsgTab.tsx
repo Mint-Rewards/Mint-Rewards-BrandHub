@@ -33,7 +33,7 @@ import {
   YAxis,
 } from "recharts";
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
-import { isCampaignLiveNow, toMs } from "@/lib/metrics";
+import { isCampaignApproved, isCampaignLiveNow, toMs } from "@/lib/metrics";
 import { dealStatusConfig } from "@/lib/dealStatus";
 
 // Append two-digit hex alpha to a hex color string for opacity variants
@@ -190,6 +190,14 @@ const EsgTab: React.FC<{
     ? campaigns!.length
     : analytics.summary.totalCampaigns;
 
+  // Same rule Overview applies to its Total Redemptions figure: all-time
+  // redemptions are measured against every campaign that was ever approved,
+  // ended ones included. The backend has no equivalent aggregate, so without
+  // the list we omit the context rather than quote a different denominator.
+  const approvedCampaigns = campaignsReady
+    ? campaigns!.filter(isCampaignApproved).length
+    : null;
+
   // All-time deal counts, from the real deal list — the same source and
   // fallback rule Overview uses. The Deal Inventory tab below reports the
   // period-scoped totals instead, per this tab's headline/breakdown split.
@@ -265,14 +273,17 @@ const EsgTab: React.FC<{
       context: `of ${plural(totalCampaigns, "campaign", "campaigns")} total`,
     },
     {
-      label: "Total Deals",
-      value: totalDeals,
-      context: `${activeDeals.toLocaleString()} currently active`,
+      label: "Active Deals",
+      value: activeDeals,
+      context: `of ${plural(totalDeals, "deal", "deals")} total`,
     },
     {
       label: "Total Redemptions",
       value: analytics.summary.totalRedemptions,
-      context: `across ${plural(totalCampaigns, "campaign", "campaigns")}`,
+      context:
+        approvedCampaigns !== null
+          ? `across ${plural(activeDeals, "approved deal", "approved deals")}`
+          : undefined,
     },
     ...(analytics.environmental
       ? [

@@ -58,6 +58,7 @@ import {
   resolveDealCodes,
   type DealCodesValue,
 } from "@/components/DealCodesInput";
+import { isoDayOffset, isValidDateRange } from "@/lib/validators";
 
 const editDealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -67,6 +68,15 @@ const editDealSchema = z.object({
   startDate: z.string().optional(),
   endDate: z.string().optional(),
   minimumPurchase: z.string().optional(),
+}).superRefine((data, ctx) => {
+  const message = isValidDateRange(data.startDate, data.endDate);
+  if (!message) return;
+  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endDate"], message });
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    path: ["startDate"],
+    message: "Start date must be before the end date",
+  });
 });
 
 type EditDealFormData = z.infer<typeof editDealSchema>;
@@ -126,6 +136,10 @@ const DealsTab: React.FC<{
     resolver: zodResolver(editDealSchema),
     defaultValues: { title: "", description: "", status: "active" },
   });
+
+  // Each date input bounds the other so an invalid range can't be picked.
+  const editStartDate = editForm.watch("startDate");
+  const editEndDate = editForm.watch("endDate");
 
   const copyCodes = async (codes: string[]) => {
     await navigator.clipboard.writeText(codes.join("\n"));
@@ -521,7 +535,9 @@ const DealsTab: React.FC<{
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Start Date</FormLabel>
-                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <FormControl>
+                        <Input type="date" max={isoDayOffset(editEndDate, -1)} {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -532,7 +548,9 @@ const DealsTab: React.FC<{
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>End Date</FormLabel>
-                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <FormControl>
+                        <Input type="date" min={isoDayOffset(editStartDate, 1)} {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

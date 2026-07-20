@@ -34,6 +34,7 @@ import { toast } from "@/hooks/use-toast";
 import { createCampaign, updateBrandCampaign } from "@/actions/brandActions";
 import { TargetAudienceChips } from "@/components/TargetAudienceChips";
 import { Campaign } from "@/types";
+import { isValidDateRange, startOfDay } from "@/lib/validators";
 
 const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -53,6 +54,15 @@ const campaignSchema = z.object({
   backgroundColor: z
     .string()
     .regex(hexColorRegex, "Use a valid hex color (e.g. #0EA5E9)"),
+}).superRefine((data, ctx) => {
+  const message = isValidDateRange(data.startDate, data.endDate);
+  if (!message) return;
+  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endDate"], message });
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    path: ["startDate"],
+    message: "Start date must be before the end date",
+  });
 });
 
 const getContrastingTextColor = (hexColor: string) => {
@@ -111,6 +121,10 @@ export function CreateCampaignForm({
       endDate: campaign?.endDate ? new Date(campaign.endDate) : undefined,
     },
   });
+
+  // Each picker bounds the other so an invalid range can't be selected at all.
+  const startDay = startOfDay(form.watch("startDate"));
+  const endDay = startOfDay(form.watch("endDate"));
 
   const badgePreview = form.watch("badge")?.trim() || "";
   const namePreview = form.watch("name")?.trim() || "";
@@ -461,6 +475,7 @@ export function CreateCampaignForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      disabled={(date) => !!endDay && date >= endDay}
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
@@ -497,6 +512,7 @@ export function CreateCampaignForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      disabled={(date) => !!startDay && date <= startDay}
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
