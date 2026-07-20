@@ -77,6 +77,7 @@ export interface RegisterOrgPayload {
   email: string;
   password: string;
   brandName: string;
+  category?: string;
   logo: File | null;
   phone?: string;
   website?: string;
@@ -105,6 +106,7 @@ export const registerOrg = async (
   formData.append("email", payload.email);
   formData.append("password", payload.password);
   if (payload.brandName) formData.append("brandName", payload.brandName);
+  if (payload.category) formData.append("category", payload.category);
   if (payload.logo) formData.append("logo", payload.logo);
   if (payload.phone) formData.append("phone", payload.phone);
   if (payload.appLink) formData.append("appLink", payload.appLink);
@@ -299,6 +301,7 @@ export const fetchBrandById = async (id: string): Promise<Brand> => {
     description: raw.description as string,
     address: raw.address as string,
     domain: raw.domain as string,
+    registrationNumber: raw.registrationNumber as string,
     status,
     createdAt: ((raw.createdAt ?? raw.created_at) as string) ?? new Date().toISOString(),
   };
@@ -457,6 +460,7 @@ export const updateBrandSettings = async (
   payload: Partial<{
     brandName: string;
     companyName: string;
+    email: string;
     description: string;
     webLink: string;
     appLink: string;
@@ -465,17 +469,39 @@ export const updateBrandSettings = async (
     domain: string;
     themeColor: string;
     contactName: string;
+    logo: File | null;
   }>,
 ): Promise<Brand> => {
+  let body: BodyInit;
+  let headers: Record<string, string>;
+
+  if (payload.logo instanceof File) {
+    const fd = new FormData();
+    for (const [key, value] of Object.entries(payload)) {
+      if (key === "logo" || value === null || value === undefined) continue;
+      fd.append(key, String(value));
+    }
+    fd.append("logo", payload.logo);
+    body = fd;
+    headers = { ...brandAuth.authHeaders() };
+  } else {
+    const { logo: _logo, ...rest } = payload;
+    const clean = Object.fromEntries(
+      Object.entries(rest).filter(([, v]) => v !== null && v !== undefined),
+    );
+    body = JSON.stringify(clean);
+    headers = {
+      "Content-Type": "application/json",
+      ...brandAuth.authHeaders(),
+    };
+  }
+
   // Settings live on the brand resource itself; owner/admin role required
   // (members get a 403) — no module gate.
   const response = await fetch(`${getApiBaseUrl()}/brandhub/brands/${brandId}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...brandAuth.authHeaders(),
-    },
-    body: JSON.stringify(payload),
+    headers,
+    body,
   });
 
   throwForBrandApiStatus(response);

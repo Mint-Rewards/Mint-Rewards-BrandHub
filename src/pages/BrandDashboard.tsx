@@ -744,6 +744,8 @@ const BrandDashboard = () => {
             name={formattedData.name}
             companyName={brandData.companyName}
             category={formattedData.category}
+            registrationNumber={brandData.registrationNumber}
+            logo={brandData.logo}
             contactEmail={formattedData.contactEmail}
             contactPhone={formattedData.contactPhone}
             webLink={brandData.webLink ?? brandData.website}

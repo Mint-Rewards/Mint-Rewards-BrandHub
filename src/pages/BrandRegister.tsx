@@ -10,6 +10,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Building2,
   Upload,
   ArrowLeft,
@@ -25,10 +32,26 @@ import { brandAuth, brandSession } from "@/lib/brandAuth";
 import { isValidEmail, isValidPhone, isValidUrl, minLength } from "@/lib/validators";
 import { CountryPhoneInput } from "@/components/CountryPhoneInput";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  MAX_LOGO_SIZE_BYTES,
+  MIN_LOGO_PX,
+  RECOMMENDED_LOGO_PX,
+  validateLogoDimensions,
+  validateLogoFileBasics,
+} from "@/lib/logoUpload";
 
-const MAX_LOGO_SIZE_BYTES = 5 * 1024 * 1024;
-const MIN_LOGO_PX = 128;
-const RECOMMENDED_LOGO_PX = 512;
+const BRAND_CATEGORIES = [
+  "Fashion & Apparel",
+  "Beauty & Personal Care",
+  "Food & Beverage",
+  "Electronics & Technology",
+  "Health & Fitness",
+  "Home & Living",
+  "Travel & Hospitality",
+  "Entertainment",
+  "Retail",
+  "Other",
+];
 
 const BrandRegister = () => {
   const navigate = useNavigate();
@@ -42,6 +65,7 @@ const BrandRegister = () => {
     password: "",
     confirmPassword: "",
     brandName: "",
+    category: "",
     logo: null as File | null,
     phone: "",
     website: "",
@@ -70,6 +94,8 @@ const BrandRegister = () => {
         return value === formData.password ? "" : "Passwords do not match";
       case "brandName":
         return minLength(value, 2, "Brand name") ?? "";
+      case "category":
+        return !value ? "Category is required" : "";
       case "phone":
         return !value ? "Phone number is required" : (isValidPhone(value) ?? "");
       case "website":
@@ -87,68 +113,46 @@ const BrandRegister = () => {
     }
   };
 
+  const handleCategoryChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, category: value }));
+    setTouched((prev) => ({ ...prev, category: true }));
+    setErrors((prev) => ({ ...prev, category: getFieldError("category", value) }));
+  };
+
   const handleBlur = (field: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
     const value = String(formData[field as keyof typeof formData] ?? "");
     setErrors((prev) => ({ ...prev, [field]: getFieldError(field, value) }));
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > MAX_LOGO_SIZE_BYTES) {
+    const basicsError = validateLogoFileBasics(file);
+    if (basicsError) {
       toast({
-        title: "File too large",
-        description: "Logo must be under 5MB",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!file.type.startsWith("image/")) {
-      toast({
-        title: "Invalid file type",
-        description: "Please upload a PNG, JPG, or WebP image",
+        title: basicsError.includes("5MB") ? "File too large" : "Invalid file type",
+        description: basicsError,
         variant: "destructive",
       });
       return;
     }
 
     const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      if (img.width !== img.height) {
-        URL.revokeObjectURL(objectUrl);
-        setErrors((prev) => ({
-          ...prev,
-          logo: `Logo must be square — this one is ${img.width}×${img.height}px. ${RECOMMENDED_LOGO_PX}×${RECOMMENDED_LOGO_PX}px recommended.`,
-        }));
-        return;
-      }
-      if (img.width < MIN_LOGO_PX) {
-        URL.revokeObjectURL(objectUrl);
-        setErrors((prev) => ({
-          ...prev,
-          logo: `Logo must be at least ${MIN_LOGO_PX}×${MIN_LOGO_PX}px (${RECOMMENDED_LOGO_PX}×${RECOMMENDED_LOGO_PX}px recommended)`,
-        }));
-        return;
-      }
-      setErrors((prev) => ({ ...prev, logo: "" }));
-      setLogoPreview((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return objectUrl;
-      });
-      setFormData((prev) => ({ ...prev, logo: file }));
-    };
-    img.onerror = () => {
+    const dimensionError = await validateLogoDimensions(objectUrl);
+    if (dimensionError) {
       URL.revokeObjectURL(objectUrl);
-      setErrors((prev) => ({
-        ...prev,
-        logo: "Could not read this image — please try another file",
-      }));
-    };
-    img.src = objectUrl;
+      setErrors((prev) => ({ ...prev, logo: dimensionError }));
+      return;
+    }
+
+    setErrors((prev) => ({ ...prev, logo: "" }));
+    setLogoPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return objectUrl;
+    });
+    setFormData((prev) => ({ ...prev, logo: file }));
   };
 
   const removeLogo = () => {
@@ -161,7 +165,7 @@ const BrandRegister = () => {
   const validateStepFields = (): boolean => {
     const stepFields: Record<number, string[]> = {
       1: ["orgName", "email", "password", "confirmPassword"],
-      2: ["brandName", "phone", "website", "appLink"],
+      2: ["brandName", "category", "phone", "website", "appLink"],
     };
 
     const fields = stepFields[currentStep] ?? [];
@@ -209,6 +213,7 @@ const BrandRegister = () => {
         email: formData.email,
         password: formData.password,
         brandName: formData.brandName,
+        category: formData.category,
         logo: formData.logo,
         phone: formData.phone || undefined,
         website: formData.website || undefined,
@@ -343,6 +348,26 @@ const BrandRegister = () => {
               <p className="text-xs text-muted-foreground">
                 Your organisation's first brand. You can add more later.
               </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="category">Category *</Label>
+              <Select value={formData.category} onValueChange={handleCategoryChange}>
+                <SelectTrigger
+                  id="category"
+                  className={errors.category && touched.category ? "border-destructive" : ""}
+                >
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BRAND_CATEGORIES.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FieldError field="category" />
             </div>
 
             <div className="space-y-4">
@@ -485,6 +510,10 @@ const BrandRegister = () => {
                   <div>
                     <p className="font-medium">Brand Name</p>
                     <p className="text-muted-foreground">{formData.brandName}</p>
+                  </div>
+                  <div>
+                    <p className="font-medium">Category</p>
+                    <p className="text-muted-foreground">{formData.category}</p>
                   </div>
                   <div>
                     <p className="font-medium">Logo</p>
