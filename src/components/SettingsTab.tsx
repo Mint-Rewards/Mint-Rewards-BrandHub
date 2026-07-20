@@ -14,6 +14,13 @@ import {
   CardTitle,
 } from "./ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -31,18 +38,20 @@ import {
   validateLogoDimensions,
   validateLogoFileBasics,
 } from "@/lib/logoUpload";
+import { BRAND_CATEGORIES } from "@/lib/brandCategories";
 import type { Brand } from "@/types";
 
 const settingsSchema = z.object({
   brandName: z.string().min(1, "Brand name is required"),
   companyName: z.string().min(1, "Company name is required"),
+  category: z.string().min(1, "Category is required"),
   contactName: z.string().optional(),
   email: z.string().min(1, "Email is required").email("Enter a valid email"),
   phone: z
     .string()
     .refine((value) => !value || isValidPhone(value) === null, "Enter a valid international phone number")
     .optional(),
-  webLink: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+  webLink: z.string().optional(),
   appLink: z.string().optional(),
   description: z.string().optional(),
   address: z.string().min(1, "Address is required"),
@@ -62,6 +71,7 @@ const SettingsTab: React.FC<{
   category?: string;
   registrationNumber?: string;
   logo?: string;
+  contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
   webLink?: string;
@@ -81,6 +91,7 @@ const SettingsTab: React.FC<{
   category,
   registrationNumber,
   logo,
+  contactName,
   contactEmail,
   contactPhone,
   webLink,
@@ -101,7 +112,8 @@ const SettingsTab: React.FC<{
   const defaultFormValues = {
     brandName: name ?? "",
     companyName: companyName ?? "",
-    contactName: "",
+    category: category ?? "",
+    contactName: contactName ?? "",
     email: contactEmail ?? "",
     phone: contactPhone ?? "",
     webLink: webLink ?? "",
@@ -120,7 +132,8 @@ const SettingsTab: React.FC<{
     form.reset({
       brandName: name ?? "",
       companyName: companyName ?? "",
-      contactName: "",
+      category: category ?? "",
+      contactName: contactName ?? "",
       email: contactEmail ?? "",
       phone: contactPhone ?? "",
       webLink: webLink ?? "",
@@ -129,7 +142,7 @@ const SettingsTab: React.FC<{
       address: address ?? "",
       themeColor: themeColor ?? "",
     });
-  }, [name, companyName, contactEmail, contactPhone, webLink, appLink, description, address, themeColor]);
+  }, [name, companyName, category, contactName, contactEmail, contactPhone, webLink, appLink, description, address, themeColor]);
 
   const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -172,6 +185,7 @@ const SettingsTab: React.FC<{
       const updatedBrand = await updateBrandSettings(brandId, {
         brandName: data.brandName,
         companyName: data.companyName || undefined,
+        category: data.category || undefined,
         contactName: data.contactName || undefined,
         email: data.email,
         phone: data.phone || undefined,
@@ -258,6 +272,10 @@ const SettingsTab: React.FC<{
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Registration Number</p>
                 <p className="text-base">{registrationNumber ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Contact Name</p>
+                <p className="text-base">{contactName ?? "—"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Contact Email</p>
@@ -359,6 +377,30 @@ const SettingsTab: React.FC<{
                       <FormControl>
                         <Input placeholder="Legal company name" {...field} />
                       </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {BRAND_CATEGORIES.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}

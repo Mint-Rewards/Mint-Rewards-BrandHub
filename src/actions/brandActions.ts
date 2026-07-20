@@ -79,6 +79,7 @@ export interface RegisterOrgPayload {
   brandName: string;
   category?: string;
   logo: File | null;
+  contactName?: string;
   phone?: string;
   website?: string;
   appLink?: string;
@@ -108,6 +109,7 @@ export const registerOrg = async (
   if (payload.brandName) formData.append("brandName", payload.brandName);
   if (payload.category) formData.append("category", payload.category);
   if (payload.logo) formData.append("logo", payload.logo);
+  if (payload.contactName) formData.append("contactName", payload.contactName);
   if (payload.phone) formData.append("phone", payload.phone);
   if (payload.appLink) formData.append("appLink", payload.appLink);
   if (payload.address) formData.append("address", payload.address);
@@ -296,8 +298,10 @@ export const fetchBrandById = async (id: string): Promise<Brand> => {
     themeColor: raw.themeColor as string,
     phone: raw.phone as string,
     website: ((raw.webLink ?? raw.website) as string) ?? "",
+    webLink: ((raw.webLink ?? raw.website) as string) ?? "",
     appLink: (raw.appLink as string) ?? "",
     category: raw.category as string,
+    contactName: (raw.contactName as string) ?? "",
     description: raw.description as string,
     address: raw.address as string,
     domain: raw.domain as string,
@@ -460,6 +464,7 @@ export const updateBrandSettings = async (
   payload: Partial<{
     brandName: string;
     companyName: string;
+    category: string;
     email: string;
     description: string;
     webLink: string;

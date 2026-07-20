@@ -40,6 +40,7 @@ import SiteHeader from "@/components/SiteHeader";
 import { useToast } from "@/hooks/use-toast";
 import { Brand, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
+import { resolveBrandEmail } from "@/lib/brandEmail";
 import {
   fetchBrands,
   fetchAllCampaigns,
@@ -91,22 +92,6 @@ const AdminDashboard = () => {
     if (!brandId) return "-";
     const match = brands.find((b) => (b._id ?? b.id) === brandId);
     return match?.brandName ?? match?.companyName ?? brandId;
-  };
-
-  // Brands created via the quick org-signup flow get a synthesized
-  // `brand-<id>@brandhub.local` placeholder for `email` (the schema
-  // requires a unique value at creation time), with the org owner's real
-  // email stashed in `contactName` instead. Brands from the full
-  // application form don't hit this path — their `email` is already
-  // correct and `contactName` holds an actual contact person's name.
-  const isPlaceholderBrandEmail = (email?: string) =>
-    !!email && /^brand-[^@]+@brandhub\.local$/i.test(email);
-
-  const resolveBrandEmail = (brand: Pick<Brand, "email" | "contactName">) => {
-    if (isPlaceholderBrandEmail(brand.email) && brand.contactName?.includes("@")) {
-      return brand.contactName;
-    }
-    return brand.email;
   };
 
   const fetchApplications = useCallback(async () => {

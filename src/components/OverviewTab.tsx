@@ -1,136 +1,83 @@
 import type { BrandAnalytics } from "@/actions/brandActions";
 import type { Campaign, Deal } from "@/types";
-import {
-  AlertCircle,
-  Award,
-  BarChart3,
-  Building2,
-  Recycle,
-  Tag,
-  Target,
-  TrendingUp,
-  Users,
-} from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AlertCircle, BarChart3, Recycle, TrendingUp, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "./ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Bar,
-  BarChart,
-  Cell,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  XAxis,
-  YAxis,
-} from "recharts";
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from "./ui/chart";
-
-// Append two-digit hex alpha to a hex color string for opacity variants
-const hex = (color: string, alpha: string) => color + alpha;
-
-// CO₂ savings per kg recycled, by material. These are client-side equivalence
-// factors applied to the REAL weights from analytics.environmental — the
-// headline CO₂ figure itself comes straight from the backend.
-const CO2_SAVINGS_PER_KG: Record<string, number> = {
-  paper: 3.3, // Paper recycling saves ~3.3 kg CO2 per kg
-  cardboard: 3.3, // Similar to paper
-  plastic: 2.0, // Plastic recycling saves ~2 kg CO2 per kg
-  glass: 0.5, // Glass recycling saves ~0.5 kg CO2 per kg
-  aluminum: 9.0, // Aluminum recycling saves ~9 kg CO2 per kg (highest impact)
-  steel: 1.5, // Steel recycling saves ~1.5 kg CO2 per kg
-  electronic: 4.0, // E-waste recycling saves ~4 kg CO2 per kg
-  organic: 0.3, // Composting organic waste saves ~0.3 kg CO2 per kg
-};
-
-// Real-world equivalences computed FROM the backend's co2AvoidedKg figure.
-const EQUIVALENT_CONVERSIONS = {
-  treesPlanted: 0.025, // 1 kg CO2 saved = ~0.025 trees planted (40kg CO2 per tree per year)
-  kmDriving: 4.6, // 1 kg CO2 saved = ~4.6 km of driving (average car emits 0.21 kg CO2/km)
-  lightBulbHours: 100, // 1 kg CO2 saved = ~100 hours of LED light bulb usage
-};
-
-const MATERIAL_COLORS: Record<string, string> = {
-  paper: "#10B981",
-  cardboard: "#059669",
-  plastic: "#8B5CF6",
-  glass: "#3B82F6",
-  aluminum: "#F59E0B",
-  steel: "#64748B",
-  electronic: "#EF4444",
-  organic: "#84CC16",
-};
-
-const materialColor = (material: string, index: number) =>
-  MATERIAL_COLORS[material.toLowerCase()] ??
-  ["#10B981", "#8B5CF6", "#3B82F6", "#F59E0B", "#EF4444", "#64748B"][index % 6];
-
-// UPPERCASE four-value campaign moderation statuses — EXPIRED renders muted,
-// never lumped into rejected or active.
-const CAMPAIGN_STATUS_STYLES: Record<string, { label: string; className: string }> = {
-  PENDING: { label: "Pending", className: "bg-warning/10 text-warning" },
-  APPROVED: { label: "Approved", className: "bg-success/10 text-success" },
-  REJECTED: { label: "Rejected", className: "bg-destructive/10 text-destructive" },
-  EXPIRED: { label: "Expired", className: "bg-muted text-muted-foreground" },
-};
+import { isCampaignLiveNow } from "@/lib/metrics";
+import OverviewLifecycle from "./OverviewLifecycle";
+import OverviewPortfolioMix from "./OverviewPortfolioMix";
+import OverviewAttention from "./OverviewAttention";
 
 const formatKg = (kg: number) =>
   kg >= 1000 ? `${(kg / 1000).toFixed(1)}K kg` : `${kg.toLocaleString()} kg`;
 
-// --- Point-in-time count helpers (see the derivation note inside OverviewTab) ---
+// Same equivalence factor the ESG tab uses for its trees comparison, so the two
+// surfaces never quote different equivalents for the same CO₂ figure.
+const TREES_PER_KG_CO2 = 0.025;
 
-// Parse an ISO date to epoch ms, falling back for missing/invalid values.
-const toMs = (value: string | null | undefined, fallback: number): number => {
-  if (!value) return fallback;
-  const ms = new Date(value).getTime();
-  return Number.isNaN(ms) ? fallback : ms;
-};
-
-// A record belongs to the selected period when its [startDate, endDate] window
-// overlaps [from, to]. Missing edges are treated as open-ended.
-const overlapsPeriod = (
-  startDate: string | null | undefined,
-  endDate: string | null | undefined,
-  from: number | null,
-  to: number | null,
-): boolean =>
-  toMs(startDate, -Infinity) <= (to ?? Infinity) &&
-  toMs(endDate, Infinity) >= (from ?? -Infinity);
-
-// An "active" campaign is APPROVED and live in its own date window today.
-const isCampaignLiveNow = (campaign: Campaign): boolean => {
-  if (String(campaign.status ?? "").toUpperCase() !== "APPROVED") return false;
-  const now = Date.now();
-  return (
-    now >= toMs(campaign.startDate, -Infinity) &&
-    now <= toMs(campaign.endDate, Infinity)
-  );
-};
+const plural = (count: number, singular: string, pluralForm: string) =>
+  `${count.toLocaleString()} ${count === 1 ? singular : pluralForm}`;
 
 const OverviewSkeleton = () => (
   <div className="space-y-6">
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-px border border-border rounded-lg overflow-hidden">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="p-4 space-y-2 bg-card">
-          <Skeleton className="h-3 w-24" />
-          <Skeleton className="h-8 w-16" />
-        </div>
-      ))}
+    <div className="space-y-2">
+      <Skeleton className="h-3 w-40" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-px border border-border rounded-lg overflow-hidden">
+        {[...Array(4)].map((_, i) => (
+          <div key={i} className="p-4 space-y-2 bg-card">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-8 w-16" />
+            <Skeleton className="h-3 w-20" />
+          </div>
+        ))}
+      </div>
     </div>
+    <div className="space-y-2">
+      <Skeleton className="h-3 w-40" />
+      <div className="grid grid-cols-2 gap-px border border-border rounded-lg overflow-hidden">
+        {[...Array(2)].map((_, i) => (
+          <div key={i} className="p-4 space-y-2 bg-card">
+            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-8 w-20" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+        ))}
+      </div>
+    </div>
+    <Card className="p-6 space-y-4">
+      <Skeleton className="h-5 w-40" />
+      <Skeleton className="h-2.5 w-full rounded-full" />
+      <Skeleton className="h-2.5 w-full rounded-full" />
+    </Card>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      {[...Array(4)].map((_, i) => (
+      {[...Array(2)].map((_, i) => (
         <Card key={i} className="p-6 space-y-4">
-          <Skeleton className="h-5 w-48" />
-          <Skeleton className="h-40 w-full rounded-md" />
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-24 w-full rounded-md" />
         </Card>
       ))}
     </div>
+  </div>
+);
+
+// A figure tile: never a bare number — each carries a comparator drawn from
+// data already on this page (PRODUCT.md principle 1).
+const Figure: React.FC<{
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  context?: string;
+}> = ({ icon: Icon, label, value, context }) => (
+  <div className="p-4">
+    <div className="flex items-center gap-2 mb-1">
+      <Icon className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+      <dt className="text-xs font-medium text-muted-foreground">{label}</dt>
+    </div>
+    <dd>
+      <p className="text-2xl font-bold text-foreground tabular-nums">{value}</p>
+      {context && <p className="mt-0.5 text-xs text-muted-foreground">{context}</p>}
+    </dd>
   </div>
 );
 
@@ -144,7 +91,14 @@ const OverviewTab: React.FC<{
   deals?: Deal[];
   campaignsUnavailable?: boolean;
   dealsUnavailable?: boolean;
-  period?: { from: Date | null; to: Date | null };
+  // Whether the campaigns/deals fetch has actually completed — `campaigns`/
+  // `deals` start as `[]` (truthy) before that, so this is the only reliable
+  // "the count below is real, not just not-yet-loaded" signal.
+  campaignsLoaded?: boolean;
+  dealsLoaded?: boolean;
+  // Lets the attention digest and empty state hand the user off to the tab
+  // that actually owns the work.
+  onNavigate?: (tab: string) => void;
 }> = ({
   analytics,
   loading,
@@ -154,7 +108,9 @@ const OverviewTab: React.FC<{
   deals,
   campaignsUnavailable = false,
   dealsUnavailable = false,
-  period,
+  campaignsLoaded = false,
+  dealsLoaded = false,
+  onNavigate,
 }) => {
   if (loading) return <OverviewSkeleton />;
 
@@ -181,534 +137,182 @@ const OverviewTab: React.FC<{
     materialBreakdown: [],
   };
 
-  // Point-in-time counts (active/total campaigns, deal buckets, status split)
-  // are derived from the real campaign/deal lists — the same source the
-  // Promotions tab manages — scoped to the selected period by date-window
-  // overlap. The period-aggregated analytics summary measures activity *within*
-  // the window, so its counts drift from what is actually live; we fall back to
-  // it only when a list failed to load. Redemptions and unique users remain
-  // genuine period analytics.
-  const periodFrom = period?.from ? period.from.getTime() : null;
-  const periodTo = period?.to ? period.to.getTime() : null;
+  // Point-in-time counts (active/total campaigns, deal total) are derived
+  // from the real campaign/deal lists — the same source the Promotions tab
+  // manages — falling back to the backend's all-time aggregate only when a
+  // list failed to load. `campaignsLoaded`/`dealsLoaded` (not just array
+  // truthiness) gate this: the arrays start as `[]` before the fetch
+  // resolves, which would otherwise read as "confirmed zero".
+  const campaignsReady = campaignsLoaded && Boolean(campaigns) && !campaignsUnavailable;
+  const dealsReady = dealsLoaded && Boolean(deals) && !dealsUnavailable;
 
-  const campaignsReady = Boolean(campaigns) && !campaignsUnavailable;
-  const dealsReady = Boolean(deals) && !dealsUnavailable;
-
-  const campaignsInPeriod =
-    campaigns && !campaignsUnavailable
-      ? campaigns.filter((c) =>
-          overlapsPeriod(c.startDate, c.endDate, periodFrom, periodTo),
-        )
-      : [];
-  const dealsInPeriod =
-    deals && !dealsUnavailable
-      ? deals.filter((d) =>
-          overlapsPeriod(d.startDate, d.endDate, periodFrom, periodTo),
-        )
-      : [];
+  // TEMP DEBUG — remove once the Active Campaigns discrepancy is diagnosed.
+  console.log("[ActiveCampaigns debug]", {
+    campaignsReady,
+    campaignsLoaded,
+    campaignsUnavailable,
+    campaignsCount: campaigns?.length,
+    summaryActiveCampaigns: summary.activeCampaigns,
+    summaryTotalCampaigns: summary.totalCampaigns,
+    campaigns: campaigns?.map((c) => ({
+      id: c.id ?? c._id,
+      status: c.status,
+      statusJson: JSON.stringify(c.status),
+      startDate: c.startDate,
+      endDate: c.endDate,
+      isLive: isCampaignLiveNow(c),
+    })),
+  });
 
   const activeCampaigns = campaignsReady
-    ? campaignsInPeriod.filter(isCampaignLiveNow).length
+    ? campaigns!.filter(isCampaignLiveNow).length
     : summary.activeCampaigns;
-  const totalCampaigns = campaignsReady
-    ? campaignsInPeriod.length
-    : summary.totalCampaigns;
+  const totalCampaigns = campaignsReady ? campaigns!.length : summary.totalCampaigns;
 
-  const dealCounts = dealsReady
-    ? {
-        total: dealsInPeriod.length,
-        active: dealsInPeriod.filter(
-          (d) => (d.status ?? "").toLowerCase() === "active",
-        ).length,
-        inactive: dealsInPeriod.filter(
-          (d) => (d.status ?? "").toLowerCase() === "inactive",
-        ).length,
-        expired: dealsInPeriod.filter(
-          (d) => (d.status ?? "").toLowerCase() === "expired",
-        ).length,
-      }
-    : analytics.dealStats;
+  const activeDeals = dealsReady ? deals!.filter((d) => d.status === "active").length : 0;
+  const totalDeals = dealsReady ? deals!.length : analytics.dealStats.total;
 
-  const campaignByStatus: Record<string, number> = campaignsReady
-    ? campaignsInPeriod.reduce<Record<string, number>>((acc, c) => {
-        const key = String(c.status ?? "").toUpperCase();
-        if (key) acc[key] = (acc[key] ?? 0) + 1;
-        return acc;
-      }, {})
-    : analytics.campaigns.byStatus;
+  const redemptionsPerUser =
+    summary.uniqueUsers > 0 ? summary.totalRedemptions / summary.uniqueUsers : 0;
+  const treesEquivalent = Math.round(environmental.co2AvoidedKg * TREES_PER_KG_CO2);
+  const materialCount = environmental.materialBreakdown.length;
 
-  // Per-campaign redemptions are genuine period analytics; join them onto the
-  // real campaign list by id so the performance list stays accurate.
-  const redemptionsById = new Map(
-    (analytics.campaigns.list ?? []).map((c) => [c.id, c.redemptions]),
-  );
-  const campaignList: {
-    id: string;
-    name: string;
-    status: string;
-    redemptions: number;
-  }[] = campaignsReady
-    ? campaignsInPeriod.map((c) => ({
-        id: c.id,
-        name: c.name ?? "Untitled campaign",
-        status: String(c.status ?? "").toUpperCase(),
-        redemptions: redemptionsById.get(c.id) ?? 0,
-      }))
-    : (analytics.campaigns.list ?? []).map((c) => ({
-        id: c.id,
-        name: c.name,
-        status: c.status,
-        redemptions: c.redemptions,
-      }));
-
+  // A brand with nothing set up gets a first-run panel instead of a page of
+  // zeroed bars. Environmental activity alone still counts as "started".
   const hasAnyData =
-    totalCampaigns > 0 ||
-    dealCounts.total > 0 ||
-    (environmental?.totalWasteKg ?? 0) > 0;
+    totalCampaigns > 0 || totalDeals > 0 || environmental.totalWasteKg > 0;
 
-  const breakdown = (environmental?.materialBreakdown ?? []).map((item, index) => ({
-    name: item.material,
-    value: item.weightKg,
-    color: materialColor(item.material, index),
-    percentage:
-      environmental.totalWasteKg > 0
-        ? Math.round((item.weightKg / environmental.totalWasteKg) * 100)
-        : 0,
-  }));
-
-  const co2Avoided = environmental?.co2AvoidedKg ?? 0;
-  const treesEquivalent = (co2Avoided * EQUIVALENT_CONVERSIONS.treesPlanted).toFixed(0);
-  const drivingEquivalent = (co2Avoided * EQUIVALENT_CONVERSIONS.kmDriving).toFixed(0);
-  const lightBulbEquivalent = (co2Avoided * EQUIVALENT_CONVERSIONS.lightBulbHours).toFixed(0);
-
-  const statusOrder = ["PENDING", "APPROVED", "REJECTED", "EXPIRED"] as const;
+  if (!hasAnyData) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold text-foreground" style={{ textWrap: "balance" }}>
+            Brand overview
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Performance, portfolio and anything waiting on you
+          </p>
+        </div>
+        <Card>
+          <CardContent className="p-10 text-center space-y-3">
+            <BarChart3 className="h-8 w-8 mx-auto text-muted-foreground" aria-hidden="true" />
+            <h3 className="font-semibold">Nothing to report yet</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Once you launch a campaign or publish a deal, this page shows how
+              they're performing, what stage each one is in, who they reach, and
+              anything waiting on your approval.
+            </p>
+            {onNavigate && (
+              <Button variant="outline" onClick={() => onNavigate("promotions")}>
+                Create your first campaign
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold text-foreground" style={{ textWrap: "balance" }}>
-          Sustainability Metrics & Recent Activity
+          Brand overview
         </h2>
         <p className="text-sm text-muted-foreground">
-          Your brand's environmental impact and campaign performance
+          Performance, portfolio and anything waiting on you
         </p>
       </div>
 
-      {!hasAnyData && (
-        <Card>
-          <CardContent className="p-10 text-center space-y-3">
-            <BarChart3 className="h-8 w-8 mx-auto text-muted-foreground" aria-hidden="true" />
-            <h3 className="font-semibold">No activity yet</h3>
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Once your campaigns and deals start running, your metrics will appear here.
-            </p>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Summary stats — always from analytics.summary, never derived client-side */}
+      {/* Engagement figures — backend aggregates, contextualised against the
+          counts derived from the real lists. */}
       <div className="space-y-2">
-      <p className="text-xs font-medium text-muted-foreground">
-        Campaign performance{" "}
-        <span className="text-muted-foreground/70">· selected period</span>
-      </p>
-      <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">Active Campaigns</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">{activeCampaigns}</p>
-        </div>
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Users className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">Unique Users</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">
-            {summary.uniqueUsers >= 1000
-              ? `${(summary.uniqueUsers / 1000).toFixed(1)}K`
-              : summary.uniqueUsers}
-          </p>
-        </div>
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Recycle className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">Total Redemptions</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">
-            {summary.totalRedemptions.toLocaleString()}
-          </p>
-        </div>
-        <div className="p-4">
-          <div className="flex items-center gap-2 mb-1">
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-medium text-muted-foreground">Total Campaigns</span>
-          </div>
-          <p className="text-2xl font-bold text-foreground">{totalCampaigns}</p>
-        </div>
-      </div>
+        <p className="text-xs font-medium text-muted-foreground">
+          Campaign performance <span className="text-muted-foreground/70">· all-time</span>
+        </p>
+        <dl className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border border border-border rounded-lg overflow-hidden">
+          <Figure
+            icon={TrendingUp}
+            label="Active Campaigns"
+            value={activeCampaigns.toLocaleString()}
+            context={`of ${plural(totalCampaigns, "campaign", "campaigns")} total`}
+          />
+          <Figure
+            icon={Users}
+            label="Unique Users"
+            value={summary.uniqueUsers.toLocaleString()}
+            context={
+              summary.uniqueUsers > 0
+                ? `${redemptionsPerUser.toFixed(1)} redemptions each`
+                : undefined
+            }
+          />
+          <Figure
+            icon={Recycle}
+            label="Total Redemptions"
+            value={summary.totalRedemptions.toLocaleString()}
+            context={`across ${plural(totalCampaigns, "campaign", "campaigns")}`}
+          />
+          <Figure
+            icon={TrendingUp}
+            label="Active Deals"
+            value={activeDeals.toLocaleString()}
+            context={`of ${plural(totalDeals, "deal", "deals")} total`}
+          />
+        </dl>
       </div>
 
       {/* Environmental KPIs — real backend figures, always all-time */}
-      {environmental && (
-        <div className="space-y-2">
+      <div className="space-y-2">
         <p className="text-xs font-medium text-muted-foreground">
           Environmental impact <span className="text-muted-foreground/70">· all-time</span>
         </p>
-        <div className="grid grid-cols-2 divide-x divide-border border border-border rounded-lg overflow-hidden">
-          <div className="p-4">
-            <p className="text-xs font-medium text-muted-foreground">Waste Collected</p>
-            <p className="text-2xl font-bold text-foreground mt-1">
-              {formatKg(environmental.totalWasteKg)}
-            </p>
-          </div>
-          <div className="p-4">
-            <p className="text-xs font-medium text-muted-foreground">CO₂ Avoided</p>
-            <p className="text-2xl font-bold text-foreground mt-1">
-              {formatKg(environmental.co2AvoidedKg)}
-            </p>
-          </div>
-        </div>
-        </div>
-      )}
+        <dl className="grid grid-cols-2 divide-x divide-border border border-border rounded-lg overflow-hidden">
+          <Figure
+            icon={Recycle}
+            label="Waste Collected"
+            value={formatKg(environmental.totalWasteKg)}
+            context={
+              materialCount > 0
+                ? `across ${plural(materialCount, "material type", "material types")}`
+                : undefined
+            }
+          />
+          <Figure
+            icon={BarChart3}
+            label="CO₂ Avoided"
+            value={formatKg(environmental.co2AvoidedKg)}
+            context={
+              environmental.co2AvoidedKg > 0
+                ? `≈ ${plural(treesEquivalent, "tree", "trees")} planted`
+                : undefined
+            }
+          />
+        </dl>
+      </div>
 
-      <Tabs defaultValue="impact" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="impact">Impact</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="deals">Deals</TabsTrigger>
-        </TabsList>
+      <OverviewLifecycle
+        campaigns={campaigns}
+        deals={deals}
+        campaignsUnavailable={campaignsUnavailable}
+        dealsUnavailable={dealsUnavailable}
+        brandColor={brandColor}
+      />
 
-        {/* Impact */}
-        <TabsContent value="impact" className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Building2 className="h-5 w-5 text-muted-foreground" />
-                  <span>Waste Collection</span>
-                </CardTitle>
-                <CardDescription>Collected materials linked to your brand</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center mb-4">
-                  <p className="text-3xl font-bold text-foreground">
-                    {formatKg(environmental.totalWasteKg)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Total collected</p>
-                </div>
-                {breakdown.length > 0 ? (
-                  <div className="space-y-3">
-                    {breakdown.map((item) => (
-                      <div key={item.name} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          <div
-                            className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span className="text-sm font-medium">{item.name}</span>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold">{item.value.toLocaleString()} kg</p>
-                          <p className="text-xs text-muted-foreground">{item.percentage}%</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">
-                    No material data yet.
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Recycle className="h-5 w-5" style={{ color: brandColor }} />
-                  <span>CO₂ Savings</span>
-                </CardTitle>
-                <CardDescription>
-                  Estimated CO₂ avoided per material, from recycling equivalence factors
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {breakdown.map((item) => {
-                    const factor = CO2_SAVINGS_PER_KG[item.name.toLowerCase()] ?? 1.0;
-                    return (
-                      <div
-                        key={item.name}
-                        className="flex items-center justify-between p-3 bg-muted/30 rounded-lg"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div
-                            className="w-3 h-3 rounded-full"
-                            style={{ backgroundColor: item.color }}
-                          />
-                          <span className="text-sm font-medium">{item.name}</span>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-semibold" style={{ color: brandColor }}>
-                            {(item.value * factor).toFixed(1)} kg CO₂
-                          </p>
-                          <p className="text-xs text-muted-foreground">saved</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  <div className="border-t pt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold">Total CO₂ Avoided:</span>
-                      <span className="text-lg font-bold" style={{ color: brandColor }}>
-                        {environmental.co2AvoidedKg.toLocaleString()} kg CO₂
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {breakdown.length > 0 && (
-              <Card className="lg:col-span-2">
-                <CardHeader>
-                  <CardTitle className="flex items-center space-x-2">
-                    <BarChart3 className="h-5 w-5 text-muted-foreground" />
-                    <span>Waste Breakdown & Distribution</span>
-                  </CardTitle>
-                  <CardDescription>
-                    Visual breakdown of collected waste by material type
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="text-sm font-semibold mb-3">Weight by Material (kg)</h4>
-                      <ChartContainer
-                        config={{ value: { label: "Weight (kg)", color: brandColor } }}
-                        className="h-[250px]"
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={breakdown}>
-                            <XAxis dataKey="name" />
-                            <YAxis />
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                            <Bar dataKey="value" radius={[4, 4, 0, 0]} fill={brandColor} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </ChartContainer>
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-semibold mb-3">Distribution by Percentage</h4>
-                      <ChartContainer
-                        config={Object.fromEntries(
-                          breakdown.map((item) => [
-                            item.name.toLowerCase(),
-                            { label: item.name, color: item.color },
-                          ]),
-                        )}
-                        className="h-[250px]"
-                      >
-                        <ResponsiveContainer width="100%" height="100%">
-                          <PieChart>
-                            <Pie
-                              data={breakdown}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={40}
-                              outerRadius={80}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {breakdown.map((entry) => (
-                                <Cell key={entry.name} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <ChartTooltip content={<ChartTooltipContent />} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </ChartContainer>
-                      <div className="grid grid-cols-2 gap-1 mt-2">
-                        {breakdown.map((type) => (
-                          <div key={type.name} className="flex items-center space-x-1">
-                            <div
-                              className="w-2 h-2 rounded-full"
-                              style={{ backgroundColor: type.color }}
-                            />
-                            <span className="text-xs">
-                              {type.name}: {type.percentage}%
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Target className="h-5 w-5 text-foreground" />
-                  <span>Environmental Equivalents</span>
-                </CardTitle>
-                <CardDescription>
-                  Real-world impact of {environmental.co2AvoidedKg.toLocaleString()} kg CO₂ avoided
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-center space-x-3 p-3 bg-success/5 rounded-lg">
-                    <div className="p-2 bg-success/20 rounded-lg">
-                      <span className="text-lg" aria-hidden="true">🌳</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">Trees Planted Equivalent</p>
-                      <p className="text-sm text-muted-foreground">
-                        {treesEquivalent} trees worth of CO₂ absorption
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-muted/40 rounded-lg">
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: hex(brandColor, "33") }}>
-                      <span className="text-lg" aria-hidden="true">🚗</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">Driving Distance Saved</p>
-                      <p className="text-sm text-muted-foreground">
-                        {drivingEquivalent} km of car emissions avoided
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3 p-3 bg-muted/40 rounded-lg">
-                    <div className="p-2 bg-warning/20 rounded-lg">
-                      <span className="text-lg" aria-hidden="true">💡</span>
-                    </div>
-                    <div>
-                      <p className="font-medium">LED Bulb Hours</p>
-                      <p className="text-sm text-muted-foreground">
-                        {lightBulbEquivalent} hours of LED lighting powered
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        {/* Campaigns */}
-        <TabsContent value="campaigns" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
-                <span>Campaign Performance</span>
-              </CardTitle>
-              <CardDescription>
-                Moderation status and redemptions across your campaigns
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden mb-6">
-                {statusOrder.map((status) => (
-                  <div key={status} className="p-4 text-center">
-                    <p
-                      className={`text-2xl font-bold ${
-                        status === "EXPIRED" ? "text-muted-foreground" : "text-foreground"
-                      }`}
-                    >
-                      {campaignByStatus[status] ?? 0}
-                    </p>
-                    <span
-                      className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${CAMPAIGN_STATUS_STYLES[status].className}`}
-                    >
-                      {CAMPAIGN_STATUS_STYLES[status].label}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              <div className="space-y-3">
-                {campaignList.length > 0 ? (
-                  campaignList.slice(0, 5).map((campaign) => {
-                    const style =
-                      CAMPAIGN_STATUS_STYLES[campaign.status] ?? CAMPAIGN_STATUS_STYLES.EXPIRED;
-                    return (
-                      <div
-                        key={campaign.id}
-                        className="flex items-center justify-between p-4 border rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="h-10 w-10 rounded-lg flex items-center justify-center shrink-0"
-                            style={{ backgroundColor: hex(brandColor, "1a") }}
-                          >
-                            <Award className="h-5 w-5" style={{ color: brandColor }} />
-                          </div>
-                          <div>
-                            <p className="font-medium">{campaign.name}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {campaign.redemptions.toLocaleString()} redemptions
-                            </p>
-                          </div>
-                        </div>
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full font-medium ${style.className}`}
-                        >
-                          {style.label}
-                        </span>
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-sm text-muted-foreground py-6 text-center">
-                    No campaigns yet — create your first campaign to see performance data.
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Deals */}
-        <TabsContent value="deals" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <Tag className="h-5 w-5 text-muted-foreground" />
-                <span>Deal Inventory</span>
-              </CardTitle>
-              <CardDescription>
-                Status of your promotional deals · selected period
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-border border border-border rounded-lg overflow-hidden">
-                <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-foreground">{dealCounts.total}</p>
-                  <p className="text-sm text-muted-foreground mt-1">Total Deals</p>
-                </div>
-                <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-success">{dealCounts.active}</p>
-                  <p className="text-sm text-muted-foreground mt-1">Active</p>
-                </div>
-                <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-foreground">{dealCounts.inactive}</p>
-                  <p className="text-sm text-muted-foreground mt-1">Inactive</p>
-                </div>
-                <div className="p-4 text-center">
-                  <p className="text-2xl font-bold text-muted-foreground">{dealCounts.expired}</p>
-                  <p className="text-sm text-muted-foreground mt-1">Expired</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[3fr_2fr]">
+        <OverviewPortfolioMix
+          campaigns={campaigns}
+          campaignsUnavailable={campaignsUnavailable}
+          brandColor={brandColor}
+        />
+        <OverviewAttention
+          campaigns={campaigns}
+          deals={deals}
+          campaignsUnavailable={campaignsUnavailable}
+          dealsUnavailable={dealsUnavailable}
+          onNavigate={onNavigate}
+        />
+      </div>
     </div>
   );
 };

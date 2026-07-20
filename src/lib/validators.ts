@@ -4,9 +4,9 @@ export const isValidEmail = (email: string): string | null =>
     : "Enter a valid email address";
 
 export const isValidUrl = (url: string): string | null =>
-  /^https?:\/\/.+/.test(url)
+  url.trim().length > 0
     ? null
-    : "Enter a valid URL starting with http:// or https://";
+    : "Enter a valid URL";
 
 export const isValidPhone = (phone: string): string | null => {
   const digits = phone.replace(/\D/g, "");

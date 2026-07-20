@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { downloadCodes } from "@/lib/dealCodes";
+import { DEAL_STATUS_CONFIG } from "@/lib/dealStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import PromotionsFilterBar from "./PromotionsFilterBar";
@@ -61,13 +62,7 @@ const editDealSchema = z.object({
 
 type EditDealFormData = z.infer<typeof editDealSchema>;
 
-const STATUS_CONFIG = {
-  pending: { label: "Pending", className: "bg-warning/10 text-warning border-warning/20" },
-  active: { label: "Active", className: "bg-success/10 text-success border-success/20" },
-  rejected: { label: "Rejected", className: "bg-destructive/10 text-destructive border-destructive/20" },
-  inactive: { label: "Inactive", className: "bg-muted text-muted-foreground border-border" },
-  expired: { label: "Expired", className: "bg-destructive/10 text-destructive border-destructive/20" },
-} as const;
+const STATUS_CONFIG = DEAL_STATUS_CONFIG;
 
 const STATUS_FILTER_OPTIONS = [
   { value: "pending", label: "Pending" },

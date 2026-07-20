@@ -27,9 +27,10 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
-import { registerOrg } from "@/actions/brandActions";
+import { registerOrg, updateBrandSettings } from "@/actions/brandActions";
 import { brandAuth, brandSession } from "@/lib/brandAuth";
 import { isValidEmail, isValidPhone, isValidUrl, minLength } from "@/lib/validators";
+import { BRAND_CATEGORIES } from "@/lib/brandCategories";
 import { CountryPhoneInput } from "@/components/CountryPhoneInput";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -51,19 +52,6 @@ import {
   validateLogoFileBasics,
 } from "@/lib/logoUpload";
 
-const BRAND_CATEGORIES = [
-  "Fashion & Apparel",
-  "Beauty & Personal Care",
-  "Food & Beverage",
-  "Electronics & Technology",
-  "Health & Fitness",
-  "Home & Living",
-  "Travel & Hospitality",
-  "Entertainment",
-  "Retail",
-  "Other",
-];
-
 const DRAFT_STORAGE_KEY = "brandhub:register-draft";
 
 const INITIAL_FORM = {
@@ -74,6 +62,7 @@ const INITIAL_FORM = {
   brandName: "",
   category: "",
   logo: null as File | null,
+  contactName: "",
   phone: "",
   website: "",
   appLink: "",
@@ -141,6 +130,7 @@ const BrandRegister = () => {
       email: formData.email,
       brandName: formData.brandName,
       category: formData.category,
+      contactName: formData.contactName,
       phone: formData.phone,
       website: formData.website,
       appLink: formData.appLink,
@@ -353,6 +343,7 @@ const BrandRegister = () => {
         brandName: formData.brandName,
         category: formData.category,
         logo: formData.logo,
+        contactName: formData.contactName || undefined,
         phone: formData.phone || undefined,
         website: formData.website || undefined,
         appLink: formData.appLink || undefined,
@@ -376,6 +367,18 @@ const BrandRegister = () => {
       const brands = data.brands ?? [];
       brandSession.setBrands(brands);
       brandSession.setSubscribedModules(data.subscribedModules ?? []);
+
+      // The quick org-signup flow synthesizes a placeholder brand email
+      // (brand-<id>@brandhub.local) since the schema needs a unique value
+      // per brand at creation time. Overwrite it with the address the user
+      // actually registered with so Settings shows the real contact email.
+      if (data.defaultBrandId) {
+        try {
+          await updateBrandSettings(data.defaultBrandId, { email: formData.email });
+        } catch {
+          // Best-effort repair — a failure here shouldn't block onboarding.
+        }
+      }
 
       toast({
         title: "Organisation Created!",
@@ -650,6 +653,15 @@ const BrandRegister = () => {
 
               <div className="mt-5 grid md:grid-cols-2 gap-4">
                 <div className="space-y-2">
+                  <Label htmlFor="contactName">Contact Name</Label>
+                  <Input
+                    id="contactName"
+                    value={formData.contactName}
+                    onChange={(e) => handleInputChange("contactName", e.target.value)}
+                    placeholder="Primary contact person"
+                  />
+                </div>
+                <div className="space-y-2">
                   <Label htmlFor="phone">Phone *</Label>
                   <CountryPhoneInput
                     id="phone"
@@ -668,7 +680,7 @@ const BrandRegister = () => {
                     value={formData.website}
                     onChange={(e) => handleInputChange("website", e.target.value)}
                     onBlur={() => handleBlur("website")}
-                    placeholder="https://yourbrand.com"
+                    placeholder="www.yourbrand.com"
                     aria-invalid={isInvalid("website")}
                     aria-describedby={describedBy("website")}
                     className={errors.website && touched.website ? "border-destructive" : ""}
@@ -682,7 +694,7 @@ const BrandRegister = () => {
                     value={formData.appLink}
                     onChange={(e) => handleInputChange("appLink", e.target.value)}
                     onBlur={() => handleBlur("appLink")}
-                    placeholder="https://apps.apple.com/…"
+                    placeholder="apps.apple.com/…"
                     aria-invalid={isInvalid("appLink")}
                     aria-describedby={describedBy("appLink")}
                     className={errors.appLink && touched.appLink ? "border-destructive" : ""}
@@ -721,6 +733,7 @@ const BrandRegister = () => {
               "None (add later)"
             ),
           },
+          { label: "Contact Name", value: formData.contactName || "None (add later)" },
           { label: "Phone", value: formData.phone },
           { label: "Website", value: formData.website || "None (add later)" },
           { label: "App Link", value: formData.appLink || "None (add later)" },

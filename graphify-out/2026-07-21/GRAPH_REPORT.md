@@ -1,7 +1,7 @@
 # Graph Report - Mint-Rewards-BrandHub  (2026-07-21)
 
 ## Corpus Check
-- 142 files · ~804,743 words
+- 142 files · ~804,521 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary

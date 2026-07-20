@@ -23,7 +23,7 @@ export const parseCodesInput = (raw: string): ParsedCodes => {
     if (!line) continue;
     const code = line.toUpperCase();
     if (code.length < 4 || code.length > 32) {
-      rejected.push({ line, reason: "must be 4–32 characters" });
+      rejected.push({ line, reason: "must be 4-32 characters" });
     } else if (!CODE_PATTERN.test(code)) {
       rejected.push({ line, reason: "only letters, numbers, - and _ allowed" });
     } else if (seen.has(code)) {
