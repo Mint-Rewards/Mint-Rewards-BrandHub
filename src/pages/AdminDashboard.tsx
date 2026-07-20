@@ -93,6 +93,22 @@ const AdminDashboard = () => {
     return match?.brandName ?? match?.companyName ?? brandId;
   };
 
+  // Brands created via the quick org-signup flow get a synthesized
+  // `brand-<id>@brandhub.local` placeholder for `email` (the schema
+  // requires a unique value at creation time), with the org owner's real
+  // email stashed in `contactName` instead. Brands from the full
+  // application form don't hit this path — their `email` is already
+  // correct and `contactName` holds an actual contact person's name.
+  const isPlaceholderBrandEmail = (email?: string) =>
+    !!email && /^brand-[^@]+@brandhub\.local$/i.test(email);
+
+  const resolveBrandEmail = (brand: Pick<Brand, "email" | "contactName">) => {
+    if (isPlaceholderBrandEmail(brand.email) && brand.contactName?.includes("@")) {
+      return brand.contactName;
+    }
+    return brand.email;
+  };
+
   const fetchApplications = useCallback(async () => {
     try {
       const brands = await fetchBrands();
@@ -253,29 +269,72 @@ const AdminDashboard = () => {
   const isPending = (status?: string) =>
     (status ?? "").toLowerCase() === "pending";
 
-  const filteredApplications = brands.filter((brand) => {
-    const normalizedSearchTerm = searchTerm.toLowerCase();
-    const brandName = brand.brandName ?? "";
-    const companyName = brand.companyName ?? "";
-    const contactEmail = brand.email ?? "";
-    const matchesSearch =
-      brandName.toLowerCase().includes(normalizedSearchTerm) ||
-      companyName.toLowerCase().includes(normalizedSearchTerm) ||
-      contactEmail.toLowerCase().includes(normalizedSearchTerm);
-    const matchesFilter =
-      filterStatus === "all"
-        ? getBrandStatus(brand.status) !== "rejected"
-        : getBrandStatus(brand.status) === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  // Approved items surface first, rejected items sink to the bottom,
+  // pending items stay in the middle (in their existing relative order).
+  const APPROVED_RANK = 0;
+  const PENDING_RANK = 1;
+  const REJECTED_RANK = 2;
+
+  const brandStatusRank = (status?: string) => {
+    const normalized = getBrandStatus(status);
+    if (normalized === "approved") return APPROVED_RANK;
+    if (normalized === "rejected") return REJECTED_RANK;
+    return PENDING_RANK;
+  };
+
+  const campaignStatusRank = (status?: string) => {
+    const normalized = status?.toUpperCase();
+    if (normalized === "APPROVED") return APPROVED_RANK;
+    if (normalized === "REJECTED") return REJECTED_RANK;
+    return PENDING_RANK;
+  };
+
+  const dealStatusRank = (status?: string) => {
+    const normalized = status?.toLowerCase() ?? "pending";
+    if (normalized === "active") return APPROVED_RANK;
+    if (normalized === "rejected") return REJECTED_RANK;
+    return PENDING_RANK;
+  };
+
+  const filteredApplications = brands
+    .filter((brand) => {
+      const normalizedSearchTerm = searchTerm.toLowerCase();
+      const brandName = brand.brandName ?? "";
+      const companyName = brand.companyName ?? "";
+      const contactEmail = resolveBrandEmail(brand) ?? "";
+      const matchesSearch =
+        brandName.toLowerCase().includes(normalizedSearchTerm) ||
+        companyName.toLowerCase().includes(normalizedSearchTerm) ||
+        contactEmail.toLowerCase().includes(normalizedSearchTerm);
+      const matchesFilter =
+        filterStatus === "all" || getBrandStatus(brand.status) === filterStatus;
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => {
+      const rankDiff = brandStatusRank(a.status) - brandStatusRank(b.status);
+      if (rankDiff !== 0) return rankDiff;
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
+
+  const sortedCampaigns = [...campaigns].sort(
+    (a, b) => campaignStatusRank(a.status) - campaignStatusRank(b.status),
+  );
+
+  const sortedDeals = [...deals].sort(
+    (a, b) => dealStatusRank(a.status) - dealStatusRank(b.status),
+  );
 
   const stats = {
     total: brands.length,
     pending: brands.filter((b) => isPending(b.status)).length,
     approved: brands.filter((b) => getBrandStatus(b.status) === "approved").length,
     rejected: brands.filter((b) => getBrandStatus(b.status) === "rejected").length,
-    totalCampaigns: campaigns.length,
-    totalDeals: deals.length,
+    // totalCampaigns: campaigns.length,
+    approvedCampaigns: campaigns.filter((c) => c.status?.toUpperCase() === "APPROVED").length,
+    // totalDeals: deals.length,
+    activeDeals: deals.filter((d) => d.status?.toLowerCase() === "active").length,
   };
 
   const handleLogout = () => {
@@ -354,14 +413,14 @@ const AdminDashboard = () => {
                 <TrendingUp className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                 <span className="text-xs font-medium text-muted-foreground">Campaigns</span>
               </div>
-              <p className="text-2xl font-bold text-foreground">{stats.totalCampaigns}</p>
+              <p className="text-2xl font-bold text-foreground">{stats.approvedCampaigns}</p>
             </div>
             <div className="p-4">
               <div className="flex items-center gap-1.5 mb-1">
                 <BarChart3 className="h-3.5 w-3.5 text-primary" aria-hidden="true" />
                 <span className="text-xs font-medium text-muted-foreground">Deals</span>
               </div>
-              <p className="text-2xl font-bold text-foreground">{stats.totalDeals}</p>
+              <p className="text-2xl font-bold text-foreground">{stats.activeDeals}</p>
             </div>
           </div>
 
@@ -469,7 +528,7 @@ const AdminDashboard = () => {
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">
                             <span className="font-medium text-foreground">Contact: </span>
-                            {app.email}
+                            {resolveBrandEmail(app)}
                           </p>
                         </div>
 
@@ -548,7 +607,7 @@ const AdminDashboard = () => {
                 <CardContent>
                   {campaigns.length > 0 ? (
                     <div className="divide-y divide-border">
-                      {campaigns.map((campaign) => (
+                      {sortedCampaigns.map((campaign) => (
                         <div
                           key={campaign.id}
                           className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
@@ -661,7 +720,7 @@ const AdminDashboard = () => {
                 <CardContent>
                   {deals.length > 0 ? (
                     <div className="divide-y divide-border">
-                      {deals.map((deal) => (
+                      {sortedDeals.map((deal) => (
                         <div
                           key={deal.id}
                           className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
@@ -825,6 +884,12 @@ const AdminDashboard = () => {
                             {campaigns.filter((c) => c.status?.toUpperCase() === "PENDING").length}
                           </dd>
                         </div>
+                        <div className="flex justify-between text-sm">
+                          <dt className="text-muted-foreground">Rejected</dt>
+                          <dd className="font-semibold text-destructive">
+                            {campaigns.filter((c) => c.status?.toUpperCase() === "REJECTED").length}
+                          </dd>
+                        </div>
                       </dl>
                     </div>
 
@@ -846,8 +911,20 @@ const AdminDashboard = () => {
                           </dd>
                         </div>
                         <div className="flex justify-between text-sm">
-                          <dt className="text-muted-foreground">Inactive</dt>
+                          <dt className="text-muted-foreground">Pending</dt>
+                          <dd className="font-semibold text-warning">
+                            {deals.filter((d) => (d.status?.toLowerCase() ?? "pending") === "pending").length}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <dt className="text-muted-foreground">Rejected</dt>
                           <dd className="font-semibold text-destructive">
+                            {deals.filter((d) => d.status?.toLowerCase() === "rejected").length}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <dt className="text-muted-foreground">Inactive</dt>
+                          <dd className="font-semibold text-foreground">
                             {deals.filter((d) => d.status?.toLowerCase() === "inactive").length}
                           </dd>
                         </div>
@@ -868,12 +945,11 @@ const AdminDashboard = () => {
             <DialogTitle>Brand Details</DialogTitle>
           </DialogHeader>
           {selectedBrand && (
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
               {[
                 ["Company Name", selectedBrand.companyName],
                 ["Brand Name", selectedBrand.brandName],
                 ["Category", selectedBrand.category],
-                ["Email", selectedBrand.email],
                 ["Phone", selectedBrand.phone],
                 ["Website", selectedBrand.website ?? selectedBrand.webLink],
                 ["App Link", selectedBrand.appLink],
@@ -888,12 +964,16 @@ const AdminDashboard = () => {
               ].map(([label, value]) => (
                 <div key={label as string}>
                   <p className="font-medium text-foreground">{label}</p>
-                  <p className="text-muted-foreground">{value || "-"}</p>
+                  <p className="text-muted-foreground break-words">{value || "-"}</p>
                 </div>
               ))}
               <div className="col-span-2">
+                <p className="font-medium text-foreground">Email</p>
+                <p className="text-muted-foreground break-words">{resolveBrandEmail(selectedBrand) || "-"}</p>
+              </div>
+              <div className="col-span-2">
                 <p className="font-medium text-foreground">Description</p>
-                <p className="text-muted-foreground">{selectedBrand.description || "-"}</p>
+                <p className="text-muted-foreground break-words">{selectedBrand.description || "-"}</p>
               </div>
             </div>
           )}
