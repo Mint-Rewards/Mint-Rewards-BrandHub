@@ -811,9 +811,9 @@ const BrandDashboard = () => {
               >
                 {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
               </Badge>
-              <Button variant="outline" onClick={() => navigate("/")}>
+              {/* <Button variant="outline" onClick={() => navigate("/")}>
                 Exit Dashboard
-              </Button>
+              </Button> */}
               <Button
                 variant="outline"
                 onClick={() => {
