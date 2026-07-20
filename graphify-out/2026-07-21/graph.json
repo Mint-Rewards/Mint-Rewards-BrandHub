@@ -9751,7 +9751,7 @@
       "contributor": null,
       "community": 87,
       "norm_label": "graphify /graphify trigger (root claude.md)",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
     },
     {
       "label": "Step 0 - GitHub repos and multi-path merge",
@@ -18383,6 +18383,17 @@
       "source_location": "L36",
       "weight": 1.0,
       "source": "src_components_esgtab",
+      "target": "src_lib_metrics_iscampaignapproved",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/EsgTab.tsx",
+      "source_location": "L36",
+      "weight": 1.0,
+      "source": "src_components_esgtab",
       "target": "src_lib_metrics_iscampaignlivenow",
       "confidence_score": 1.0
     },
@@ -18446,7 +18457,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/components/EsgTab.tsx",
-      "source_location": "L460",
+      "source_location": "L471",
       "weight": 1.0,
       "source": "src_components_esgtab_esgtab",
       "target": "src_components_esgtab_formatkg",
@@ -18469,10 +18480,21 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/components/EsgTab.tsx",
-      "source_location": "L265",
+      "source_location": "L273",
       "weight": 1.0,
       "source": "src_components_esgtab_esgtab",
       "target": "src_components_overviewtab_plural"
+    },
+    {
+      "relation": "indirect_call",
+      "context": "argument",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "src/components/EsgTab.tsx",
+      "source_location": "L198",
+      "weight": 1.0,
+      "source": "src_components_esgtab_esgtab",
+      "target": "src_lib_metrics_iscampaignapproved"
     },
     {
       "relation": "indirect_call",
