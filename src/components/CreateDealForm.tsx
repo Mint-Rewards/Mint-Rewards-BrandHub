@@ -49,10 +49,10 @@ const dealSchema = z.object({
       (v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100,
       "Enter a percentage between 0 and 100",
     ),
-  discountAmount: z
-    .string()
-    .min(1, "Flat discount amount is required")
-    .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
+  // discountAmount: z
+  //   .string()
+  //   .min(1, "Flat discount amount is required")
+  //   .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
   startDate: z.date({ required_error: "Start date is required" }),
   endDate: z.date({ required_error: "End date is required" }),
   maxUses: z
@@ -88,7 +88,7 @@ export function CreateDealForm({
       title: "",
       description: "",
       discountPercentage: "",
-      discountAmount: "",
+      // discountAmount: "",
       maxUses: "",
       minimumPurchase: "",
     },
@@ -108,7 +108,7 @@ export function CreateDealForm({
         title: data.title,
         description: data.description || undefined,
         discountPercentage: parseInt(data.discountPercentage),
-        discountAmount: parseFloat(data.discountAmount),
+        // discountAmount: parseFloat(data.discountAmount),
         startDate: format(data.startDate, "yyyy-MM-dd"),
         endDate: format(data.endDate, "yyyy-MM-dd"),
         maxUses: parseInt(data.maxUses),
@@ -200,7 +200,7 @@ export function CreateDealForm({
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name="discountAmount"
             render={({ field }) => (
@@ -215,7 +215,7 @@ export function CreateDealForm({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
