@@ -346,7 +346,17 @@ const BrandDashboard = () => {
     themeColor: brandData.themeColor || "#3B82F6",
   };
 
-  const PendingApprovalView = () => (
+  const brandColor = formattedData.themeColor;
+
+  // NOTE: these two are plain JSX values, NOT components — do not convert them
+  // back to `const X = () => (...)` rendered as `<X />`. A component defined
+  // during render gets a fresh identity every time this function runs, so
+  // React treats it as a different type and unmounts/remounts the whole
+  // subtree on ANY state change here. That silently resets all descendant
+  // component state, which broke the ESG statistics period picker: changing
+  // the date remounted EsgTab, its uncontrolled inner <Tabs> snapped back to
+  // defaultValue="impact" (an all-time view), and the picker looked inert.
+  const pendingApprovalView = (
     <div className="space-y-6">
       {/* Status Header */}
       <Card className="border-warning/20 bg-warning/5">
@@ -548,7 +558,8 @@ const BrandDashboard = () => {
     });
   };
 
-  const ApprovedDashboardView = () => (
+  // Plain JSX value, not a component — see the note on pendingApprovalView.
+  const approvedDashboardView = (
     <div className="space-y-6">
       {!hasAnyModule && (
         <Card>
@@ -710,45 +721,55 @@ const BrandDashboard = () => {
               <div>
                 <p className="text-sm font-semibold text-foreground">Statistics Period</p>
                 <p className="text-xs text-muted-foreground">
-                  Campaign and deal breakdowns reflect this range. Engagement and environmental
-                  totals are all-time.
+                  All figures on this tab reflect this range. Impact totals are summed from
+                  whole monthly records, so the span they cover is shown alongside them.
                 </p>
               </div>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="justify-start gap-2 font-normal"
-                  >
-                    <CalendarIcon
-                      className="h-4 w-4"
-                      style={{ color: brandColor }}
-                    />
-                    {esgDateRange?.from ? (
-                      esgDateRange.to ? (
-                        <>
-                          {format(esgDateRange.from, "MMM d, yyyy")} –{" "}
-                          {format(esgDateRange.to, "MMM d, yyyy")}
-                        </>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant={!esgDateRange?.from && !esgDateRange?.to ? "default" : "outline"}
+                  aria-pressed={!esgDateRange?.from && !esgDateRange?.to}
+                  onClick={() => setEsgDateRange(undefined)}
+                >
+                  All time
+                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="justify-start gap-2 font-normal"
+                    >
+                      <CalendarIcon
+                        className="h-4 w-4"
+                        style={{ color: brandColor }}
+                      />
+                      {esgDateRange?.from ? (
+                        esgDateRange.to ? (
+                          <>
+                            {format(esgDateRange.from, "MMM d, yyyy")} –{" "}
+                            {format(esgDateRange.to, "MMM d, yyyy")}
+                          </>
+                        ) : (
+                          format(esgDateRange.from, "MMM d, yyyy")
+                        )
                       ) : (
-                        format(esgDateRange.from, "MMM d, yyyy")
-                      )
-                    ) : (
-                      "Select dates"
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={esgDateRange?.from}
-                    selected={esgDateRange}
-                    onSelect={setEsgDateRange}
-                    numberOfMonths={2}
-                  />
-                </PopoverContent>
-              </Popover>
+                        "Select dates"
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={esgDateRange?.from}
+                      selected={esgDateRange}
+                      onSelect={setEsgDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
             <EsgTab
               analytics={analytics}
@@ -802,8 +823,6 @@ const BrandDashboard = () => {
       </Tabs>
     </div>
   );
-
-  const brandColor = formattedData.themeColor;
 
   return (
     <div className="min-h-screen bg-background">
@@ -872,7 +891,7 @@ const BrandDashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {isApproved || isPreviewMode ? <ApprovedDashboardView /> : <PendingApprovalView />}
+        {isApproved || isPreviewMode ? approvedDashboardView : pendingApprovalView}
       </main>
     </div>
   );

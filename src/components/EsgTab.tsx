@@ -45,7 +45,7 @@ import { dealStatusConfig } from "@/lib/dealStatus";
 const hex = (color: string, alpha: string) => color + alpha;
 
 // CO₂ savings per kg recycled, by material. These are client-side equivalence
-// factors applied to the REAL weights from analytics.environmental — the
+// factors applied to the REAL weights from the analytics payload — the
 // headline CO₂ figure itself comes straight from the backend.
 const CO2_SAVINGS_PER_KG: Record<string, number> = {
   paper: 3.3,
@@ -122,10 +122,10 @@ const EsgTab: React.FC<{
   // "the count below is real, not just not-yet-loaded" signal.
   campaignsLoaded?: boolean;
   dealsLoaded?: boolean;
-  // Filters the Campaigns/Deals breakdowns below. Engagement and
-  // environmental figures stay all-time regardless — this tab's headline
-  // figures always come from `analytics`, never from the period-scoped fetch.
-  // Unset/empty bounds mean "all time".
+  // Filters every figure on this tab. Unset/empty bounds mean "all time".
+  // Environmental figures follow it too, via the backend's dated impact
+  // buckets; brands still on the legacy cumulative snapshot come back
+  // periodScoped:false and are labelled all-time on the card.
   period?: { from: Date | null; to: Date | null };
   // const periodFrom = period?.from ? period.from.getTime() : null;
   // const periodTo = period?.to ? period.to.getTime() : null;
@@ -184,32 +184,90 @@ const EsgTab: React.FC<{
   const campaignsReady = campaignsLoaded && Boolean(campaigns) && !campaignsUnavailable;
   const dealsReady = dealsLoaded && Boolean(deals) && !dealsUnavailable;
 
-  // Same definition Overview uses (see isCampaignLiveNow): derived from the
-  // real campaign list, falling back to the backend aggregate only when that
-  // list failed to load. Both tabs must report one number for one label.
+  // Period scoping is computed up front because every figure below derives
+  // from it — campaign and deal counts, the two breakdown lists, and the
+  // environmental totals (which the backend sums from dated impact buckets).
+  // Only brands still on the legacy cumulative snapshot fall back to all-time.
+  const periodFrom = period?.from ? period.from.getTime() : null;
+  const periodTo = period?.to ? period.to.getTime() : null;
+  const scopedAnalytics = periodAnalytics ?? analytics;
+
+  // Used to stamp the CSV export so a downloaded row is unambiguous.
+  const isoDay = (ms: number | null) =>
+    ms === null ? null : new Date(ms).toISOString().slice(0, 10);
+  const periodLabel =
+    periodFrom === null && periodTo === null
+      ? "All-time"
+      : `${isoDay(periodFrom) ?? "…"} to ${isoDay(periodTo) ?? "…"}`;
+
+  const campaignsInScope = campaignsReady
+    ? campaigns!.filter((c) => overlapsPeriod(c.startDate, c.endDate, periodFrom, periodTo))
+    : [];
+  const dealsInScope = dealsReady
+    ? deals!.filter((d) => overlapsPeriod(d.startDate, d.endDate, periodFrom, periodTo))
+    : [];
+
+  // The two breakdown lists show only what actually RAN in the window, while
+  // the status grids above them keep showing the full in-period distribution
+  // — that contrast is the point: the grid explains why the list is shorter.
+  //
+  // "Ran in the window" is deliberately NOT isCampaignLiveNow/
+  // effectiveDealStatus. Both of those are relative to *now*, so using them
+  // would empty these lists for any period that has already closed, and every
+  // historical ESG report would read as zero activity. Instead: the record's
+  // dates overlap the period (already true of *InScope) and its status says it
+  // was genuinely live at some point — excluding records that were never
+  // approved (pending/rejected) and deals deliberately paused (inactive).
+  //
+  // To switch these lists to "live right now" instead, filter *InScope by
+  // isCampaignLiveNow / effectiveDealStatus(d) === "active" here.
+  const RAN_CAMPAIGN_STATUSES = new Set(["APPROVED", "EXPIRED"]);
+  const RAN_DEAL_STATUSES = new Set(["active", "expired"]);
+
+  const campaignsActiveInPeriod = campaignsInScope.filter((c) =>
+    RAN_CAMPAIGN_STATUSES.has(String(c.status ?? "").toUpperCase()),
+  );
+  const dealsActiveInPeriod = dealsInScope.filter((d) =>
+    RAN_DEAL_STATUSES.has(String(d.status ?? "").toLowerCase()),
+  );
+
+  // Same definition Overview uses (see isCampaignLiveNow), applied to the
+  // in-scope set. This mirrors the backend exactly — it also period-filters
+  // first and then counts what is live *now* — so the two never disagree.
+  // Falls back to the period-scoped aggregate when the list failed to load.
   const activeCampaigns = campaignsReady
-    ? campaigns!.filter(isCampaignLiveNow).length
-    : analytics.summary.activeCampaigns;
+    ? campaignsInScope.filter(isCampaignLiveNow).length
+    : scopedAnalytics.summary.activeCampaigns;
 
   const totalCampaigns = campaignsReady
-    ? campaigns!.length
-    : analytics.summary.totalCampaigns;
+    ? campaignsInScope.length
+    : scopedAnalytics.summary.totalCampaigns;
 
-  // All-time deal counts, from the real deal list — the same source and
-  // fallback rule Overview uses. The Deal Inventory tab below reports the
-  // period-scoped totals instead, per this tab's headline/breakdown split.
-  const totalDeals = dealsReady ? deals!.length : analytics.dealStats.total;
+  const totalDeals = dealsReady ? dealsInScope.length : scopedAnalytics.dealStats.total;
   const activeDeals = dealsReady
-    ? deals!.filter((d) => effectiveDealStatus(d) === "active").length
-    : analytics.dealStats.active;
+    ? dealsInScope.filter((d) => effectiveDealStatus(d) === "active").length
+    : scopedAnalytics.dealStats.active;
 
-  // The backend omits `environmental` for brands with no environmentalStats;
+  // Read from the PERIOD-scoped payload, not the all-time one: the backend
+  // sums the dated impact buckets overlapping the selected window, so this
+  // figure tracks the statistics period like every other number on the tab.
+  // Brands still on the legacy cumulative snapshot come back with
+  // periodScoped:false and are labelled all-time instead.
+  // The backend omits `environmental` entirely for brands with no impact data;
   // default to zeros so a fresh brand renders instead of crashing.
-  const environmental = analytics.environmental ?? {
+  const environmentalSource = scopedAnalytics.environmental;
+  const environmental = environmentalSource ?? {
     totalWasteKg: 0,
     co2AvoidedKg: 0,
     materialBreakdown: [],
   };
+  const environmentalIsAllTime = environmentalSource?.periodScoped !== true;
+  const environmentalCoverage = environmentalSource?.coverage ?? null;
+  // Buckets are counted whole, so the covered span can exceed the requested
+  // window. Say so rather than letting the reader assume an exact match.
+  const coverageLabel = environmentalCoverage
+    ? `covering ${environmentalCoverage.from} to ${environmentalCoverage.to}`
+    : undefined;
 
   const breakdown = environmental.materialBreakdown.map((item, index) => ({
     name: item.material,
@@ -263,45 +321,55 @@ const EsgTab: React.FC<{
     value: number;
     unit?: string;
     context?: string;
+    // Marks a figure the statistics period cannot filter, so the card can say
+    // so outright rather than leaving the reader to assume it followed the
+    // period like its neighbours did.
+    allTime?: boolean;
   }[] = [
     {
       label: "Active Campaigns",
       value: activeCampaigns,
-      context: `of ${plural(totalCampaigns, "campaign", "campaigns")} total`,
+      // context: `of ${plural(totalCampaigns, "campaign", "campaigns")} in period`,
+      context: 'in this period'
     },
     {
       label: "Active Deals",
       value: activeDeals,
-      context: `of ${plural(totalDeals, "deal", "deals")} total`,
+      context: 'in this period',
     },
     {
       label: "Total Redemptions",
-      value: analytics.summary.totalRedemptions,
+      value: scopedAnalytics.summary.totalRedemptions,
       // `activeDeals` falls back to the backend aggregate when the deal list
       // is unavailable, so there is always a real number to quote here.
-      context: `across ${plural(activeDeals, "approved deal", "approved deals")}`,
+      // context: `across ${plural(activeDeals, "approved deal", "approved deals")}`,
+      context: 'in this period',
     },
-    ...(analytics.environmental
+    ...(environmentalSource
       ? [
           {
             label: "Total Waste Collected",
-            value: analytics.environmental.totalWasteKg,
+            value: environmental.totalWasteKg,
             unit: "kg",
+            allTime: environmentalIsAllTime,
             context:
-              breakdown.length > 0
+              coverageLabel ??
+              (breakdown.length > 0
                 ? `across ${plural(breakdown.length, "material type", "material types")}`
-                : undefined,
+                : undefined),
           },
           {
             label: "CO₂ Avoided",
-            value: analytics.environmental.co2AvoidedKg,
+            value: environmental.co2AvoidedKg,
             unit: "kg",
+            allTime: environmentalIsAllTime,
             context: `≈ ${plural(treesEquivalent, "tree", "trees")} planted`,
           },
-          ...analytics.environmental.materialBreakdown.map((item, index) => ({
+          ...environmental.materialBreakdown.map((item, index) => ({
             label: `${item.material} Collected`,
             value: item.weightKg,
             unit: "kg",
+            allTime: environmentalIsAllTime,
             context:
               environmental.totalWasteKg > 0
                 ? `${breakdown[index]?.percentage ?? 0}% of total waste`
@@ -313,10 +381,18 @@ const EsgTab: React.FC<{
 
   const exportCsv = () => {
     const rows = [
-      ["Metric", "Value", "Unit", "Context"],
-      ...figures.map((f) => [f.label, String(f.value), f.unit ?? "", f.context ?? ""]),
+      ["Metric", "Value", "Unit", "Context", "Period"],
+      ...figures.map((f) => [
+        f.label,
+        String(f.value),
+        f.unit ?? "",
+        f.context ?? "",
+        // Campaign/deal figures move with the period, so an exported row is
+        // ambiguous without saying which window it came from.
+        f.allTime ? "All-time" : periodLabel,
+      ]),
       [],
-      ["Generated", new Date().toISOString().slice(0, 10), "", ""],
+      ["Generated", new Date().toISOString().slice(0, 10), "", "", ""],
     ];
     const csv = rows
       .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
@@ -330,24 +406,10 @@ const EsgTab: React.FC<{
     URL.revokeObjectURL(url);
   };
 
-  // Campaign/deal breakdowns are derived from the real lists — the same
-  // source Overview uses — scoped to the selected period by date-window
-  // overlap. The period-aggregated analytics summary measures activity
-  // *within* the window, so its counts drift from what's actually in scope;
-  // we fall back to it only when a list failed to load. Redemptions are
-  // joined from the period-scoped fetch, exactly like Overview does, falling
-  // back to all-time analytics while that fetch is in flight.
-  const periodFrom = period?.from ? period.from.getTime() : null;
-  const periodTo = period?.to ? period.to.getTime() : null;
-  const scopedAnalytics = periodAnalytics ?? analytics;
-
-  const campaignsInScope = campaignsReady
-    ? campaigns!.filter((c) => overlapsPeriod(c.startDate, c.endDate, periodFrom, periodTo))
-    : [];
-  const dealsInScope = dealsReady
-    ? deals!.filter((d) => overlapsPeriod(d.startDate, d.endDate, periodFrom, periodTo))
-    : [];
-
+  // Breakdowns reuse campaignsInScope/dealsInScope computed above, so the
+  // headline KPIs and these tables can never disagree about what is in scope.
+  // Redemptions are joined from the period-scoped fetch, exactly like Overview
+  // does, falling back to all-time analytics while that fetch is in flight.
   const campaignByStatus: Record<string, number> = campaignsReady
     ? campaignsInScope.reduce<Record<string, number>>((acc, c) => {
         const key = effectiveCampaignStatus(c);
@@ -368,19 +430,35 @@ const EsgTab: React.FC<{
     // null = the analytics join found no entry for this campaign, which is not
     // the same claim as "zero redemptions"; rendered as an em dash.
     redemptions: number | null;
-  }[] = campaignsReady
-    ? campaignsInScope.map((c) => ({
-        id: c.id,
-        name: c.name ?? "Untitled campaign",
-        status: String(c.status ?? "").toUpperCase(),
-        redemptions: redemptionsById.get(c.id) ?? null,
-      }))
-    : (scopedAnalytics.campaigns.list ?? []).map((c) => ({
-        id: c.id,
-        name: c.name,
-        status: c.status,
-        redemptions: c.redemptions,
-      }));
+  }[] = (
+    campaignsReady
+      ? campaignsActiveInPeriod.map((c) => ({
+          id: c.id,
+          name: c.name ?? "Untitled campaign",
+          status: String(c.status ?? "").toUpperCase(),
+          redemptions: redemptionsById.get(c.id) ?? null,
+        }))
+      : // Same status filter on the fallback path, so a failed campaign fetch
+        // doesn't quietly widen the list back out to every status.
+        (scopedAnalytics.campaigns.list ?? [])
+          .filter((c) => RAN_CAMPAIGN_STATUSES.has(String(c.status ?? "").toUpperCase()))
+          .map((c) => ({
+            id: c.id,
+            name: c.name,
+            status: c.status,
+            redemptions: c.redemptions,
+          }))
+  ).sort(
+    (a, b) =>
+      Number(effectiveCampaignStatus(b) === "APPROVED") -
+      Number(effectiveCampaignStatus(a) === "APPROVED"),
+  );
+
+  const sortedDealsActiveInPeriod = [...dealsActiveInPeriod].sort(
+    (a, b) =>
+      Number(effectiveDealStatus(b) === "active") -
+      Number(effectiveDealStatus(a) === "active"),
+  );
 
   // Deals also carry pending/rejected statuses, so the three named buckets
   // don't account for the total on their own — everything else lands in
@@ -425,7 +503,14 @@ const EsgTab: React.FC<{
       <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {figures.map((figure) => (
           <Card key={figure.label} className="p-4">
-            <dt className="text-sm text-muted-foreground">{figure.label}</dt>
+            <dt className="flex items-start justify-between gap-2 text-sm text-muted-foreground">
+              <span>{figure.label}</span>
+              {figure.allTime && (
+                <span className="shrink-0 rounded-full border px-1.5 text-xs font-medium text-muted-foreground/80">
+                  All-time
+                </span>
+              )}
+            </dt>
             <dd className="mt-1">
               <p className="text-2xl font-bold text-foreground tabular-nums">
                 {figure.value.toLocaleString()}
@@ -466,7 +551,11 @@ const EsgTab: React.FC<{
                   <p className="text-3xl font-bold text-foreground tabular-nums">
                     {formatKg(environmental.totalWasteKg)}
                   </p>
-                  <p className="text-sm text-muted-foreground">Total collected, all-time</p>
+                  <p className="text-sm text-muted-foreground">
+                    {environmentalIsAllTime
+                      ? "Total collected, all-time"
+                      : (coverageLabel ?? "Total collected in the selected period")}
+                  </p>
                 </div>
                 {breakdown.length > 0 ? (
                   <div className="space-y-3">
@@ -678,7 +767,8 @@ const EsgTab: React.FC<{
                 <span>Campaign Performance</span>
               </CardTitle>
               <CardDescription>
-                Moderation status and redemptions across your campaigns
+                Moderation status across all campaigns in the selected period; the list below
+                shows only those that ran
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -742,14 +832,17 @@ const EsgTab: React.FC<{
                   })
                 ) : (
                   <p className="text-sm text-muted-foreground py-6">
-                    No campaigns in the selected period. Widen the statistics period above, or
-                    create a campaign to start seeing performance data.
+                    {campaignsInScope.length > 0
+                      ? `${campaignsInScope.length.toLocaleString()} campaign${
+                          campaignsInScope.length === 1 ? "" : "s"
+                        } fall in this period, but none were approved and running — see the status breakdown above.`
+                      : "No campaigns in the selected period. Widen the statistics period above, or create a campaign to start seeing performance data."}
                   </p>
                 )}
                 {campaignList.length > 5 && (
                   <p className="text-xs text-muted-foreground pt-1">
-                    Showing 5 of {campaignList.length.toLocaleString()} campaigns. The full list
-                    lives in the Promotions tab.
+                    Showing 5 of {campaignList.length.toLocaleString()} campaigns that ran in
+                    this period. The full list lives in the Promotions tab.
                   </p>
                 )}
               </div>
@@ -766,8 +859,8 @@ const EsgTab: React.FC<{
                 <span>Deal Inventory</span>
               </CardTitle>
               <CardDescription>
-                Status of your promotional deals{" "}
-                <span className="text-muted-foreground/70">· selected period</span>
+                Status of all deals in the selected period; the list below shows only those that
+                were live <span className="text-muted-foreground/70">· selected period</span>
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -802,15 +895,14 @@ const EsgTab: React.FC<{
                   breakdowns in this tab read as one list style. */}
               {dealsReady && (
                 <div className="space-y-3 mt-6">
-                  {dealsInScope.length > 0 ? (
-                    dealsInScope.slice(0, 5).map((deal) => {
+                  {sortedDealsActiveInPeriod.length > 0 ? (
+                    sortedDealsActiveInPeriod.slice(0, 5).map((deal) => {
                       const config = dealStatusConfig(effectiveDealStatus(deal));
                       const codeCount = deal.codeCount ?? deal.codes?.length ?? 0;
                       const meta = [
                         deal.discountPercentage != null ? `${deal.discountPercentage}% off` : null,
                         deal.discountAmount != null ? `$${deal.discountAmount} off` : null,
                         codeCount > 0 ? `${codeCount} ${codeCount === 1 ? "code" : "codes"}` : null,
-                        deal.maxUses != null ? `${deal.currentUses ?? 0}/${deal.maxUses} uses` : null,
                       ].filter(Boolean);
                       return (
                         <div
@@ -845,14 +937,17 @@ const EsgTab: React.FC<{
                     })
                   ) : (
                     <p className="text-sm text-muted-foreground py-6">
-                      No deals in the selected period. Widen the statistics period above to see
-                      more.
+                      {dealsInScope.length > 0
+                        ? `${dealsInScope.length.toLocaleString()} deal${
+                            dealsInScope.length === 1 ? "" : "s"
+                          } fall in this period, but none were live — see the status breakdown above.`
+                        : "No deals in the selected period. Widen the statistics period above to see more."}
                     </p>
                   )}
-                  {dealsInScope.length > 5 && (
+                  {sortedDealsActiveInPeriod.length > 5 && (
                     <p className="text-xs text-muted-foreground pt-1">
-                      Showing 5 of {dealsInScope.length.toLocaleString()} deals. The full list
-                      lives in the Promotions tab.
+                      Showing 5 of {sortedDealsActiveInPeriod.length.toLocaleString()} deals that ran
+                      in this period. The full list lives in the Promotions tab.
                     </p>
                   )}
                 </div>
@@ -861,12 +956,13 @@ const EsgTab: React.FC<{
           </Card>
         </TabsContent>
       </Tabs>
-
+{/*
       <p className="text-sm text-muted-foreground max-w-[70ch]">
-        Figures are drawn live from your brand analytics. Headline metrics and environmental
-        totals are all-time; the campaign and deal breakdowns follow the statistics period above.
+        Figures are drawn live from your brand analytics and follow the statistics period above.
+        Impact figures are summed from whole monthly records, so the span they cover is shown
+        alongside them; any figure that could not be scoped is marked all-time.
         The CSV export contains exactly the metrics displayed here, with a generation date.
-      </p>
+      </p> */}
     </div>
   );
 };

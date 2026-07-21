@@ -27,11 +27,20 @@ export interface BrandAnalytics {
     inactive: number;
     expired: number;
   };
-  // Omitted by the backend for brands with no environmentalStats.
+  // Omitted by the backend for brands with no impact data at all.
   environmental?: {
     totalWasteKg: number;
     co2AvoidedKg: number;
     materialBreakdown: { material: string; weightKg: number }[];
+    // False for brands still on the legacy cumulative snapshot, which cannot
+    // be filtered — the UI must label those all-time rather than implying they
+    // followed the statistics period.
+    periodScoped?: boolean;
+    // The span the returned figures actually cover. Buckets are counted whole,
+    // never pro-rated, so this can be wider than the requested window — it is
+    // the honest answer to "which days is this number for?". Null when no
+    // bucket matched, or on the legacy path.
+    coverage?: { from: string; to: string } | null;
   };
 }
 
