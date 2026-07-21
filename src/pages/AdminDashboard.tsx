@@ -976,6 +976,12 @@ const AdminDashboard = () => {
                             {campaigns.filter((c) => c.status?.toUpperCase() === "REJECTED").length}
                           </dd>
                         </div>
+                        <div className="flex justify-between text-sm">
+                          <dt className="text-muted-foreground">Expired</dt>
+                          <dd className="font-semibold text-muted-foreground">
+                            {campaigns.filter((c) => c.status?.toUpperCase() === "EXPIRED").length}
+                          </dd>
+                        </div>
                       </dl>
                     </div>
 
@@ -1009,8 +1015,14 @@ const AdminDashboard = () => {
                           </dd>
                         </div>
                         <div className="flex justify-between text-sm">
+                          <dt className="text-muted-foreground">Expired</dt>
+                          <dd className="font-semibold text-muted-foreground">
+                            {deals.filter((d) => d.status?.toLowerCase() === "expired").length}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between text-sm">
                           <dt className="text-muted-foreground">Inactive</dt>
-                          <dd className="font-semibold text-foreground">
+                          <dd className="font-semibold text-muted-foreground">
                             {deals.filter((d) => d.status?.toLowerCase() === "inactive").length}
                           </dd>
                         </div>
@@ -1035,12 +1047,13 @@ const AdminDashboard = () => {
               {[
                 ["Company Name", selectedBrand.companyName],
                 ["Brand Name", selectedBrand.brandName],
+                ["Registration No.", selectedBrand.registrationNumber],
+                ["Email", resolveBrandEmail(selectedBrand)],
                 ["Category", selectedBrand.category],
                 ["Phone", selectedBrand.phone],
+                ["Address", selectedBrand.address],
                 ["Website", selectedBrand.website ?? selectedBrand.webLink],
                 ["App Link", selectedBrand.appLink],
-                ["Address", selectedBrand.address],
-                ["Registration No.", selectedBrand.registrationNumber],
                 [
                   "Submitted",
                   selectedBrand.createdAt
@@ -1053,10 +1066,6 @@ const AdminDashboard = () => {
                   <p className="text-muted-foreground break-words">{value || "-"}</p>
                 </div>
               ))}
-              <div className="col-span-2">
-                <p className="font-medium text-foreground">Email</p>
-                <p className="text-muted-foreground break-words">{resolveBrandEmail(selectedBrand) || "-"}</p>
-              </div>
               <div className="col-span-2">
                 <p className="font-medium text-foreground">Description</p>
                 <p className="text-muted-foreground break-words">{selectedBrand.description || "-"}</p>
@@ -1090,17 +1099,17 @@ const AdminDashboard = () => {
                     : undefined,
                 ],
                 ["Campaign Type", selectedCampaign.campaignType],
-                ["Budget", selectedCampaign.budget != null ? `$${selectedCampaign.budget}` : undefined],
+                ["Budget", selectedCampaign.budget != null ? `PKR ${selectedCampaign.budget}` : undefined],
                 ["Target Audience", selectedCampaign.targetAudience],
               ].map(([label, value]) => (
                 <div key={label as string}>
                   <p className="font-medium text-foreground">{label}</p>
-                  <p className="text-muted-foreground">{(value as string) || "-"}</p>
+                  <p className="text-muted-foreground break-words">{(value as string) || "-"}</p>
                 </div>
               ))}
               <div className="col-span-2">
                 <p className="font-medium text-foreground">Description</p>
-                <p className="text-muted-foreground">{selectedCampaign.description || "-"}</p>
+                <p className="text-muted-foreground break-words">{selectedCampaign.description || "-"}</p>
               </div>
             </div>
           )}
@@ -1166,10 +1175,6 @@ const AdminDashboard = () => {
                 ["Title", selectedDeal.title],
                 ["Promo Code", selectedDeal.promoCode],
                 [
-                  "Discount Amount",
-                  selectedDeal.discountAmount != null ? `$${selectedDeal.discountAmount}` : undefined,
-                ],
-                [
                   "Discount %",
                   selectedDeal.discountPercentage != null
                     ? `${selectedDeal.discountPercentage}%`
@@ -1191,18 +1196,18 @@ const AdminDashboard = () => {
                 [
                   "Minimum Purchase",
                   selectedDeal.minimumPurchase != null
-                    ? `$${selectedDeal.minimumPurchase}`
+                    ? `PKR ${selectedDeal.minimumPurchase}`
                     : undefined,
                 ],
               ].map(([label, value]) => (
                 <div key={label as string}>
                   <p className="font-medium text-foreground">{label}</p>
-                  <p className="text-muted-foreground">{(value as string) || "-"}</p>
+                  <p className="text-muted-foreground break-words">{(value as string) || "-"}</p>
                 </div>
               ))}
               <div className="col-span-2">
                 <p className="font-medium text-foreground">Description</p>
-                <p className="text-muted-foreground">{selectedDeal.description || "-"}</p>
+                <p className="text-muted-foreground break-words">{selectedDeal.description || "-"}</p>
               </div>
             </div>
           )}

@@ -1,7 +1,7 @@
 # Graph Report - Mint-Rewards-BrandHub  (2026-07-21)
 
 ## Corpus Check
-- 142 files · ~807,193 words
+- 142 files · ~807,211 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4bf5c0ac`
+- Built from commit: `59522ad8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -186,12 +186,12 @@
   src/actions/brandActions.ts → src/types.ts
 - `overlapsPeriod()` --calls--> `toMs()`  [EXTRACTED]
   src/components/EsgTab.tsx → src/lib/metrics.ts
+- `EsgTab()` --calls--> `plural()`  [INFERRED]
+  src/components/EsgTab.tsx → src/components/OverviewTab.tsx
 - `EsgTab()` --indirect_call--> `isCampaignLiveNow()`  [INFERRED]
   src/components/EsgTab.tsx → src/lib/metrics.ts
 - `OverviewTab()` --indirect_call--> `isCampaignLiveNow()`  [INFERRED]
   src/components/OverviewTab.tsx → src/lib/metrics.ts
-- `BreadcrumbSeparator()` --calls--> `cn()`  [EXTRACTED]
-  src/components/ui/breadcrumb.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - 1-file cycle: `src/components/ui/sonner.tsx -> src/components/ui/sonner.tsx`
@@ -392,8 +392,8 @@ Cohesion: 0.36
 Nodes (8): Invoke-RalphLoop(), Resolve-RalphMode(), Test-YoloEnabled(), Write-RalphPromptFiles(), Get-IncompleteRootSpecs(), Get-RootSpecs(), Get-SpecQueueSummary(), Test-RootSpecComplete()
 
 ### Community 57 - "client.ts"
-Cohesion: 0.17
-Nodes (9): CAMPAIGN_STATUS_STYLES, CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS, MATERIAL_COLORS, overlapsPeriod(), statusOrder, DEAL_STATUS_CONFIG, dealStatusConfig() (+1 more)
+Cohesion: 0.15
+Nodes (11): CAMPAIGN_STATUS_STYLES, CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS, EsgTab(), formatKg(), MATERIAL_COLORS, overlapsPeriod(), statusOrder (+3 more)
 
 ### Community 63 - "InsufficientPermissionError"
 Cohesion: 0.23
@@ -464,8 +464,8 @@ Cohesion: 0.36
 Nodes (10): effectiveCampaignStatus(), effectiveDealStatus(), endBoundaryMs(), endsWithinDays(), EXPIRABLE_STATUSES, hasExpired(), isCampaignLiveNow(), isDateOnly() (+2 more)
 
 ### Community 81 - "OverviewTab.tsx"
-Cohesion: 0.24
-Nodes (7): BrandAnalytics, EsgTab(), formatKg(), formatKg(), OverviewTab(), plural(), Skeleton()
+Cohesion: 0.31
+Nodes (5): BrandAnalytics, formatKg(), OverviewTab(), plural(), Skeleton()
 
 ### Community 82 - "Campaign"
 Cohesion: 0.38

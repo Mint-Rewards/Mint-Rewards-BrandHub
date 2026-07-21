@@ -2457,7 +2457,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "src_components_esgtab_formatkg",
-      "community": 57,
+      "community": 81,
       "norm_label": "formatkg()"
     },
     {
@@ -2477,7 +2477,7 @@
       "source_location": "L110",
       "_origin": "ast",
       "id": "src_components_esgtab_esgtab",
-      "community": 57,
+      "community": 81,
       "norm_label": "esgtab()"
     },
     {
@@ -4827,7 +4827,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_scroll_area",
-      "community": 36,
+      "community": 70,
       "norm_label": "scroll-area.tsx"
     },
     {
@@ -4837,7 +4837,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_components_ui_scroll_area_scrollarea",
-      "community": 36,
+      "community": 70,
       "norm_label": "scrollarea"
     },
     {
@@ -4847,7 +4847,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_components_ui_scroll_area_scrollbar",
-      "community": 36,
+      "community": 70,
       "norm_label": "scrollbar"
     },
     {
@@ -5957,7 +5957,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_integrations_database_client",
-      "community": 80,
+      "community": 161,
       "norm_label": "client.ts"
     },
     {
@@ -5967,7 +5967,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_integrations_supabase_client",
-      "community": 161,
+      "community": 36,
       "norm_label": "client.ts"
     },
     {
@@ -6724,7 +6724,7 @@
       "label": "AdminDashboard()",
       "file_type": "code",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L52",
+      "source_location": "L53",
       "_origin": "ast",
       "id": "src_pages_admindashboard_admindashboard",
       "community": 161,
@@ -9791,7 +9791,7 @@
       "contributor": null,
       "community": 87,
       "norm_label": "graphify /graphify trigger (root claude.md)",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
     },
     {
       "label": "Step 0 - GitHub repos and multi-path merge",
@@ -14800,7 +14800,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "src_pages_admindashboard",
       "target": "src_actions_brandactions",
@@ -15152,7 +15152,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "src_pages_admindashboard",
       "target": "src_actions_brandactions_fetchbrands",
@@ -15468,7 +15468,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "src_pages_admindashboard",
       "target": "src_actions_brandactions_fetchalldeals",
@@ -15479,7 +15479,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "src_pages_admindashboard",
       "target": "src_actions_brandactions_updatedeal",
@@ -15512,7 +15512,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "src_pages_admindashboard",
       "target": "src_actions_brandactions_updatecampaign",
@@ -15545,7 +15545,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L44",
+      "source_location": "L45",
       "weight": 1.0,
       "source": "src_pages_admindashboard",
       "target": "src_actions_brandactions_fetchallcampaigns",
@@ -26968,7 +26968,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L54",
+      "source_location": "L55",
       "weight": 1.0,
       "source": "src_pages_admindashboard_admindashboard",
       "target": "src_hooks_use_toast_usetoast"
@@ -27135,7 +27135,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "src_main",
-      "target": "src_integrations_supabase_client",
+      "target": "src_integrations_database_client",
       "confidence_score": 1.0
     },
     {
@@ -27762,7 +27762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L957",
+      "source_location": "L1070",
       "weight": 1.0,
       "source": "src_pages_admindashboard_admindashboard",
       "target": "src_lib_brandemail_resolvebrandemail"
@@ -28107,6 +28107,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/AdminDashboard.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "src_pages_admindashboard",
+      "target": "src_lib_metrics",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -28214,6 +28225,28 @@
       "weight": 1.0,
       "source": "src_lib_metrics_effectivedealstatus",
       "target": "src_lib_metrics_hasexpired",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/AdminDashboard.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "src_pages_admindashboard",
+      "target": "src_lib_metrics_effectivecampaignstatus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/AdminDashboard.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "source": "src_pages_admindashboard",
+      "target": "src_lib_metrics_effectivedealstatus",
       "confidence_score": 1.0
     },
     {
@@ -28536,7 +28569,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/AdminDashboard.tsx",
-      "source_location": "L52",
+      "source_location": "L53",
       "weight": 1.0,
       "source": "src_pages_admindashboard",
       "target": "src_pages_admindashboard_admindashboard",
@@ -33034,5 +33067,5 @@
       "source_file": ".specify/memory/AGENTS.md"
     }
   ],
-  "built_at_commit": "92abe45609b62e584a45b3adfc5110d921e8ceb2"
+  "built_at_commit": "ab0d0944206476be739b3a5bf2b89d9272ba9048"
 }
