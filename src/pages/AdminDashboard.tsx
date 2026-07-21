@@ -1047,12 +1047,13 @@ const AdminDashboard = () => {
               {[
                 ["Company Name", selectedBrand.companyName],
                 ["Brand Name", selectedBrand.brandName],
+                ["Registration No.", selectedBrand.registrationNumber],
+                ["Email", resolveBrandEmail(selectedBrand)],
                 ["Category", selectedBrand.category],
                 ["Phone", selectedBrand.phone],
+                ["Address", selectedBrand.address],
                 ["Website", selectedBrand.website ?? selectedBrand.webLink],
                 ["App Link", selectedBrand.appLink],
-                ["Address", selectedBrand.address],
-                ["Registration No.", selectedBrand.registrationNumber],
                 [
                   "Submitted",
                   selectedBrand.createdAt
@@ -1065,10 +1066,6 @@ const AdminDashboard = () => {
                   <p className="text-muted-foreground break-words">{value || "-"}</p>
                 </div>
               ))}
-              <div className="col-span-2">
-                <p className="font-medium text-foreground">Email</p>
-                <p className="text-muted-foreground break-words">{resolveBrandEmail(selectedBrand) || "-"}</p>
-              </div>
               <div className="col-span-2">
                 <p className="font-medium text-foreground">Description</p>
                 <p className="text-muted-foreground break-words">{selectedBrand.description || "-"}</p>
@@ -1107,12 +1104,12 @@ const AdminDashboard = () => {
               ].map(([label, value]) => (
                 <div key={label as string}>
                   <p className="font-medium text-foreground">{label}</p>
-                  <p className="text-muted-foreground">{(value as string) || "-"}</p>
+                  <p className="text-muted-foreground break-words">{(value as string) || "-"}</p>
                 </div>
               ))}
               <div className="col-span-2">
                 <p className="font-medium text-foreground">Description</p>
-                <p className="text-muted-foreground">{selectedCampaign.description || "-"}</p>
+                <p className="text-muted-foreground break-words">{selectedCampaign.description || "-"}</p>
               </div>
             </div>
           )}
