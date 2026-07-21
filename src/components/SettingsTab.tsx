@@ -31,7 +31,7 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { updateBrandSettings } from "@/actions/brandActions";
 import { CountryPhoneInput } from "@/components/CountryPhoneInput";
-import { isValidPhone } from "@/lib/validators";
+import { isValidPhone, toExternalHref } from "@/lib/validators";
 import {
   RECOMMENDED_LOGO_PX,
   MIN_LOGO_PX,
@@ -287,11 +287,11 @@ const SettingsTab: React.FC<{
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Website</p>
-                <p className="text-base">{webLink ? <a href={webLink} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{webLink}</a> : "—"}</p>
+                <p className="text-base">{webLink ? <a href={toExternalHref(webLink)} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{webLink}</a> : "—"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">App Link</p>
-                <p className="text-base">{appLink ? <a href={appLink} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{appLink}</a> : "—"}</p>
+                <p className="text-base">{appLink ? <a href={toExternalHref(appLink)} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{appLink}</a> : "—"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Address</p>
@@ -457,7 +457,7 @@ const SettingsTab: React.FC<{
                     <FormItem>
                       <FormLabel>Website</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://yourbrand.com" {...field} />
+                        <Input placeholder="www.yourbrand.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

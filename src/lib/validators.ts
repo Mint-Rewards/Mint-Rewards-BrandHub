@@ -13,6 +13,20 @@ export const isValidUrl = (url: string): string | null =>
     ? null
     : "Enter a valid URL (e.g. example.com)";
 
+// Because the scheme is optional above, stored links are routinely bare
+// domains. A bare domain in an href is resolved RELATIVE to the current page,
+// so "example.com" navigates within BrandHub instead of leaving it — hence
+// this must be applied to every user-supplied link before rendering.
+//
+// Only http(s) passes through untouched: prefixing everything else means a
+// hostile "javascript:..." value becomes an inert "https://javascript:..."
+// rather than executing when clicked.
+export const toExternalHref = (url: string | null | undefined): string | undefined => {
+  const trimmed = url?.trim();
+  if (!trimmed) return undefined;
+  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+};
+
 export const isValidPhone = (phone: string): string | null => {
   const digits = phone.replace(/\D/g, "");
   return /^\+/.test(phone) && digits.length >= 7 && digits.length <= 15
