@@ -38,6 +38,7 @@ import {
   resolveDealCodes,
   type DealCodesValue,
 } from "@/components/DealCodesInput";
+import { isValidDateRange, startOfDay, today } from "@/lib/validators";
 
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -49,20 +50,25 @@ const dealSchema = z.object({
       (v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100,
       "Enter a percentage between 0 and 100",
     ),
-  discountAmount: z
-    .string()
-    .min(1, "Flat discount amount is required")
-    .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
+  // discountAmount: z
+  //   .string()
+  //   .min(1, "Flat discount amount is required")
+  //   .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
   startDate: z.date({ required_error: "Start date is required" }),
   endDate: z.date({ required_error: "End date is required" }),
-  maxUses: z
-    .string()
-    .min(1, "Maximum uses is required")
-    .refine((v) => Number.isInteger(Number(v)) && Number(v) > 0, "Enter a whole number greater than 0"),
   minimumPurchase: z
     .string()
     .min(1, "Minimum purchase is required")
     .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
+}).superRefine((data, ctx) => {
+  const message = isValidDateRange(data.startDate, data.endDate);
+  if (!message) return;
+  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endDate"], message });
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    path: ["startDate"],
+    message: "Start date must be before the end date",
+  });
 });
 
 type DealFormData = z.infer<typeof dealSchema>;
@@ -88,11 +94,14 @@ export function CreateDealForm({
       title: "",
       description: "",
       discountPercentage: "",
-      discountAmount: "",
-      maxUses: "",
+      // discountAmount: "",
       minimumPurchase: "",
     },
   });
+
+  // Each picker bounds the other so an invalid range can't be selected at all.
+  const startDay = startOfDay(form.watch("startDate"));
+  const endDay = startOfDay(form.watch("endDate"));
 
   const onSubmit = async (data: DealFormData) => {
     const resolved = resolveDealCodes(codesValue);
@@ -103,15 +112,18 @@ export function CreateDealForm({
     setCodesError(null);
     setIsSubmitting(true);
     try {
+      // Maximum uses always equals the number of codes on the deal — one
+      // redemption per unique code — so it's derived here, not user-entered.
+      const maxUses = "codes" in resolved ? resolved.codes.length : resolved.generateCodes.count;
       await createDeal(brandId, {
         ...resolved,
         title: data.title,
         description: data.description || undefined,
         discountPercentage: parseInt(data.discountPercentage),
-        discountAmount: parseFloat(data.discountAmount),
+        // discountAmount: parseFloat(data.discountAmount),
         startDate: format(data.startDate, "yyyy-MM-dd"),
         endDate: format(data.endDate, "yyyy-MM-dd"),
-        maxUses: parseInt(data.maxUses),
+        maxUses,
         minimumPurchase: parseFloat(data.minimumPurchase),
       });
 
@@ -162,6 +174,9 @@ export function CreateDealForm({
         <div className="space-y-2">
           <FormLabel>Promo Codes</FormLabel>
           <DealCodesInput idPrefix="create-deal" value={codesValue} onChange={setCodesValue} />
+          <p className="text-xs text-muted-foreground">
+            Each code is redeemable once, by one user.
+          </p>
           {codesError && <p className="text-sm font-medium text-destructive">{codesError}</p>}
         </div>
 
@@ -200,7 +215,7 @@ export function CreateDealForm({
             )}
           />
 
-          <FormField
+          {/* <FormField
             control={form.control}
             name="discountAmount"
             render={({ field }) => (
@@ -215,7 +230,7 @@ export function CreateDealForm({
                 <FormMessage />
               </FormItem>
             )}
-          />
+          /> */}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -249,7 +264,7 @@ export function CreateDealForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => !!endDay && date >= endDay}
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
@@ -290,7 +305,12 @@ export function CreateDealForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => date < new Date()}
+                      // A deal may be backdated to start in the past, but it
+                      // must not be created already expired — so the end date
+                      // is bounded by today as well as by the start date.
+                      disabled={(date) =>
+                        date < today() || (!!startDay && date <= startDay)
+                      }
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
@@ -302,35 +322,19 @@ export function CreateDealForm({
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <FormField
-            control={form.control}
-            name="maxUses"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Maximum Uses *</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="100" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="minimumPurchase"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Minimum Purchase (PKR) *</FormLabel>
-                <FormControl>
-                  <Input type="number" placeholder="50.00" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+        <FormField
+          control={form.control}
+          name="minimumPurchase"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Minimum Purchase (PKR) *</FormLabel>
+              <FormControl>
+                <Input type="number" placeholder="50.00" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <div className="flex justify-end space-x-3">
           <Button type="button" variant="outline" onClick={onCancel}>

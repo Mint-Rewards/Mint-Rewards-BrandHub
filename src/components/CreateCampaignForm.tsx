@@ -32,7 +32,9 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "@/hooks/use-toast";
 import { createCampaign, updateBrandCampaign } from "@/actions/brandActions";
+import { TargetAudienceChips } from "@/components/TargetAudienceChips";
 import { Campaign } from "@/types";
+import { isValidDateRange, startOfDay } from "@/lib/validators";
 
 const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
@@ -44,7 +46,13 @@ const campaignSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(400, "Keep the description under 400 characters"),
-  budget: z.string().optional(),
+  budget: z
+    .string()
+    .min(1, "Budget is required")
+    .refine(
+      (v) => !Number.isNaN(Number(v)) && Number(v) > 0,
+      "Enter an amount greater than 0",
+    ),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   targetAudience: z.string().optional(),
@@ -52,6 +60,15 @@ const campaignSchema = z.object({
   backgroundColor: z
     .string()
     .regex(hexColorRegex, "Use a valid hex color (e.g. #0EA5E9)"),
+}).superRefine((data, ctx) => {
+  const message = isValidDateRange(data.startDate, data.endDate);
+  if (!message) return;
+  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endDate"], message });
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    path: ["startDate"],
+    message: "Start date must be before the end date",
+  });
 });
 
 const getContrastingTextColor = (hexColor: string) => {
@@ -111,6 +128,13 @@ export function CreateCampaignForm({
     },
   });
 
+  // Each picker bounds the other so an invalid range can't be selected at all.
+  const startDay = startOfDay(form.watch("startDate"));
+  const endDay = startOfDay(form.watch("endDate"));
+
+  const today = (): Date => startOfDay(new Date())!;
+
+
   const badgePreview = form.watch("badge")?.trim() || "";
   const namePreview = form.watch("name")?.trim() || "";
   const subtitlePreview = form.watch("subtitle")?.trim() || "";
@@ -151,7 +175,7 @@ export function CreateCampaignForm({
         description: data.description,
         campaignType: data.campaignType,
         targetAudience: data.targetAudience || undefined,
-        budget: data.budget ? parseFloat(data.budget) : null,
+        budget: parseFloat(data.budget),
         backgroundColor: data.backgroundColor,
         badge: data.badge || undefined,
         subtitle: data.subtitle || undefined,
@@ -425,7 +449,7 @@ export function CreateCampaignForm({
             name="budget"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Budget (PKR)</FormLabel>
+                <FormLabel>Budget (PKR)<RequiredMark /></FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="0.00" {...field} />
                 </FormControl>
@@ -460,6 +484,7 @@ export function CreateCampaignForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      disabled={(date) => !!endDay && date >= endDay}
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
@@ -496,6 +521,9 @@ export function CreateCampaignForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
+                      disabled={(date) =>
+                        date < today() || (!!startDay && date <= startDay)
+                      }
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
@@ -513,9 +541,13 @@ export function CreateCampaignForm({
           render={({ field }) => (
             <FormItem>
               <FormLabel>Target Audience</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Describe your target audience..." {...field} />
-              </FormControl>
+              <TargetAudienceChips
+                value={field.value ?? ""}
+                onChange={field.onChange}
+              />
+              <p className="text-xs text-muted-foreground">
+                Select all that apply, or add your own with “Others”.
+              </p>
               <FormMessage />
             </FormItem>
           )}

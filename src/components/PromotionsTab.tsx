@@ -9,9 +9,9 @@ interface PromotionsTabProps {
   deals: Deal[];
   logoUrl?: string;
   brandColor?: string;
-  onCampaignCreated: () => Promise<void> | void;
+  onCampaignCreated: () => Promise<void>;
   onCampaignUpdated?: (campaign: Campaign) => void;
-  onDealCreated: () => Promise<void> | void;
+  onDealCreated: () => Promise<void>;
 }
 
 const PromotionsTab = ({
@@ -27,7 +27,10 @@ const PromotionsTab = ({
 
   return (
     <div className="space-y-6">
-      <Tabs value={subTab} onValueChange={(v) => setSubTab(v as "campaigns" | "deals")}>
+      <Tabs
+        value={subTab}
+        onValueChange={(v) => setSubTab(v as "campaigns" | "deals")}
+      >
         <TabsList className="grid w-full max-w-xs grid-cols-2">
           <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
           <TabsTrigger value="deals">Deals</TabsTrigger>
@@ -44,7 +47,11 @@ const PromotionsTab = ({
         />
       </div>
       <div hidden={subTab !== "deals"}>
-        <DealsTab deals={deals} onDealCreated={onDealCreated} brandColor={brandColor} />
+        <DealsTab
+          deals={deals}
+          onDealCreated={onDealCreated}
+          brandColor={brandColor}
+        />
       </div>
     </div>
   );

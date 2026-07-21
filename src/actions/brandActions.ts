@@ -27,11 +27,20 @@ export interface BrandAnalytics {
     inactive: number;
     expired: number;
   };
-  // Omitted by the backend for brands with no environmentalStats.
+  // Omitted by the backend for brands with no impact data at all.
   environmental?: {
     totalWasteKg: number;
     co2AvoidedKg: number;
     materialBreakdown: { material: string; weightKg: number }[];
+    // False for brands still on the legacy cumulative snapshot, which cannot
+    // be filtered — the UI must label those all-time rather than implying they
+    // followed the statistics period.
+    periodScoped?: boolean;
+    // The span the returned figures actually cover. Buckets are counted whole,
+    // never pro-rated, so this can be wider than the requested window — it is
+    // the honest answer to "which days is this number for?". Null when no
+    // bucket matched, or on the legacy path.
+    coverage?: { from: string; to: string } | null;
   };
 }
 
@@ -77,7 +86,9 @@ export interface RegisterOrgPayload {
   email: string;
   password: string;
   brandName: string;
+  category?: string;
   logo: File | null;
+  contactName?: string;
   phone?: string;
   website?: string;
   appLink?: string;
@@ -105,7 +116,9 @@ export const registerOrg = async (
   formData.append("email", payload.email);
   formData.append("password", payload.password);
   if (payload.brandName) formData.append("brandName", payload.brandName);
+  if (payload.category) formData.append("category", payload.category);
   if (payload.logo) formData.append("logo", payload.logo);
+  if (payload.contactName) formData.append("contactName", payload.contactName);
   if (payload.phone) formData.append("phone", payload.phone);
   if (payload.appLink) formData.append("appLink", payload.appLink);
   if (payload.address) formData.append("address", payload.address);
@@ -294,11 +307,14 @@ export const fetchBrandById = async (id: string): Promise<Brand> => {
     themeColor: raw.themeColor as string,
     phone: raw.phone as string,
     website: ((raw.webLink ?? raw.website) as string) ?? "",
+    webLink: ((raw.webLink ?? raw.website) as string) ?? "",
     appLink: (raw.appLink as string) ?? "",
     category: raw.category as string,
+    contactName: (raw.contactName as string) ?? "",
     description: raw.description as string,
     address: raw.address as string,
     domain: raw.domain as string,
+    registrationNumber: raw.registrationNumber as string,
     status,
     createdAt: ((raw.createdAt ?? raw.created_at) as string) ?? new Date().toISOString(),
   };
@@ -457,6 +473,8 @@ export const updateBrandSettings = async (
   payload: Partial<{
     brandName: string;
     companyName: string;
+    category: string;
+    email: string;
     description: string;
     webLink: string;
     appLink: string;
@@ -465,17 +483,39 @@ export const updateBrandSettings = async (
     domain: string;
     themeColor: string;
     contactName: string;
+    logo: File | null;
   }>,
 ): Promise<Brand> => {
+  let body: BodyInit;
+  let headers: Record<string, string>;
+
+  if (payload.logo instanceof File) {
+    const fd = new FormData();
+    for (const [key, value] of Object.entries(payload)) {
+      if (key === "logo" || value === null || value === undefined) continue;
+      fd.append(key, String(value));
+    }
+    fd.append("logo", payload.logo);
+    body = fd;
+    headers = { ...brandAuth.authHeaders() };
+  } else {
+    const { logo: _logo, ...rest } = payload;
+    const clean = Object.fromEntries(
+      Object.entries(rest).filter(([, v]) => v !== null && v !== undefined),
+    );
+    body = JSON.stringify(clean);
+    headers = {
+      "Content-Type": "application/json",
+      ...brandAuth.authHeaders(),
+    };
+  }
+
   // Settings live on the brand resource itself; owner/admin role required
   // (members get a 403) — no module gate.
   const response = await fetch(`${getApiBaseUrl()}/brandhub/brands/${brandId}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-      ...brandAuth.authHeaders(),
-    },
-    body: JSON.stringify(payload),
+    headers,
+    body,
   });
 
   throwForBrandApiStatus(response);
@@ -579,7 +619,7 @@ export const updateDeal = async (
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
-        ...brandAuth.authHeaders(),
+        ...adminAuth.authHeaders(),
       },
       body: JSON.stringify(payload),
     },

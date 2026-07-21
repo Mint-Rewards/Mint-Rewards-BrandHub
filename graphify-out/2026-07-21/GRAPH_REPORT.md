@@ -1,16 +1,16 @@
 # Graph Report - Mint-Rewards-BrandHub  (2026-07-21)
 
 ## Corpus Check
-- 142 files · ~807,193 words
+- 142 files · ~806,859 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1164 nodes · 1955 edges · 165 communities (82 shown, 83 thin omitted)
+- 1164 nodes · 1952 edges · 166 communities (82 shown, 84 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 46 edges (avg confidence: 0.81)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4bf5c0ac`
+- Built from commit: `92abe456`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -51,6 +51,7 @@
 - [[_COMMUNITY_toggle-group.tsx|toggle-group.tsx]]
 - [[_COMMUNITY_Navigation Menu UI Component|Navigation Menu UI Component]]
 - [[_COMMUNITY_Campaigns Tab Screenshot|Campaigns Tab Screenshot]]
+- [[_COMMUNITY_Toggle Group UI Component|Toggle Group UI Component]]
 - [[_COMMUNITY_Deals Form Screenshot & Fields|Deals Form Screenshot & Fields]]
 - [[_COMMUNITY_Input OTP UI Component|Input OTP UI Component]]
 - [[_COMMUNITY_Ralph Loop Bash Script|Ralph Loop Bash Script]]
@@ -186,12 +187,12 @@
   src/actions/brandActions.ts → src/types.ts
 - `overlapsPeriod()` --calls--> `toMs()`  [EXTRACTED]
   src/components/EsgTab.tsx → src/lib/metrics.ts
+- `EsgTab()` --calls--> `plural()`  [INFERRED]
+  src/components/EsgTab.tsx → src/components/OverviewTab.tsx
 - `EsgTab()` --indirect_call--> `isCampaignLiveNow()`  [INFERRED]
   src/components/EsgTab.tsx → src/lib/metrics.ts
 - `OverviewTab()` --indirect_call--> `isCampaignLiveNow()`  [INFERRED]
   src/components/OverviewTab.tsx → src/lib/metrics.ts
-- `BreadcrumbSeparator()` --calls--> `cn()`  [EXTRACTED]
-  src/components/ui/breadcrumb.tsx → src/lib/utils.ts
 
 ## Import Cycles
 - 1-file cycle: `src/components/ui/sonner.tsx -> src/components/ui/sonner.tsx`
@@ -205,7 +206,7 @@
 - **Design Governance Document Set** — design, product, ui_audit [INFERRED 0.80]
 - **Ralph Loop Autonomous Workflow Documents** — specify_memory_constitution, specify_memory_agents, prompt_build, prompt_plan [EXTRACTED 1.00]
 
-## Communities (165 total, 83 thin omitted)
+## Communities (166 total, 84 thin omitted)
 
 ### Community 0 - "Brand Admin Routing & Campaign Forms"
 Cohesion: 0.22
@@ -392,8 +393,8 @@ Cohesion: 0.36
 Nodes (8): Invoke-RalphLoop(), Resolve-RalphMode(), Test-YoloEnabled(), Write-RalphPromptFiles(), Get-IncompleteRootSpecs(), Get-RootSpecs(), Get-SpecQueueSummary(), Test-RootSpecComplete()
 
 ### Community 57 - "client.ts"
-Cohesion: 0.17
-Nodes (9): CAMPAIGN_STATUS_STYLES, CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS, MATERIAL_COLORS, overlapsPeriod(), statusOrder, DEAL_STATUS_CONFIG, dealStatusConfig() (+1 more)
+Cohesion: 0.15
+Nodes (11): CAMPAIGN_STATUS_STYLES, CO2_SAVINGS_PER_KG, EQUIVALENT_CONVERSIONS, EsgTab(), formatKg(), MATERIAL_COLORS, overlapsPeriod(), statusOrder (+3 more)
 
 ### Community 63 - "InsufficientPermissionError"
 Cohesion: 0.23
@@ -424,8 +425,8 @@ Cohesion: 0.25
 Nodes (7): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overall Impression, Persona Red Flags, Priority Issues, What's Working
 
 ### Community 70 - "toggle-group.tsx"
-Cohesion: 0.09
-Nodes (14): Checkbox, HoverCardContent, Progress, RadioGroup, RadioGroupItem, ScrollArea, ScrollBar, Slider (+6 more)
+Cohesion: 0.10
+Nodes (12): Checkbox, HoverCardContent, Progress, RadioGroup, RadioGroupItem, Slider, Switch, ToggleGroup (+4 more)
 
 ### Community 71 - "2026-06-20T10-48-58Z__src-pages-branddashboard-tsx.md"
 Cohesion: 0.33
@@ -464,8 +465,8 @@ Cohesion: 0.36
 Nodes (10): effectiveCampaignStatus(), effectiveDealStatus(), endBoundaryMs(), endsWithinDays(), EXPIRABLE_STATUSES, hasExpired(), isCampaignLiveNow(), isDateOnly() (+2 more)
 
 ### Community 81 - "OverviewTab.tsx"
-Cohesion: 0.24
-Nodes (7): BrandAnalytics, EsgTab(), formatKg(), formatKg(), OverviewTab(), plural(), Skeleton()
+Cohesion: 0.31
+Nodes (5): BrandAnalytics, formatKg(), OverviewTab(), plural(), Skeleton()
 
 ### Community 82 - "Campaign"
 Cohesion: 0.38
@@ -494,14 +495,14 @@ Nodes (8): Anti-Patterns Verdict, Design Health Score, Minor Observations, Overa
 ## Knowledge Gaps
 - **588 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+583 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **83 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **84 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **What is the exact relationship between `Dashboard - Future Projections Screenshot` and `Dashboard - Overview Screenshot (inferred prior tab)`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
-- **Why does `cn()` connect `npm devDependencies` to `Site Header & UI Sheet/Separator`, `Toast Component`, `Button & Calendar UI`, `shadcn Components Config`, `drawer.tsx`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`, `Breadcrumb UI Component`, `button.tsx`, `toggle-group.tsx`, `Navigation Menu UI Component`, `Input OTP UI Component`, `Sonner Toaster`, `Accordion UI Component`, `graphify`, `toggle-group.tsx`, `client.ts`, `scroll-area.tsx`, `OverviewPortfolioMix.tsx`, `OverviewTab.tsx`, `renderDesignVisual`?**
+- **Why does `cn()` connect `npm devDependencies` to `Site Header & UI Sheet/Separator`, `Toast Component`, `Button & Calendar UI`, `shadcn Components Config`, `drawer.tsx`, `Carousel UI Component`, `Menubar UI Component`, `Context Menu UI Component`, `Table UI Component`, `Breadcrumb UI Component`, `button.tsx`, `toggle-group.tsx`, `Navigation Menu UI Component`, `Toggle Group UI Component`, `Input OTP UI Component`, `Sonner Toaster`, `Accordion UI Component`, `graphify`, `toggle-group.tsx`, `client.ts`, `scroll-area.tsx`, `OverviewPortfolioMix.tsx`, `OverviewTab.tsx`, `renderDesignVisual`?**
   _High betweenness centrality (0.105) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `npm Dependencies` to `scroll-area.tsx`, `Dashboard Feature Docs`, `Input OTP UI Component`?**
   _High betweenness centrality (0.072) - this node is a cross-community bridge._

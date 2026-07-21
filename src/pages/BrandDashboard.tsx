@@ -47,6 +47,7 @@ import {
   hasModule,
 } from "@/lib/brandAuth";
 
+import { resolveBrandEmail } from "@/lib/brandEmail";
 import OverviewTab from "@/components/OverviewTab";
 import PromotionsTab from "@/components/PromotionsTab";
 import EsgTab from "@/components/EsgTab";
@@ -64,23 +65,31 @@ const BrandDashboard = () => {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [campaignsError, setCampaignsError] = useState(false);
   const [dealsError, setDealsError] = useState(false);
+  // Distinct from `campaigns`/`deals` truthiness: those start as `[]` (truthy)
+  // before the fetch resolves, so Overview/ESG need an explicit "has the
+  // first fetch actually completed" signal to avoid reading an empty initial
+  // array as "confirmed zero campaigns/deals" and showing a wrong count.
+  const [campaignsLoaded, setCampaignsLoaded] = useState(false);
+  const [dealsLoaded, setDealsLoaded] = useState(false);
   const [logoFailed, setLogoFailed] = useState(false);
-  // All-time analytics — the stable figures the ESG/board-report tab reads.
+  // All-time analytics — shared by Overview and the ESG/board-report tab.
   // Never scoped to a period, so those numbers don't shift under the reader.
   const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
   const [analyticsError, setAnalyticsError] = useState<string | null>(null);
-  // Period-scoped analytics — drives the Overview tab, which owns the picker.
-  const [overviewAnalytics, setOverviewAnalytics] =
-    useState<BrandAnalytics | null>(null);
-  const [overviewLoading, setOverviewLoading] = useState(true);
-  const [overviewError, setOverviewError] = useState<string | null>(null);
-  // Campaign analytics period. Defaults to month-to-date (first of the current
+  // ESG's own period filter. Defaults to month-to-date (first of the current
   // month → today), the common reporting window for brand managers.
-  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+  const [esgDateRange, setEsgDateRange] = useState<DateRange | undefined>(() => {
     const now = new Date();
     return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: now };
   });
+  // Period-scoped analytics for the ESG tab's Campaigns/Deals breakdowns —
+  // same pattern as overviewAnalytics below, re-queried on range change rather
+  // than relabelling stale data.
+  const [esgPeriodAnalytics, setEsgPeriodAnalytics] =
+    useState<BrandAnalytics | null>(null);
+  const [esgPeriodLoading, setEsgPeriodLoading] = useState(true);
+  const [esgPeriodError, setEsgPeriodError] = useState<string | null>(null);
   // Tabs are state-driven (no sub-routes), so "route-level" module gating
   // happens here: deep links to /dashboard/:brandId always land on a tab the
   // user is allowed to see, and tab switches are validated.
@@ -123,6 +132,8 @@ const BrandDashboard = () => {
         setCampaigns(data);
       } catch {
         setCampaignsError(true);
+      } finally {
+        setCampaignsLoaded(true);
       }
     };
 
@@ -134,6 +145,8 @@ const BrandDashboard = () => {
         setDeals(data);
       } catch {
         setDealsError(true);
+      } finally {
+        setDealsLoaded(true);
       }
     };
 
@@ -169,38 +182,38 @@ const BrandDashboard = () => {
     };
   }, [brandId]);
 
-  // Period-scoped analytics for the Overview tab — re-queries the backend
-  // whenever the reporting period changes, rather than relabelling stale data.
-  const rangeFrom = dateRange?.from ? dateRange.from.getTime() : null;
-  const rangeTo = dateRange?.to ? dateRange.to.getTime() : null;
+  // Period-scoped analytics for the ESG tab — re-queries the backend whenever
+  // its own reporting period changes, exactly like the Overview fetch above.
+  const esgRangeFrom = esgDateRange?.from ? esgDateRange.from.getTime() : null;
+  const esgRangeTo = esgDateRange?.to ? esgDateRange.to.getTime() : null;
   useEffect(() => {
     if (!brandId) return;
     let cancelled = false;
     const run = async () => {
-      setOverviewLoading(true);
-      setOverviewError(null);
+      setEsgPeriodLoading(true);
+      setEsgPeriodError(null);
       try {
         const range =
-          rangeFrom !== null && rangeTo !== null
-            ? { from: new Date(rangeFrom), to: new Date(rangeTo) }
+          esgRangeFrom !== null && esgRangeTo !== null
+            ? { from: new Date(esgRangeFrom), to: new Date(esgRangeTo) }
             : undefined;
         const data = await fetchBrandAnalytics(brandId, range);
-        if (!cancelled) setOverviewAnalytics(data);
+        if (!cancelled) setEsgPeriodAnalytics(data);
       } catch (error) {
         if (!cancelled) {
-          setOverviewError(
+          setEsgPeriodError(
             error instanceof Error ? error.message : "Failed to load analytics.",
           );
         }
       } finally {
-        if (!cancelled) setOverviewLoading(false);
+        if (!cancelled) setEsgPeriodLoading(false);
       }
     };
     run();
     return () => {
       cancelled = true;
     };
-  }, [brandId, rangeFrom, rangeTo]);
+  }, [brandId, esgRangeFrom, esgRangeTo]);
 
   const refreshCampaigns = async () => {
     if (!brandId) return;
@@ -210,6 +223,8 @@ const BrandDashboard = () => {
       setCampaignsError(false);
     } catch {
       setCampaignsError(true);
+    } finally {
+      setCampaignsLoaded(true);
     }
   };
 
@@ -221,6 +236,8 @@ const BrandDashboard = () => {
       setDealsError(false);
     } catch {
       setDealsError(true);
+    } finally {
+      setDealsLoaded(true);
     }
   };
 
@@ -318,15 +335,28 @@ const BrandDashboard = () => {
     referenceNumber: brandRefId
       ? `REF-${brandRefId.substring(0, 8).toUpperCase()}`
       : "N/A",
-    contactEmail: brandData.email || "N/A",
-    contactPhone: brandData.phone || "N/A",
+    // brandData.email may be a synthesized `brand-*@brandhub.local`
+    // placeholder for quick org-signup brands — resolveBrandEmail falls
+    // back to the real address stashed in contactName for those.
+    contactEmail: resolveBrandEmail(brandData),
+    contactPhone: brandData.phone,
     website: brandData.website,
     description: brandData.description,
     logoUrl: brandData.logo,
     themeColor: brandData.themeColor || "#3B82F6",
   };
 
-  const PendingApprovalView = () => (
+  const brandColor = formattedData.themeColor;
+
+  // NOTE: these two are plain JSX values, NOT components — do not convert them
+  // back to `const X = () => (...)` rendered as `<X />`. A component defined
+  // during render gets a fresh identity every time this function runs, so
+  // React treats it as a different type and unmounts/remounts the whole
+  // subtree on ANY state change here. That silently resets all descendant
+  // component state, which broke the ESG statistics period picker: changing
+  // the date remounted EsgTab, its uncontrolled inner <Tabs> snapped back to
+  // defaultValue="impact" (an all-time view), and the picker looked inert.
+  const pendingApprovalView = (
     <div className="space-y-6">
       {/* Status Header */}
       <Card className="border-warning/20 bg-warning/5">
@@ -528,7 +558,8 @@ const BrandDashboard = () => {
     });
   };
 
-  const ApprovedDashboardView = () => (
+  // Plain JSX value, not a component — see the note on pendingApprovalView.
+  const approvedDashboardView = (
     <div className="space-y-6">
       {!hasAnyModule && (
         <Card>
@@ -617,63 +648,20 @@ const BrandDashboard = () => {
         {showReporting && (
           <>
             <TabsContent value="overview" className="space-y-6">
-              <div
-                className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
-                style={{
-                  borderColor: brandColor + "33",
-                  backgroundColor: brandColor + "0a",
-                }}
-              >
-                <div>
-                  <p className="text-sm font-semibold text-foreground">
-                    Statistics Period
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Campaign and deal metrics reflect this range.
-                    Environmental totals are all-time.
-                  </p>
-                </div>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className="justify-start gap-2 font-normal"
-                    >
-                      <CalendarIcon
-                        className="h-4 w-4"
-                        style={{ color: brandColor }}
-                      />
-                      {dateRange?.from ? (
-                        dateRange.to ? (
-                          <>
-                            {format(dateRange.from, "MMM d, yyyy")} –{" "}
-                            {format(dateRange.to, "MMM d, yyyy")}
-                          </>
-                        ) : (
-                          format(dateRange.from, "MMM d, yyyy")
-                        )
-                      ) : (
-                        "Select dates"
-                      )}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="end">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={dateRange?.from}
-                      selected={dateRange}
-                      onSelect={setDateRange}
-                      numberOfMonths={2}
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
               <OverviewTab
-                analytics={overviewAnalytics}
-                loading={overviewLoading}
-                error={overviewError}
+                analytics={analytics}
+                loading={analyticsLoading}
+                error={analyticsError}
                 brandColor={brandColor}
+                campaigns={campaigns}
+                deals={deals}
+                campaignsUnavailable={campaignsError}
+                dealsUnavailable={dealsError}
+                campaignsLoaded={campaignsLoaded}
+                dealsLoaded={dealsLoaded}
+                // handleTabChange, not setActiveTab — it enforces module gating
+                // and toasts when a tab isn't available to this user.
+                onNavigate={handleTabChange}
               />
             </TabsContent>
 
@@ -722,12 +710,85 @@ const BrandDashboard = () => {
         )}
 
         {showEsg && (
-          <TabsContent value="esg">
+          <TabsContent value="esg" className="space-y-6">
+            <div
+              className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+              style={{
+                borderColor: brandColor + "33",
+                backgroundColor: brandColor + "0a",
+              }}
+            >
+              <div>
+                <p className="text-sm font-semibold text-foreground">Statistics Period</p>
+                <p className="text-xs text-muted-foreground">
+                  All figures on this tab reflect this range. Impact totals are summed from
+                  whole monthly records, so the span they cover is shown alongside them.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant={!esgDateRange?.from && !esgDateRange?.to ? "default" : "outline"}
+                  aria-pressed={!esgDateRange?.from && !esgDateRange?.to}
+                  onClick={() => setEsgDateRange(undefined)}
+                >
+                  All time
+                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="justify-start gap-2 font-normal"
+                    >
+                      <CalendarIcon
+                        className="h-4 w-4"
+                        style={{ color: brandColor }}
+                      />
+                      {esgDateRange?.from ? (
+                        esgDateRange.to ? (
+                          <>
+                            {format(esgDateRange.from, "MMM d, yyyy")} –{" "}
+                            {format(esgDateRange.to, "MMM d, yyyy")}
+                          </>
+                        ) : (
+                          format(esgDateRange.from, "MMM d, yyyy")
+                        )
+                      ) : (
+                        "Select dates"
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={esgDateRange?.from}
+                      selected={esgDateRange}
+                      onSelect={setEsgDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
             <EsgTab
               analytics={analytics}
               loading={analyticsLoading}
               error={analyticsError}
               brandColor={brandColor}
+              campaigns={campaigns}
+              deals={deals}
+              campaignsUnavailable={campaignsError}
+              dealsUnavailable={dealsError}
+              campaignsLoaded={campaignsLoaded}
+              dealsLoaded={dealsLoaded}
+              period={{
+                from: esgDateRange?.from ?? null,
+                to: esgDateRange?.to ?? null,
+              }}
+              periodAnalytics={esgPeriodAnalytics}
+              periodLoading={esgPeriodLoading}
+              periodError={esgPeriodError}
             />
           </TabsContent>
         )}
@@ -744,6 +805,9 @@ const BrandDashboard = () => {
             name={formattedData.name}
             companyName={brandData.companyName}
             category={formattedData.category}
+            registrationNumber={brandData.registrationNumber}
+            logo={brandData.logo}
+            contactName={brandData.contactName}
             contactEmail={formattedData.contactEmail}
             contactPhone={formattedData.contactPhone}
             webLink={brandData.webLink ?? brandData.website}
@@ -759,8 +823,6 @@ const BrandDashboard = () => {
       </Tabs>
     </div>
   );
-
-  const brandColor = formattedData.themeColor;
 
   return (
     <div className="min-h-screen bg-background">
@@ -809,9 +871,9 @@ const BrandDashboard = () => {
               >
                 {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
               </Badge>
-              <Button variant="outline" onClick={() => navigate("/")}>
+              {/* <Button variant="outline" onClick={() => navigate("/")}>
                 Exit Dashboard
-              </Button>
+              </Button> */}
               <Button
                 variant="outline"
                 onClick={() => {
@@ -829,7 +891,7 @@ const BrandDashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {isApproved || isPreviewMode ? <ApprovedDashboardView /> : <PendingApprovalView />}
+        {isApproved || isPreviewMode ? approvedDashboardView : pendingApprovalView}
       </main>
     </div>
   );

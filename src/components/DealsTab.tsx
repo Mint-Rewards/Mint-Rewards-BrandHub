@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { downloadCodes } from "@/lib/dealCodes";
+import { DEAL_STATUS_CONFIG } from "@/lib/dealStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import PromotionsFilterBar from "./PromotionsFilterBar";
@@ -42,12 +43,22 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { hasPermission } from "@/lib/brandAuth";
 import { overlapsRange } from "@/lib/dateRangeFilter";
+import { effectiveDealStatus, toMs } from "@/lib/metrics";
+
+// Pending first (needs attention), then Active (the approved equivalent for
+// deals), then Rejected; anything else (Inactive/Expired) sinks to the bottom.
+const STATUS_SORT_RANK: Record<string, number> = {
+  pending: 0,
+  active: 1,
+  rejected: 2,
+};
 import {
   DealCodesInput,
   emptyDealCodesValue,
   resolveDealCodes,
   type DealCodesValue,
 } from "@/components/DealCodesInput";
+import { isoDayOffset, isValidDateRange } from "@/lib/validators";
 
 const editDealSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -56,19 +67,21 @@ const editDealSchema = z.object({
   discountAmount: z.string().optional(),
   startDate: z.string().optional(),
   endDate: z.string().optional(),
-  maxUses: z.string().optional(),
   minimumPurchase: z.string().optional(),
+}).superRefine((data, ctx) => {
+  const message = isValidDateRange(data.startDate, data.endDate);
+  if (!message) return;
+  ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endDate"], message });
+  ctx.addIssue({
+    code: z.ZodIssueCode.custom,
+    path: ["startDate"],
+    message: "Start date must be before the end date",
+  });
 });
 
 type EditDealFormData = z.infer<typeof editDealSchema>;
 
-const STATUS_CONFIG = {
-  pending: { label: "Pending", className: "bg-warning/10 text-warning border-warning/20" },
-  active: { label: "Active", className: "bg-success/10 text-success border-success/20" },
-  rejected: { label: "Rejected", className: "bg-destructive/10 text-destructive border-destructive/20" },
-  inactive: { label: "Inactive", className: "bg-muted text-muted-foreground border-border" },
-  expired: { label: "Expired", className: "bg-destructive/10 text-destructive border-destructive/20" },
-} as const;
+const STATUS_CONFIG = DEAL_STATUS_CONFIG;
 
 const STATUS_FILTER_OPTIONS = [
   { value: "pending", label: "Pending" },
@@ -104,11 +117,21 @@ const DealsTab: React.FC<{
 
   const filteredDeals = useMemo(
     () =>
-      deals.filter(
-        (d) =>
-          (statusFilter === "all" || (d.status ?? "inactive").toLowerCase() === statusFilter) &&
-          overlapsRange(d, dateRange),
-      ),
+      deals
+        .filter(
+          (d) =>
+            (statusFilter === "all" ||
+              (effectiveDealStatus(d) || "inactive") === statusFilter) &&
+            overlapsRange(d, dateRange),
+        )
+        .sort((a, b) => {
+          // `expired` is absent from the rank map, so expired deals sink to the
+          // bottom alongside anything else unranked.
+          const rankA = STATUS_SORT_RANK[effectiveDealStatus(a)] ?? 3;
+          const rankB = STATUS_SORT_RANK[effectiveDealStatus(b)] ?? 3;
+          if (rankA !== rankB) return rankA - rankB;
+          return toMs(b.startDate, -Infinity) - toMs(a.startDate, -Infinity);
+        }),
     [deals, statusFilter, dateRange],
   );
 
@@ -116,6 +139,10 @@ const DealsTab: React.FC<{
     resolver: zodResolver(editDealSchema),
     defaultValues: { title: "", description: "", status: "active" },
   });
+
+  // Each date input bounds the other so an invalid range can't be picked.
+  const editStartDate = editForm.watch("startDate");
+  const editEndDate = editForm.watch("endDate");
 
   const copyCodes = async (codes: string[]) => {
     await navigator.clipboard.writeText(codes.join("\n"));
@@ -142,7 +169,6 @@ const DealsTab: React.FC<{
       discountAmount: deal.discountAmount?.toString() ?? "",
       startDate: deal.startDate ?? "",
       endDate: deal.endDate ?? "",
-      maxUses: deal.maxUses?.toString() ?? "",
       minimumPurchase: deal.minimumPurchase?.toString() ?? "",
     });
     setExistingCodesOpen(false);
@@ -158,26 +184,37 @@ const DealsTab: React.FC<{
     // "Add more codes" is optional — only include addCodes when the section is
     // open and has input; validation errors block the save so nothing is lost.
     let addCodes: string[] | { count: number; prefix?: string } | undefined;
+    let addedCodesCount = 0;
     if (addCodesOpen && (addCodesValue.rawCodes.trim() || addCodesValue.mode === "generate")) {
       const resolved = resolveDealCodes(addCodesValue);
       if ("error" in resolved) {
         setAddCodesError(resolved.error);
         return;
       }
-      addCodes = "codes" in resolved ? resolved.codes : resolved.generateCodes;
+      if ("codes" in resolved) {
+        addCodes = resolved.codes;
+        addedCodesCount = resolved.codes.length;
+      } else {
+        addCodes = resolved.generateCodes;
+        addedCodesCount = resolved.generateCodes.count;
+      }
     }
     setAddCodesError(null);
     setBusyId(editingDeal.id);
     try {
+      // Maximum uses always equals the total number of codes on the deal —
+      // only recompute it when the code inventory actually changes.
+      const existingCodeCount = editingDeal.codeCount ?? editingDeal.codes?.length ?? 0;
       await updateBrandDeal(brandId, editingDeal.id, {
         title: data.title,
         description: data.description || undefined,
         discountPercentage: data.discountPercentage ? parseFloat(data.discountPercentage) : null,
         discountAmount: data.discountAmount ? parseFloat(data.discountAmount) : null,
-        ...(addCodes !== undefined ? { addCodes } : {}),
+        ...(addCodes !== undefined
+          ? { addCodes, maxUses: existingCodeCount + addedCodesCount }
+          : {}),
         startDate: data.startDate || null,
         endDate: data.endDate || null,
-        maxUses: data.maxUses ? parseInt(data.maxUses) : null,
         minimumPurchase: data.minimumPurchase ? parseFloat(data.minimumPurchase) : null,
       });
       if (editingDeal.status?.toLowerCase() === "active") {
@@ -281,7 +318,8 @@ const DealsTab: React.FC<{
             filteredDeals.length > 0 ? (
             <div className="divide-y divide-border">
               {filteredDeals.map((deal) => {
-                const statusKey = (deal.status ?? "inactive").toLowerCase() as keyof typeof STATUS_CONFIG;
+                const statusKey = (effectiveDealStatus(deal) ||
+                  "inactive") as keyof typeof STATUS_CONFIG;
                 const config = STATUS_CONFIG[statusKey] ?? STATUS_CONFIG.inactive;
                 const isBusy = busyId === deal.id;
 
@@ -497,22 +535,13 @@ const DealsTab: React.FC<{
                 />
                 <FormField
                   control={editForm.control}
-                  name="maxUses"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max Uses</FormLabel>
-                      <FormControl><Input type="number" placeholder="100" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Start Date</FormLabel>
-                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <FormControl>
+                        <Input type="date" max={isoDayOffset(editEndDate, -1)} {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -523,7 +552,9 @@ const DealsTab: React.FC<{
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>End Date</FormLabel>
-                      <FormControl><Input type="date" {...field} /></FormControl>
+                      <FormControl>
+                        <Input type="date" min={isoDayOffset(editStartDate, 1)} {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -546,12 +577,17 @@ const DealsTab: React.FC<{
               {/* Existing codes are immutable — the backend only appends. */}
               <div className="rounded-md border p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium">
-                    Promo codes
-                    <span className="text-muted-foreground font-normal">
-                      {" "}— {editingDeal?.codes?.length ?? editingDeal?.codeCount ?? 0} on this deal
-                    </span>
-                  </p>
+                  <div>
+                    <p className="text-sm font-medium">
+                      Promo codes
+                      <span className="text-muted-foreground font-normal">
+                        {" "}— {editingDeal?.codes?.length ?? editingDeal?.codeCount ?? 0} on this deal
+                      </span>
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Maximum uses matches the code count — one redemption per code.
+                    </p>
+                  </div>
                   <div className="flex items-center gap-2">
                     {(editingDeal?.codes?.length ?? 0) > 0 && (
                       <>

@@ -132,9 +132,14 @@ export function DealCodesInput({
           <div className="text-xs space-y-1">
             <p className={overLimit ? "text-destructive" : "text-muted-foreground"}>
               {parsed.codes.length} valid {parsed.codes.length === 1 ? "code" : "codes"} after
-              trimming, uppercasing and removing duplicates
+              trimming and uppercasing — each code must be unique
               {overLimit && ` — the limit is ${MAX_CODES} per deal`}
             </p>
+            {parsed.duplicateCount > 0 && (
+              <p className="text-destructive">
+                {parsed.duplicateCount} duplicate {parsed.duplicateCount === 1 ? "code" : "codes"} removed
+              </p>
+            )}
             {parsed.rejected.length > 0 && (
               <ul className="text-destructive space-y-0.5 max-h-24 overflow-y-auto">
                 {parsed.rejected.map((r, i) => (

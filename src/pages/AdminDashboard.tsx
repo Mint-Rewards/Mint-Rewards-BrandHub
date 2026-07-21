@@ -40,6 +40,8 @@ import SiteHeader from "@/components/SiteHeader";
 import { useToast } from "@/hooks/use-toast";
 import { Brand, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
+import { resolveBrandEmail } from "@/lib/brandEmail";
+import { effectiveCampaignStatus, effectiveDealStatus } from "@/lib/metrics";
 import {
   fetchBrands,
   fetchAllCampaigns,
@@ -53,6 +55,10 @@ const AdminDashboard = () => {
   const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
+  const [campaignSearchTerm, setCampaignSearchTerm] = useState("");
+  const [campaignFilterStatus, setCampaignFilterStatus] = useState("all");
+  const [dealSearchTerm, setDealSearchTerm] = useState("");
+  const [dealFilterStatus, setDealFilterStatus] = useState("all");
   const [brands, setBrands] = useState<Brand[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -91,22 +97,6 @@ const AdminDashboard = () => {
     if (!brandId) return "-";
     const match = brands.find((b) => (b._id ?? b.id) === brandId);
     return match?.brandName ?? match?.companyName ?? brandId;
-  };
-
-  // Brands created via the quick org-signup flow get a synthesized
-  // `brand-<id>@brandhub.local` placeholder for `email` (the schema
-  // requires a unique value at creation time), with the org owner's real
-  // email stashed in `contactName` instead. Brands from the full
-  // application form don't hit this path — their `email` is already
-  // correct and `contactName` holds an actual contact person's name.
-  const isPlaceholderBrandEmail = (email?: string) =>
-    !!email && /^brand-[^@]+@brandhub\.local$/i.test(email);
-
-  const resolveBrandEmail = (brand: Pick<Brand, "email" | "contactName">) => {
-    if (isPlaceholderBrandEmail(brand.email) && brand.contactName?.includes("@")) {
-      return brand.contactName;
-    }
-    return brand.email;
   };
 
   const fetchApplications = useCallback(async () => {
@@ -269,11 +259,14 @@ const AdminDashboard = () => {
   const isPending = (status?: string) =>
     (status ?? "").toLowerCase() === "pending";
 
-  // Approved items surface first, rejected items sink to the bottom,
+  // Approved items surface first, rejected items sink toward the bottom,
   // pending items stay in the middle (in their existing relative order).
-  const APPROVED_RANK = 0;
-  const PENDING_RANK = 1;
+  // Expired and inactive items — no longer actionable — sink lowest.
+  const APPROVED_RANK = 1;
+  const PENDING_RANK = 0;
   const REJECTED_RANK = 2;
+  const EXPIRED_RANK = 3;
+  const INACTIVE_RANK = 4;
 
   const brandStatusRank = (status?: string) => {
     const normalized = getBrandStatus(status);
@@ -282,18 +275,22 @@ const AdminDashboard = () => {
     return PENDING_RANK;
   };
 
-  const campaignStatusRank = (status?: string) => {
-    const normalized = status?.toUpperCase();
-    if (normalized === "APPROVED") return APPROVED_RANK;
-    if (normalized === "REJECTED") return REJECTED_RANK;
-    return PENDING_RANK;
+  const campaignStatusRank = (campaign: Campaign) => {
+    const normalized = effectiveCampaignStatus(campaign).toLowerCase();
+    if (normalized === "approved") return APPROVED_RANK;
+    if (normalized === "rejected") return REJECTED_RANK;
+    if (normalized === "expired") return EXPIRED_RANK;
+    if (normalized === "pending") return PENDING_RANK;
+    return INACTIVE_RANK;
   };
 
-  const dealStatusRank = (status?: string) => {
-    const normalized = status?.toLowerCase() ?? "pending";
+  const dealStatusRank = (deal: Deal) => {
+    const normalized = effectiveDealStatus(deal);
     if (normalized === "active") return APPROVED_RANK;
     if (normalized === "rejected") return REJECTED_RANK;
-    return PENDING_RANK;
+    if (normalized === "expired") return EXPIRED_RANK;
+    if (normalized === "pending") return PENDING_RANK;
+    return INACTIVE_RANK;
   };
 
   const filteredApplications = brands
@@ -318,13 +315,33 @@ const AdminDashboard = () => {
       return bTime - aTime;
     });
 
-  const sortedCampaigns = [...campaigns].sort(
-    (a, b) => campaignStatusRank(a.status) - campaignStatusRank(b.status),
-  );
+  const filteredCampaigns = campaigns
+    .filter((campaign) => {
+      const normalizedSearchTerm = campaignSearchTerm.toLowerCase();
+      const name = campaign.name ?? "";
+      const brandName = resolveBrandName(String(campaign.brand ?? "")) ?? "";
+      const matchesSearch =
+        name.toLowerCase().includes(normalizedSearchTerm) ||
+        brandName.toLowerCase().includes(normalizedSearchTerm);
+      const status = effectiveCampaignStatus(campaign).toLowerCase();
+      const matchesFilter = campaignFilterStatus === "all" || status === campaignFilterStatus;
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => campaignStatusRank(a) - campaignStatusRank(b));
 
-  const sortedDeals = [...deals].sort(
-    (a, b) => dealStatusRank(a.status) - dealStatusRank(b.status),
-  );
+  const filteredDeals = deals
+    .filter((deal) => {
+      const normalizedSearchTerm = dealSearchTerm.toLowerCase();
+      const title = deal.title ?? "";
+      const brandName = resolveBrandName(deal.brandId) ?? "";
+      const matchesSearch =
+        title.toLowerCase().includes(normalizedSearchTerm) ||
+        brandName.toLowerCase().includes(normalizedSearchTerm);
+      const status = effectiveDealStatus(deal);
+      const matchesFilter = dealFilterStatus === "all" || status === dealFilterStatus;
+      return matchesSearch && matchesFilter;
+    })
+    .sort((a, b) => dealStatusRank(a) - dealStatusRank(b));
 
   const stats = {
     total: brands.length,
@@ -605,107 +622,141 @@ const AdminDashboard = () => {
                   <CardDescription>Review and approve marketing campaigns</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {campaigns.length > 0 ? (
-                    <div className="divide-y divide-border">
-                      {sortedCampaigns.map((campaign) => (
-                        <div
-                          key={campaign.id}
-                          className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <h3 className="text-base font-semibold">{campaign.name}</h3>
-                              <Badge
-                                variant={
-                                  campaign.status?.toUpperCase() === "APPROVED"
-                                    ? "default"
-                                    : campaign.status?.toUpperCase() === "REJECTED"
-                                      ? "destructive"
-                                      : "secondary"
-                                }
-                              >
-                                {campaign.status}
-                              </Badge>
-                            </div>
-                            <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
-                              <div>
-                                <span className="font-medium text-foreground">Brand: </span>
-                                {resolveBrandName(String(campaign.brand ?? ""))}
-                              </div>
-                              <div>
-                                <span className="font-medium text-foreground">Start: </span>
-                                {campaign.startDate
-                                  ? new Date(campaign.startDate).toLocaleDateString()
-                                  : "—"}
-                              </div>
-                              <div>
-                                <span className="font-medium text-foreground">End: </span>
-                                {campaign.endDate
-                                  ? new Date(campaign.endDate).toLocaleDateString()
-                                  : "—"}
-                              </div>
-                            </div>
-                          </div>
+                  <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search campaigns..."
+                        value={campaignSearchTerm}
+                        onChange={(e) => setCampaignSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <select
+                        aria-label="Filter campaigns by status"
+                        value={campaignFilterStatus}
+                        onChange={(e) => setCampaignFilterStatus(e.target.value)}
+                        className="px-3 py-2 border border-border rounded-md bg-background"
+                      >
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="expired">Expired</option>
+                      </select>
+                    </div>
+                  </div>
 
-                          <div className="flex items-center justify-end gap-2 shrink-0 md:min-w-[220px]">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedCampaign(campaign)}
+                  <div className="divide-y divide-border">
+                    {filteredCampaigns.map((campaign) => {
+                      const campaignStatus = effectiveCampaignStatus(campaign);
+                      return (
+                      <div
+                        key={campaign.id}
+                        className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <h3 className="text-base font-semibold">{campaign.name}</h3>
+                            <Badge
+                              variant={
+                                campaignStatus === "APPROVED"
+                                  ? "default"
+                                  : campaignStatus === "REJECTED"
+                                    ? "destructive"
+                                    : "secondary"
+                              }
                             >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </Button>
-                            {campaign.status?.toUpperCase() === "PENDING" && (() => {
-                              const isBusy = pendingActions.has(`campaign:${campaign.id}`);
-                              return (
-                                <>
-                                  <Button
-                                    variant="success"
-                                    size="sm"
-                                    disabled={isBusy}
-                                    onClick={() =>
-                                      withPending(`campaign:${campaign.id}`, () =>
-                                        handleCampaignApproval(campaign, "approve"),
-                                      )
-                                    }
-                                  >
-                                    {isBusy ? (
-                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    ) : (
-                                      <CheckCircle className="h-4 w-4 mr-2" />
-                                    )}
-                                    Approve
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    disabled={isBusy}
-                                    onClick={() =>
-                                      withPending(`campaign:${campaign.id}`, () =>
-                                        handleCampaignApproval(campaign, "reject"),
-                                      )
-                                    }
-                                  >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Reject
-                                  </Button>
-                                </>
-                              );
-                            })()}
+                              {campaignStatus}
+                            </Badge>
+                          </div>
+                          <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
+                            <div>
+                              <span className="font-medium text-foreground">Brand: </span>
+                              {resolveBrandName(String(campaign.brand ?? ""))}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">Start: </span>
+                              {campaign.startDate
+                                ? new Date(campaign.startDate).toLocaleDateString()
+                                : "—"}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">End: </span>
+                              {campaign.endDate
+                                ? new Date(campaign.endDate).toLocaleDateString()
+                                : "—"}
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-10">
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
-                        <TrendingUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+
+                        <div className="flex items-center justify-end gap-2 shrink-0 md:min-w-[220px]">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedCampaign(campaign)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                          {campaign.status?.toUpperCase() === "PENDING" && (() => {
+                            const isBusy = pendingActions.has(`campaign:${campaign.id}`);
+                            return (
+                              <>
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  disabled={isBusy}
+                                  onClick={() =>
+                                    withPending(`campaign:${campaign.id}`, () =>
+                                      handleCampaignApproval(campaign, "approve"),
+                                    )
+                                  }
+                                >
+                                  {isBusy ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                  )}
+                                  Approve
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={isBusy}
+                                  onClick={() =>
+                                    withPending(`campaign:${campaign.id}`, () =>
+                                      handleCampaignApproval(campaign, "reject"),
+                                    )
+                                  }
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Reject
+                                </Button>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
-                      <h3 className="text-sm font-semibold mb-1">No campaigns pending</h3>
-                      <p className="text-sm text-muted-foreground">All campaigns are currently up to date.</p>
-                    </div>
-                  )}
+                      );
+                    })}
+
+                    {filteredCampaigns.length === 0 && (
+                      <div className="text-center py-10">
+                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                          <TrendingUp className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                        </div>
+                        <h3 className="text-sm font-semibold mb-1">No campaigns found</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {campaignSearchTerm || campaignFilterStatus !== "all"
+                            ? "Try adjusting your search or filter criteria."
+                            : "No campaigns have been submitted yet."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -718,108 +769,143 @@ const AdminDashboard = () => {
                   <CardDescription>Review and approve marketing deals</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  {deals.length > 0 ? (
-                    <div className="divide-y divide-border">
-                      {sortedDeals.map((deal) => (
-                        <div
-                          key={deal.id}
-                          className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-2 flex-wrap">
-                              <h3 className="text-base font-semibold">{deal.title}</h3>
-                              <Badge
-                                variant={
-                                  deal.status?.toLowerCase() === "active"
-                                    ? "default"
-                                    : deal.status?.toLowerCase() === "rejected"
-                                      ? "destructive"
-                                      : "secondary"
-                                }
-                              >
-                                {deal.status ?? "pending"}
-                              </Badge>
-                            </div>
-                            <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
-                              <div>
-                                <span className="font-medium text-foreground">Brand: </span>
-                                {resolveBrandName(deal.brandId)}
-                              </div>
-                              <div>
-                                <span className="font-medium text-foreground">Discount: </span>
-                                {deal.discountAmount != null
-                                  ? `$${deal.discountAmount}`
-                                  : deal.discountPercentage != null
-                                    ? `${deal.discountPercentage}%`
-                                    : "—"}
-                              </div>
-                              <div>
-                                <span className="font-medium text-foreground">Created: </span>
-                                {deal.createdAt
-                                  ? new Date(deal.createdAt).toLocaleDateString()
-                                  : "—"}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-end gap-2 shrink-0 md:min-w-[220px]">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setSelectedDeal(deal)}
+                  <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search deals..."
+                        value={dealSearchTerm}
+                        onChange={(e) => setDealSearchTerm(e.target.value)}
+                        className="pl-10"
+                      />
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Filter className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+                      <select
+                        aria-label="Filter deals by status"
+                        value={dealFilterStatus}
+                        onChange={(e) => setDealFilterStatus(e.target.value)}
+                        className="px-3 py-2 border border-border rounded-md bg-background"
+                      >
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="active">Active</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="expired">Expired</option>
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-border">
+                    {filteredDeals.map((deal) => {
+                      const dealStatus = effectiveDealStatus(deal);
+                      return (
+                      <div
+                        key={deal.id}
+                        className="flex flex-wrap items-start justify-between gap-4 py-4 first:pt-0 last:pb-0"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2 flex-wrap">
+                            <h3 className="text-base font-semibold">{deal.title}</h3>
+                            <Badge
+                              variant={
+                                dealStatus === "active"
+                                  ? "default"
+                                  : dealStatus === "rejected"
+                                    ? "destructive"
+                                    : "secondary"
+                              }
                             >
-                              <Eye className="h-4 w-4 mr-2" />
-                              View Details
-                            </Button>
-                            {(deal.status?.toLowerCase() ?? "pending") === "pending" && (() => {
-                              const isBusy = pendingActions.has(`deal:${deal.id}`);
-                              return (
-                                <>
-                                  <Button
-                                    variant="success"
-                                    size="sm"
-                                    disabled={isBusy}
-                                    onClick={() =>
-                                      withPending(`deal:${deal.id}`, () =>
-                                        handleDealApproval(deal, "approve"),
-                                      )
-                                    }
-                                  >
-                                    {isBusy ? (
-                                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    ) : (
-                                      <CheckCircle className="h-4 w-4 mr-2" />
-                                    )}
-                                    Approve
-                                  </Button>
-                                  <Button
-                                    variant="destructive"
-                                    size="sm"
-                                    disabled={isBusy}
-                                    onClick={() =>
-                                      withPending(`deal:${deal.id}`, () =>
-                                        handleDealApproval(deal, "reject"),
-                                      )
-                                    }
-                                  >
-                                    <XCircle className="h-4 w-4 mr-2" />
-                                    Reject
-                                  </Button>
-                                </>
-                              );
-                            })()}
+                              {dealStatus.charAt(0).toUpperCase() + dealStatus.slice(1)}
+                            </Badge>
+                          </div>
+                          <div className="grid md:grid-cols-3 gap-x-6 gap-y-1 text-sm text-muted-foreground">
+                            <div>
+                              <span className="font-medium text-foreground">Brand: </span>
+                              {resolveBrandName(deal.brandId)}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">Discount: </span>
+                              {deal.discountAmount != null
+                                ? `$${deal.discountAmount}`
+                                : deal.discountPercentage != null
+                                  ? `${deal.discountPercentage}%`
+                                  : "—"}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">Created: </span>
+                              {deal.createdAt
+                                ? new Date(deal.createdAt).toLocaleDateString()
+                                : "—"}
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-10">
-                      <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
-                        <Users className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                        <div className="flex items-center justify-end gap-2 shrink-0 md:min-w-[220px]">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedDeal(deal)}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            View Details
+                          </Button>
+                          {dealStatus === "pending" && (() => {
+                            const isBusy = pendingActions.has(`deal:${deal.id}`);
+                            return (
+                              <>
+                                <Button
+                                  variant="success"
+                                  size="sm"
+                                  disabled={isBusy}
+                                  onClick={() =>
+                                    withPending(`deal:${deal.id}`, () =>
+                                      handleDealApproval(deal, "approve"),
+                                    )
+                                  }
+                                >
+                                  {isBusy ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                  )}
+                                  Approve
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  disabled={isBusy}
+                                  onClick={() =>
+                                    withPending(`deal:${deal.id}`, () =>
+                                      handleDealApproval(deal, "reject"),
+                                    )
+                                  }
+                                >
+                                  <XCircle className="h-4 w-4 mr-2" />
+                                  Reject
+                                </Button>
+                              </>
+                            );
+                          })()}
+                        </div>
                       </div>
-                      <h3 className="text-sm font-semibold mb-1">No deals found</h3>
-                      <p className="text-sm text-muted-foreground">All deals are currently up to date.</p>
-                    </div>
-                  )}
+                      );
+                    })}
+
+                    {filteredDeals.length === 0 && (
+                      <div className="text-center py-10">
+                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                          <Users className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                        </div>
+                        <h3 className="text-sm font-semibold mb-1">No deals found</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {dealSearchTerm || dealFilterStatus !== "all"
+                            ? "Try adjusting your search or filter criteria."
+                            : "All deals are currently up to date."}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             </TabsContent>
@@ -945,7 +1031,7 @@ const AdminDashboard = () => {
             <DialogTitle>Brand Details</DialogTitle>
           </DialogHeader>
           {selectedBrand && (
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-sm">
               {[
                 ["Company Name", selectedBrand.companyName],
                 ["Brand Name", selectedBrand.brandName],
@@ -1101,7 +1187,6 @@ const AdminDashboard = () => {
                     ? new Date(selectedDeal.endDate).toLocaleDateString()
                     : undefined,
                 ],
-                ["Max Uses", selectedDeal.maxUses?.toString()],
                 ["Current Uses", selectedDeal.currentUses?.toString()],
                 [
                   "Minimum Purchase",

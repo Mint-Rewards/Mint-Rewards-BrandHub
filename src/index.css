@@ -27,7 +27,7 @@ All colors MUST be HSL.
     --muted: 210 20% 96%;
     --muted-foreground: 215 15% 43%;
 
-    --accent: 186 100% 19%;
+    --accent: 264 89% 58%; /* Precision Violet #8135F3 — platform interactive accent (gradient CTA, focus/selected states) */
     --accent-foreground: 0 0% 98%;
 
     --success: 142 55% 26%;

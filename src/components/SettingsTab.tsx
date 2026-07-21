@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Settings, Loader2 } from "lucide-react";
+import { Settings, Loader2, Upload } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -14,6 +14,13 @@ import {
   CardTitle,
 } from "./ui/card";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -24,21 +31,30 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { updateBrandSettings } from "@/actions/brandActions";
 import { CountryPhoneInput } from "@/components/CountryPhoneInput";
-import { isValidPhone } from "@/lib/validators";
+import { isValidPhone, toExternalHref } from "@/lib/validators";
+import {
+  RECOMMENDED_LOGO_PX,
+  MIN_LOGO_PX,
+  validateLogoDimensions,
+  validateLogoFileBasics,
+} from "@/lib/logoUpload";
+import { BRAND_CATEGORIES } from "@/lib/brandCategories";
 import type { Brand } from "@/types";
 
 const settingsSchema = z.object({
   brandName: z.string().min(1, "Brand name is required"),
   companyName: z.string().min(1, "Company name is required"),
+  category: z.string().min(1, "Category is required"),
   contactName: z.string().optional(),
+  email: z.string().min(1, "Email is required").email("Enter a valid email"),
   phone: z
     .string()
     .refine((value) => !value || isValidPhone(value) === null, "Enter a valid international phone number")
     .optional(),
-  webLink: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
-  appLink: z.string().url("Enter a valid URL").or(z.literal("")).optional(),
+  webLink: z.string().optional(),
+  appLink: z.string().optional(),
   description: z.string().optional(),
-  address: z.string().optional(),
+  address: z.string().min(1, "Address is required"),
   themeColor: z
     .string()
     .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Use a valid hex colour")
@@ -53,6 +69,9 @@ const SettingsTab: React.FC<{
   name?: string;
   companyName?: string;
   category?: string;
+  registrationNumber?: string;
+  logo?: string;
+  contactName?: string;
   contactEmail?: string;
   contactPhone?: string;
   webLink?: string;
@@ -70,6 +89,9 @@ const SettingsTab: React.FC<{
   name,
   companyName,
   category,
+  registrationNumber,
+  logo,
+  contactName,
   contactEmail,
   contactPhone,
   webLink,
@@ -83,11 +105,16 @@ const SettingsTab: React.FC<{
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [logoError, setLogoError] = useState<string | null>(null);
 
   const defaultFormValues = {
     brandName: name ?? "",
     companyName: companyName ?? "",
-    contactName: "",
+    category: category ?? "",
+    contactName: contactName ?? "",
+    email: contactEmail ?? "",
     phone: contactPhone ?? "",
     webLink: webLink ?? "",
     appLink: appLink ?? "",
@@ -105,7 +132,9 @@ const SettingsTab: React.FC<{
     form.reset({
       brandName: name ?? "",
       companyName: companyName ?? "",
-      contactName: "",
+      category: category ?? "",
+      contactName: contactName ?? "",
+      email: contactEmail ?? "",
       phone: contactPhone ?? "",
       webLink: webLink ?? "",
       appLink: appLink ?? "",
@@ -113,7 +142,42 @@ const SettingsTab: React.FC<{
       address: address ?? "",
       themeColor: themeColor ?? "",
     });
-  }, [name, companyName, contactPhone, webLink, appLink, description, address, themeColor]);
+  }, [name, companyName, category, contactName, contactEmail, contactPhone, webLink, appLink, description, address, themeColor]);
+
+  const handleLogoChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const basicsError = validateLogoFileBasics(file);
+    if (basicsError) {
+      setLogoError(basicsError);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(file);
+    const dimensionError = await validateLogoDimensions(objectUrl);
+    if (dimensionError) {
+      URL.revokeObjectURL(objectUrl);
+      setLogoError(dimensionError);
+      return;
+    }
+
+    setLogoError(null);
+    setLogoPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return objectUrl;
+    });
+    setLogoFile(file);
+  };
+
+  const cancelEdit = () => {
+    form.reset();
+    if (logoPreview) URL.revokeObjectURL(logoPreview);
+    setLogoFile(null);
+    setLogoPreview(null);
+    setLogoError(null);
+    setIsEditing(false);
+  };
 
   const onSubmit = async (data: SettingsFormData) => {
     setIsSaving(true);
@@ -121,13 +185,16 @@ const SettingsTab: React.FC<{
       const updatedBrand = await updateBrandSettings(brandId, {
         brandName: data.brandName,
         companyName: data.companyName || undefined,
+        category: data.category || undefined,
         contactName: data.contactName || undefined,
+        email: data.email,
         phone: data.phone || undefined,
         webLink: data.webLink || undefined,
         appLink: data.appLink || undefined,
         description: data.description || undefined,
         address: data.address || undefined,
         themeColor: data.themeColor || undefined,
+        logo: logoFile ?? undefined,
       });
 
       toast({
@@ -136,6 +203,9 @@ const SettingsTab: React.FC<{
       });
 
       onSettingsUpdated?.(updatedBrand);
+      if (logoPreview) URL.revokeObjectURL(logoPreview);
+      setLogoFile(null);
+      setLogoPreview(null);
       setIsEditing(false);
     } catch (error) {
       toast({
@@ -173,6 +243,19 @@ const SettingsTab: React.FC<{
         )}
         {!isEditing || readOnly ? (
           <div className="space-y-6">
+            <div className="flex items-center gap-4">
+              {logo ? (
+                <img
+                  src={logo}
+                  alt={`${name ?? "Brand"} logo`}
+                  className="h-16 w-16 rounded-lg object-cover border"
+                />
+              ) : (
+                <div className="h-16 w-16 rounded-lg border bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                  No logo
+                </div>
+              )}
+            </div>
             <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Brand Name</p>
@@ -187,6 +270,14 @@ const SettingsTab: React.FC<{
                 <p className="text-base">{category ?? "—"}</p>
               </div>
               <div>
+                <p className="text-sm font-medium text-muted-foreground">Registration Number</p>
+                <p className="text-base">{registrationNumber ?? "—"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Contact Name</p>
+                <p className="text-base">{contactName ?? "—"}</p>
+              </div>
+              <div>
                 <p className="text-sm font-medium text-muted-foreground">Contact Email</p>
                 <p className="text-base">{contactEmail ?? "—"}</p>
               </div>
@@ -196,11 +287,11 @@ const SettingsTab: React.FC<{
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Website</p>
-                <p className="text-base">{webLink ? <a href={webLink} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{webLink}</a> : "—"}</p>
+                <p className="text-base">{webLink ? <a href={toExternalHref(webLink)} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{webLink}</a> : "—"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">App Link</p>
-                <p className="text-base">{appLink ? <a href={appLink} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{appLink}</a> : "—"}</p>
+                <p className="text-base">{appLink ? <a href={toExternalHref(appLink)} target="_blank" rel="noreferrer" className="underline-offset-4 hover:underline" style={{ color: brandColor }}>{appLink}</a> : "—"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-muted-foreground">Address</p>
@@ -229,6 +320,40 @@ const SettingsTab: React.FC<{
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <FormLabel>
+                  Brand Logo (square, {RECOMMENDED_LOGO_PX}×{RECOMMENDED_LOGO_PX}px
+                  recommended, min {MIN_LOGO_PX}×{MIN_LOGO_PX}px, max 5 MB)
+                </FormLabel>
+                <div className="flex items-center gap-4">
+                  {logoPreview || logo ? (
+                    <img
+                      src={logoPreview ?? logo}
+                      alt="Logo preview"
+                      className="h-16 w-16 rounded-lg object-cover border"
+                    />
+                  ) : (
+                    <div className="h-16 w-16 rounded-lg border bg-muted flex items-center justify-center text-xs text-muted-foreground">
+                      No logo
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={handleLogoChange}
+                    className="hidden"
+                    id="settings-logo-upload"
+                  />
+                  <Button variant="outline" type="button" asChild>
+                    <label htmlFor="settings-logo-upload" className="cursor-pointer">
+                      <Upload className="h-4 w-4 mr-2" />
+                      Change Logo
+                    </label>
+                  </Button>
+                </div>
+                {logoError && <p className="text-sm font-medium text-destructive">{logoError}</p>}
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -258,12 +383,49 @@ const SettingsTab: React.FC<{
                 />
                 <FormField
                   control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
+                      <Select value={field.value} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a category" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {BRAND_CATEGORIES.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
                   name="contactName"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Contact Name</FormLabel>
                       <FormControl>
                         <Input placeholder="Primary contact" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input type="email" placeholder="you@company.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -295,7 +457,7 @@ const SettingsTab: React.FC<{
                     <FormItem>
                       <FormLabel>Website</FormLabel>
                       <FormControl>
-                        <Input placeholder="https://yourbrand.com" {...field} />
+                        <Input placeholder="www.yourbrand.com" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -379,10 +541,7 @@ const SettingsTab: React.FC<{
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => {
-                    form.reset();
-                    setIsEditing(false);
-                  }}
+                  onClick={cancelEdit}
                 >
                   Cancel
                 </Button>
