@@ -1,7 +1,7 @@
 # Graph Report - Mint-Rewards-BrandHub  (2026-07-21)
 
 ## Corpus Check
-- 142 files · ~807,193 words
+- 142 files · ~807,218 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `4bf5c0ac`
+- Built from commit: `ab0d0944`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

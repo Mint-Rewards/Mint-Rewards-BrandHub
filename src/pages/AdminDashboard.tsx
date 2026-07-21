@@ -1102,7 +1102,7 @@ const AdminDashboard = () => {
                     : undefined,
                 ],
                 ["Campaign Type", selectedCampaign.campaignType],
-                ["Budget", selectedCampaign.budget != null ? `$${selectedCampaign.budget}` : undefined],
+                ["Budget", selectedCampaign.budget != null ? `PKR ${selectedCampaign.budget}` : undefined],
                 ["Target Audience", selectedCampaign.targetAudience],
               ].map(([label, value]) => (
                 <div key={label as string}>
@@ -1199,18 +1199,18 @@ const AdminDashboard = () => {
                 [
                   "Minimum Purchase",
                   selectedDeal.minimumPurchase != null
-                    ? `$${selectedDeal.minimumPurchase}`
+                    ? `PKR ${selectedDeal.minimumPurchase}`
                     : undefined,
                 ],
               ].map(([label, value]) => (
                 <div key={label as string}>
                   <p className="font-medium text-foreground">{label}</p>
-                  <p className="text-muted-foreground">{(value as string) || "-"}</p>
+                  <p className="text-muted-foreground break-words">{(value as string) || "-"}</p>
                 </div>
               ))}
               <div className="col-span-2">
                 <p className="font-medium text-foreground">Description</p>
-                <p className="text-muted-foreground">{selectedDeal.description || "-"}</p>
+                <p className="text-muted-foreground break-words">{selectedDeal.description || "-"}</p>
               </div>
             </div>
           )}

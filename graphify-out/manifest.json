@@ -15,8 +15,8 @@
     "semantic_hash": "fa856d82dc4f1ea9c445c40556450228"
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1784599133.3947148,
-    "ast_hash": "e440065d70e71d20a96b55185dce0b0f",
+    "mtime": 1784601548.6800747,
+    "ast_hash": "fef1402d3501039ad80e898711cab94d",
     "semantic_hash": ""
   },
   ".impeccable/live/config.json": {
@@ -430,8 +430,8 @@
     "semantic_hash": "09bd36c7dbd9b2c11bfbe4c97ff3ac51"
   },
   "src/pages/AdminDashboard.tsx": {
-    "mtime": 1784599165.8239038,
-    "ast_hash": "11ac3203e00c1b37908fa933ae4a0261",
+    "mtime": 1784601548.610893,
+    "ast_hash": "b757a36423c4643fa1d8432b20ec2e71",
     "semantic_hash": ""
   },
   "src/pages/AdminLogin.tsx": {
