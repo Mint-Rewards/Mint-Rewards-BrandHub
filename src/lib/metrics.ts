@@ -100,6 +100,12 @@ export const lifecycleOf = (record: DatedRecord): LifecycleBucket => {
   return "live";
 };
 
+// How far ahead "ending soon" looks. Two weeks is roughly the window in which a
+// brand manager can still act on a campaign before it closes. Shared, because
+// more than one Overview card states this number in its copy and they must not
+// drift apart.
+export const ENDING_SOON_DAYS = 14;
+
 // A flag applied to records already bucketed as `live` — deliberately not its
 // own bucket, which would double-count against `live`.
 export const endsWithinDays = (record: DatedRecord, days: number): boolean => {

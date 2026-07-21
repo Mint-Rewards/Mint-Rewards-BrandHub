@@ -1,6 +1,6 @@
 import type { Campaign, Deal } from "@/types";
 import { CheckCircle2, ChevronRight } from "lucide-react";
-import { endsWithinDays, lifecycleOf } from "@/lib/metrics";
+import { ENDING_SOON_DAYS, endsWithinDays, lifecycleOf } from "@/lib/metrics";
 import {
   Card,
   CardContent,
@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-const ENDING_SOON_DAYS = 14;
 // A deal this far through its allowance is close enough to running dry that the
 // brand should know before customers hit an exhausted code.
 const NEARLY_EXHAUSTED = 0.9;

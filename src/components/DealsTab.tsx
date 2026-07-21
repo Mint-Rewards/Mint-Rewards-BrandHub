@@ -63,11 +63,19 @@ import { isoDayOffset, isValidDateRange } from "@/lib/validators";
 const editDealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  discountPercentage: z.string().optional(),
-  discountAmount: z.string().optional(),
-  startDate: z.string().optional(),
-  endDate: z.string().optional(),
-  minimumPurchase: z.string().optional(),
+  discountPercentage: z
+    .string()
+    .min(1, "Discount percentage is required")
+    .refine(
+      (v) => !Number.isNaN(Number(v)) && Number(v) >= 0 && Number(v) <= 100,
+      "Enter a percentage between 0 and 100",
+    ),
+  startDate: z.string().min(1, "Start date is required"),
+  endDate: z.string().min(1, "End date is required"),
+  minimumPurchase: z
+    .string()
+    .min(1, "Minimum purchase is required")
+    .refine((v) => !Number.isNaN(Number(v)) && Number(v) >= 0, "Enter a valid amount"),
 }).superRefine((data, ctx) => {
   const message = isValidDateRange(data.startDate, data.endDate);
   if (!message) return;
@@ -166,7 +174,6 @@ const DealsTab: React.FC<{
       title: deal.title,
       description: deal.description ?? "",
       discountPercentage: deal.discountPercentage?.toString() ?? "",
-      discountAmount: deal.discountAmount?.toString() ?? "",
       startDate: deal.startDate ?? "",
       endDate: deal.endDate ?? "",
       minimumPurchase: deal.minimumPurchase?.toString() ?? "",
@@ -209,7 +216,6 @@ const DealsTab: React.FC<{
         title: data.title,
         description: data.description || undefined,
         discountPercentage: data.discountPercentage ? parseFloat(data.discountPercentage) : null,
-        discountAmount: data.discountAmount ? parseFloat(data.discountAmount) : null,
         ...(addCodes !== undefined
           ? { addCodes, maxUses: existingCodeCount + addedCodesCount }
           : {}),
@@ -217,7 +223,8 @@ const DealsTab: React.FC<{
         endDate: data.endDate || null,
         minimumPurchase: data.minimumPurchase ? parseFloat(data.minimumPurchase) : null,
       });
-      if (editingDeal.status?.toLowerCase() === "active") {
+      const editedStatus = editingDeal.status?.toLowerCase();
+      if (editedStatus === "active" || editedStatus === "rejected") {
         toast({
           title: "Changes saved — deal resubmitted for approval",
           description: "Your deal will be reviewed again before going live.",
@@ -516,19 +523,8 @@ const DealsTab: React.FC<{
                   name="discountPercentage"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Discount %</FormLabel>
+                      <FormLabel>Discount % *</FormLabel>
                       <FormControl><Input type="number" placeholder="20" min="0" max="100" {...field} /></FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editForm.control}
-                  name="discountAmount"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Discount Amount ($)</FormLabel>
-                      <FormControl><Input type="number" placeholder="10.00" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -538,7 +534,7 @@ const DealsTab: React.FC<{
                   name="startDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Start Date</FormLabel>
+                      <FormLabel>Start Date *</FormLabel>
                       <FormControl>
                         <Input type="date" max={isoDayOffset(editEndDate, -1)} {...field} />
                       </FormControl>
@@ -551,7 +547,7 @@ const DealsTab: React.FC<{
                   name="endDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>End Date</FormLabel>
+                      <FormLabel>End Date *</FormLabel>
                       <FormControl>
                         <Input type="date" min={isoDayOffset(editStartDate, 1)} {...field} />
                       </FormControl>
@@ -569,6 +565,17 @@ const DealsTab: React.FC<{
                     <FormControl>
                       <Textarea placeholder="Describe your deal…" className="resize-none" rows={3} {...field} />
                     </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={editForm.control}
+                name="minimumPurchase"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Minimum Purchase (PKR) *</FormLabel>
+                    <FormControl><Input type="number" placeholder="50.00" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
