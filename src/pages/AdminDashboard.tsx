@@ -1038,7 +1038,7 @@ const AdminDashboard = () => {
 
       {/* ── Brand Details Dialog ── */}
       <Dialog open={!!selectedBrand} onOpenChange={() => setSelectedBrand(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-xl">
           <DialogHeader>
             <DialogTitle>Brand Details</DialogTitle>
           </DialogHeader>
