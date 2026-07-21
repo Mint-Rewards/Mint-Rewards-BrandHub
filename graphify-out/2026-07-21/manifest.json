@@ -15,8 +15,8 @@
     "semantic_hash": "fa856d82dc4f1ea9c445c40556450228"
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1784589827.0463998,
-    "ast_hash": "ff085998dc8d14d5191ebfaae4fe4693",
+    "mtime": 1784595862.5188587,
+    "ast_hash": "6d10b315c6e499e94e08afd33c9c75de",
     "semantic_hash": ""
   },
   ".impeccable/live/config.json": {
@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/actions/brandActions.ts": {
-    "mtime": 1784581740.8971393,
-    "ast_hash": "4df8418ec812a124c02b5b7c70ce6299",
+    "mtime": 1784595804.6865268,
+    "ast_hash": "3cbaf60f52107c7c96d07b540bbbd8b1",
     "semantic_hash": ""
   },
   "src/components/AdminProtectedRoute.tsx": {
@@ -95,33 +95,33 @@
     "semantic_hash": "ddbb77208f9d67b727997567381de4b4"
   },
   "src/components/CampaignsTab.tsx": {
-    "mtime": 1784585286.9141526,
-    "ast_hash": "a3c6f50716ff7d8cfb4c59ae44a8f8c3",
+    "mtime": 1784591486.873844,
+    "ast_hash": "9fd7d9ea688168f8bb654eb600e405f8",
     "semantic_hash": ""
   },
   "src/components/CreateCampaignForm.tsx": {
-    "mtime": 1784589025.2158177,
-    "ast_hash": "39ff5c7e092f7729de535743272e2358",
+    "mtime": 1784592227.2907171,
+    "ast_hash": "b7cec24d6cfcd35f896f830ffa54e9dd",
     "semantic_hash": ""
   },
   "src/components/CreateDealForm.tsx": {
-    "mtime": 1784589008.1882358,
-    "ast_hash": "8835f07ae3d483ebdb91fb170288cc84",
+    "mtime": 1784591861.011673,
+    "ast_hash": "baed8603a4cfd7209002b70d7ec55aec",
     "semantic_hash": ""
   },
   "src/components/DealsTab.tsx": {
-    "mtime": 1784589060.078198,
-    "ast_hash": "b300a7950cfd020eaaae1cabeeb0f782",
+    "mtime": 1784591486.8740165,
+    "ast_hash": "79ccd60fbe43940c52024c8c04ba0e80",
     "semantic_hash": ""
   },
   "src/components/OverviewTab.tsx": {
-    "mtime": 1784589538.1393733,
-    "ast_hash": "d4209d62acfbdce885f11de08e5d428e",
+    "mtime": 1784591486.8743575,
+    "ast_hash": "fac531d51ac4ce0c86a2b8b40120da47",
     "semantic_hash": ""
   },
   "src/components/SettingsTab.tsx": {
-    "mtime": 1784580752.731162,
-    "ast_hash": "27a860896b10e8c6f33ab36fe6910a74",
+    "mtime": 1784592394.979301,
+    "ast_hash": "0f22b886c345a09e87be5402f2993ee4",
     "semantic_hash": ""
   },
   "src/components/SiteHeader.tsx": {
@@ -415,8 +415,8 @@
     "semantic_hash": "5a6fd53fdcf2be529e9cc0b718fde352"
   },
   "src/lib/validators.ts": {
-    "mtime": 1784589040.4768727,
-    "ast_hash": "76d6ba477b5e7cb5b37cac7735e064e2",
+    "mtime": 1784592377.8274739,
+    "ast_hash": "16fa143a73b6a7e3f1c6851d8f2e006a",
     "semantic_hash": ""
   },
   "src/main.tsx": {
@@ -430,8 +430,8 @@
     "semantic_hash": "09bd36c7dbd9b2c11bfbe4c97ff3ac51"
   },
   "src/pages/AdminDashboard.tsx": {
-    "mtime": 1784581706.9612653,
-    "ast_hash": "e9b6762778ffa1d84d582a66a2a76ef4",
+    "mtime": 1784594212.3061378,
+    "ast_hash": "f201be77422ddd03f837af38f7cac8f0",
     "semantic_hash": ""
   },
   "src/pages/AdminLogin.tsx": {
@@ -440,8 +440,8 @@
     "semantic_hash": "25e4fe412f6c0248c1183feb4454ea60"
   },
   "src/pages/BrandDashboard.tsx": {
-    "mtime": 1784585880.5353866,
-    "ast_hash": "76a2e7b8ef989be732b22308d96d4220",
+    "mtime": 1784595845.3199224,
+    "ast_hash": "e63df63322964ac1d4b71ec31f4c9223",
     "semantic_hash": ""
   },
   "src/pages/BrandRegister.tsx": {
@@ -475,8 +475,8 @@
     "semantic_hash": "c9c8267e122193863965536884e216f2"
   },
   "src/types.ts": {
-    "mtime": 1784147281.345185,
-    "ast_hash": "115dcac0ecf46df2e909abee30fafc4f",
+    "mtime": 1784594182.61553,
+    "ast_hash": "f9c29a2b8d53580692a7d0e3699269be",
     "semantic_hash": ""
   },
   "src/vite-env.d.ts": {
@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "src/components/EsgTab.tsx": {
-    "mtime": 1784589826.984076,
-    "ast_hash": "2d3cd2e82afc55e9602612acb823f698",
+    "mtime": 1784595862.468174,
+    "ast_hash": "ed2972ec942b06e83a0b5cb4c2968455",
     "semantic_hash": ""
   },
   "src/components/MintTraceTab.tsx": {
@@ -1350,8 +1350,8 @@
     "semantic_hash": ""
   },
   "src/lib/metrics.ts": {
-    "mtime": 1784589524.1707344,
-    "ast_hash": "ea2c684d501d69725a8bea753a286b65",
+    "mtime": 1784591486.8745043,
+    "ast_hash": "f8a3f04913d3dbafd846d2239d9cb524",
     "semantic_hash": ""
   },
   "src/lib/dealStatus.ts": {

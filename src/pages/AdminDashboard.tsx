@@ -1086,7 +1086,6 @@ const AdminDashboard = () => {
                     ? new Date(selectedDeal.endDate).toLocaleDateString()
                     : undefined,
                 ],
-                ["Max Uses", selectedDeal.maxUses?.toString()],
                 ["Current Uses", selectedDeal.currentUses?.toString()],
                 [
                   "Minimum Purchase",

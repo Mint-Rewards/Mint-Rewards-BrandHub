@@ -1627,14 +1627,14 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_actions_brandactions_brandanalytics",
-      "community": 57,
+      "community": 81,
       "norm_label": "brandanalytics"
     },
     {
       "label": "CampaignSummary",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L38",
+      "source_location": "L47",
       "_origin": "ast",
       "id": "src_actions_brandactions_campaignsummary",
       "community": 9,
@@ -1644,7 +1644,7 @@
       "label": "RegisterBrandPayload",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L51",
+      "source_location": "L60",
       "_origin": "ast",
       "id": "src_actions_brandactions_registerbrandpayload",
       "community": 9,
@@ -1654,7 +1654,7 @@
       "label": "RegisterBrandResponse",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L68",
+      "source_location": "L77",
       "_origin": "ast",
       "id": "src_actions_brandactions_registerbrandresponse",
       "community": 9,
@@ -1664,7 +1664,7 @@
       "label": "RegisterOrgPayload",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L75",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "src_actions_brandactions_registerorgpayload",
       "community": 9,
@@ -1674,7 +1674,7 @@
       "label": "RegisterOrgResponse",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L90",
+      "source_location": "L99",
       "_origin": "ast",
       "id": "src_actions_brandactions_registerorgresponse",
       "community": 9,
@@ -1684,7 +1684,7 @@
       "label": "registerOrg()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L102",
+      "source_location": "L111",
       "_origin": "ast",
       "id": "src_actions_brandactions_registerorg",
       "community": 9,
@@ -1694,17 +1694,17 @@
       "label": "FetchBrandsResponse",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L139",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchbrandsresponse",
-      "community": 1,
+      "community": 9,
       "norm_label": "fetchbrandsresponse"
     },
     {
       "label": "getApiBaseUrl()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L145",
+      "source_location": "L154",
       "_origin": "ast",
       "id": "src_actions_brandactions_getapibaseurl",
       "community": 9,
@@ -1714,7 +1714,7 @@
       "label": "normalizeBrandDates()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L152",
+      "source_location": "L161",
       "_origin": "ast",
       "id": "src_actions_brandactions_normalizebranddates",
       "community": 9,
@@ -1724,7 +1724,7 @@
       "label": "fetchBrands()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L157",
+      "source_location": "L166",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchbrands",
       "community": 9,
@@ -1734,7 +1734,7 @@
       "label": "BrandNotFoundError",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L185",
+      "source_location": "L194",
       "_origin": "ast",
       "id": "src_actions_brandactions_brandnotfounderror",
       "community": 9,
@@ -1744,7 +1744,7 @@
       "label": ".constructor()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L186",
+      "source_location": "L195",
       "_origin": "ast",
       "id": "src_actions_brandactions_brandnotfounderror_constructor",
       "community": 9,
@@ -1754,7 +1754,7 @@
       "label": "ModuleNotSubscribedError",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L193",
+      "source_location": "L202",
       "_origin": "ast",
       "id": "src_actions_brandactions_modulenotsubscribederror",
       "community": 14,
@@ -1764,7 +1764,7 @@
       "label": ".constructor()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L194",
+      "source_location": "L203",
       "_origin": "ast",
       "id": "src_actions_brandactions_modulenotsubscribederror_constructor",
       "community": 14,
@@ -1774,7 +1774,7 @@
       "label": "InsufficientPermissionError",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L202",
+      "source_location": "L211",
       "_origin": "ast",
       "id": "src_actions_brandactions_insufficientpermissionerror",
       "community": 14,
@@ -1784,7 +1784,7 @@
       "label": ".constructor()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L203",
+      "source_location": "L212",
       "_origin": "ast",
       "id": "src_actions_brandactions_insufficientpermissionerror_constructor",
       "community": 14,
@@ -1794,7 +1794,7 @@
       "label": "throwForBrandApiStatus()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L213",
+      "source_location": "L222",
       "_origin": "ast",
       "id": "src_actions_brandactions_throwforbrandapistatus",
       "community": 9,
@@ -1804,7 +1804,7 @@
       "label": "fetchOrgBrands()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L232",
+      "source_location": "L241",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchorgbrands",
       "community": 9,
@@ -1814,7 +1814,7 @@
       "label": "createOrgBrand()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L246",
+      "source_location": "L255",
       "_origin": "ast",
       "id": "src_actions_brandactions_createorgbrand",
       "community": 9,
@@ -1824,7 +1824,7 @@
       "label": "fetchBrandById()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L268",
+      "source_location": "L277",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchbrandbyid",
       "community": 9,
@@ -1834,7 +1834,7 @@
       "label": "fetchCampaignsForBrand()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L314",
+      "source_location": "L323",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchcampaignsforbrand",
       "community": 9,
@@ -1844,7 +1844,7 @@
       "label": "createCampaign()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L336",
+      "source_location": "L345",
       "_origin": "ast",
       "id": "src_actions_brandactions_createcampaign",
       "community": 9,
@@ -1854,7 +1854,7 @@
       "label": "fetchDealsForBrand()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L401",
+      "source_location": "L410",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchdealsforbrand",
       "community": 9,
@@ -1864,7 +1864,7 @@
       "label": "createDeal()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L421",
+      "source_location": "L430",
       "_origin": "ast",
       "id": "src_actions_brandactions_createdeal",
       "community": 9,
@@ -1874,7 +1874,7 @@
       "label": "updateBrandSettings()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L462",
+      "source_location": "L471",
       "_origin": "ast",
       "id": "src_actions_brandactions_updatebrandsettings",
       "community": 9,
@@ -1884,7 +1884,7 @@
       "label": "toDateParam()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L528",
+      "source_location": "L537",
       "_origin": "ast",
       "id": "src_actions_brandactions_todateparam",
       "community": 9,
@@ -1894,7 +1894,7 @@
       "label": "fetchBrandAnalytics()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L535",
+      "source_location": "L544",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchbrandanalytics",
       "community": 9,
@@ -1904,7 +1904,7 @@
       "label": "fetchAllDeals()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L560",
+      "source_location": "L569",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchalldeals",
       "community": 9,
@@ -1914,7 +1914,7 @@
       "label": "updateDeal()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L591",
+      "source_location": "L600",
       "_origin": "ast",
       "id": "src_actions_brandactions_updatedeal",
       "community": 9,
@@ -1924,7 +1924,7 @@
       "label": "updateBrandDeal()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L633",
+      "source_location": "L642",
       "_origin": "ast",
       "id": "src_actions_brandactions_updatebranddeal",
       "community": 9,
@@ -1934,7 +1934,7 @@
       "label": "deleteDeal()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L672",
+      "source_location": "L681",
       "_origin": "ast",
       "id": "src_actions_brandactions_deletedeal",
       "community": 9,
@@ -1944,7 +1944,7 @@
       "label": "updateCampaign()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L690",
+      "source_location": "L699",
       "_origin": "ast",
       "id": "src_actions_brandactions_updatecampaign",
       "community": 9,
@@ -1954,7 +1954,7 @@
       "label": "updateBrandCampaign()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L750",
+      "source_location": "L759",
       "_origin": "ast",
       "id": "src_actions_brandactions_updatebrandcampaign",
       "community": 9,
@@ -1964,7 +1964,7 @@
       "label": "deleteCampaign()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L807",
+      "source_location": "L816",
       "_origin": "ast",
       "id": "src_actions_brandactions_deletecampaign",
       "community": 9,
@@ -1974,7 +1974,7 @@
       "label": "fetchAllCampaigns()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L822",
+      "source_location": "L831",
       "_origin": "ast",
       "id": "src_actions_brandactions_fetchallcampaigns",
       "community": 9,
@@ -1984,7 +1984,7 @@
       "label": "registerBrand()",
       "file_type": "code",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L851",
+      "source_location": "L860",
       "_origin": "ast",
       "id": "src_actions_brandactions_registerbrand",
       "community": 9,
@@ -2097,7 +2097,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_countryphoneinput",
-      "community": 44,
+      "community": 7,
       "norm_label": "countryphoneinput.tsx"
     },
     {
@@ -2107,7 +2107,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_components_countryphoneinput_countryphoneinputprops",
-      "community": 44,
+      "community": 7,
       "norm_label": "countryphoneinputprops"
     },
     {
@@ -2117,7 +2117,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_components_countryphoneinput_countryphoneinput",
-      "community": 44,
+      "community": 7,
       "norm_label": "countryphoneinput()"
     },
     {
@@ -2144,17 +2144,17 @@
       "label": "getContrastingTextColor()",
       "file_type": "code",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L68",
+      "source_location": "L74",
       "_origin": "ast",
       "id": "src_components_createcampaignform_getcontrastingtextcolor",
-      "community": 32,
+      "community": 63,
       "norm_label": "getcontrastingtextcolor()"
     },
     {
       "label": "CampaignFormData",
       "file_type": "code",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L78",
+      "source_location": "L84",
       "_origin": "ast",
       "id": "src_components_createcampaignform_campaignformdata",
       "community": 32,
@@ -2164,17 +2164,17 @@
       "label": "CreateCampaignFormProps",
       "file_type": "code",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L80",
+      "source_location": "L86",
       "_origin": "ast",
       "id": "src_components_createcampaignform_createcampaignformprops",
-      "community": 161,
+      "community": 82,
       "norm_label": "createcampaignformprops"
     },
     {
       "label": "RequiredMark()",
       "file_type": "code",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L90",
+      "source_location": "L96",
       "_origin": "ast",
       "id": "src_components_createcampaignform_requiredmark",
       "community": 32,
@@ -2184,10 +2184,10 @@
       "label": "CreateCampaignForm()",
       "file_type": "code",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L94",
+      "source_location": "L100",
       "_origin": "ast",
       "id": "src_components_createcampaignform_createcampaignform",
-      "community": 32,
+      "community": 63,
       "norm_label": "createcampaignform()"
     },
     {
@@ -2197,7 +2197,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_createdealform",
-      "community": 12,
+      "community": 32,
       "norm_label": "createdealform.tsx"
     },
     {
@@ -2207,7 +2207,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_components_createdealform_dealschema",
-      "community": 12,
+      "community": 32,
       "norm_label": "dealschema"
     },
     {
@@ -2217,7 +2217,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "src_components_createdealform_dealformdata",
-      "community": 12,
+      "community": 32,
       "norm_label": "dealformdata"
     },
     {
@@ -2227,7 +2227,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "src_components_createdealform_createdealformprops",
-      "community": 12,
+      "community": 32,
       "norm_label": "createdealformprops"
     },
     {
@@ -2537,7 +2537,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle",
-      "community": 57,
+      "community": 64,
       "norm_label": "overviewlifecycle.tsx"
     },
     {
@@ -2547,7 +2547,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_bucket_order",
-      "community": 57,
+      "community": 64,
       "norm_label": "bucket_order"
     },
     {
@@ -2557,7 +2557,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_bucket_labels",
-      "community": 57,
+      "community": 64,
       "norm_label": "bucket_labels"
     },
     {
@@ -2567,7 +2567,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_tone",
-      "community": 57,
+      "community": 64,
       "norm_label": "tone"
     },
     {
@@ -2577,7 +2577,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_bucket_tones",
-      "community": 57,
+      "community": 64,
       "norm_label": "bucket_tones"
     },
     {
@@ -2587,7 +2587,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_tonestyle",
-      "community": 57,
+      "community": 64,
       "norm_label": "tonestyle()"
     },
     {
@@ -2597,7 +2597,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_countbuckets",
-      "community": 57,
+      "community": 64,
       "norm_label": "countbuckets()"
     },
     {
@@ -2607,7 +2607,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_visiblebuckets",
-      "community": 57,
+      "community": 64,
       "norm_label": "visiblebuckets()"
     },
     {
@@ -2617,7 +2617,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_trackprops",
-      "community": 57,
+      "community": 64,
       "norm_label": "trackprops"
     },
     {
@@ -2627,7 +2627,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_lifecycletrack",
-      "community": 57,
+      "community": 64,
       "norm_label": "lifecycletrack()"
     },
     {
@@ -2637,7 +2637,7 @@
       "source_location": "L198",
       "_origin": "ast",
       "id": "src_components_overviewlifecycle_overviewlifecycle",
-      "community": 57,
+      "community": 64,
       "norm_label": "overviewlifecycle()"
     },
     {
@@ -2647,7 +2647,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix",
-      "community": 161,
+      "community": 26,
       "norm_label": "overviewportfoliomix.tsx"
     },
     {
@@ -2657,7 +2657,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_campaign_type_labels",
-      "community": 161,
+      "community": 26,
       "norm_label": "campaign_type_labels"
     },
     {
@@ -2667,7 +2667,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_tally",
-      "community": 161,
+      "community": 26,
       "norm_label": "tally"
     },
     {
@@ -2677,7 +2677,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_rank",
-      "community": 161,
+      "community": 26,
       "norm_label": "rank()"
     },
     {
@@ -2687,7 +2687,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_tallytypes",
-      "community": 161,
+      "community": 26,
       "norm_label": "tallytypes()"
     },
     {
@@ -2697,7 +2697,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_tallyaudiences",
-      "community": 161,
+      "community": 26,
       "norm_label": "tallyaudiences()"
     },
     {
@@ -2707,7 +2707,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_columnprops",
-      "community": 161,
+      "community": 26,
       "norm_label": "columnprops"
     },
     {
@@ -2717,7 +2717,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_mixcolumn",
-      "community": 161,
+      "community": 26,
       "norm_label": "mixcolumn()"
     },
     {
@@ -2727,7 +2727,7 @@
       "source_location": "L138",
       "_origin": "ast",
       "id": "src_components_overviewportfoliomix_overviewportfoliomix",
-      "community": 161,
+      "community": 26,
       "norm_label": "overviewportfoliomix()"
     },
     {
@@ -2737,7 +2737,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_overviewtab",
-      "community": 161,
+      "community": 81,
       "norm_label": "overviewtab.tsx"
     },
     {
@@ -2747,7 +2747,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_components_overviewtab_formatkg",
-      "community": 57,
+      "community": 81,
       "norm_label": "formatkg()"
     },
     {
@@ -2757,7 +2757,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_components_overviewtab_plural",
-      "community": 57,
+      "community": 81,
       "norm_label": "plural()"
     },
     {
@@ -2767,7 +2767,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_components_overviewtab_overviewskeleton",
-      "community": 161,
+      "community": 81,
       "norm_label": "overviewskeleton()"
     },
     {
@@ -2777,7 +2777,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "src_components_overviewtab_figure",
-      "community": 161,
+      "community": 81,
       "norm_label": "figure()"
     },
     {
@@ -2787,7 +2787,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "src_components_overviewtab_overviewtab",
-      "community": 57,
+      "community": 81,
       "norm_label": "overviewtab()"
     },
     {
@@ -2797,7 +2797,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_promotionsfilterbar",
-      "community": 26,
+      "community": 32,
       "norm_label": "promotionsfilterbar.tsx"
     },
     {
@@ -2807,7 +2807,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_components_promotionsfilterbar_statusoption",
-      "community": 26,
+      "community": 32,
       "norm_label": "statusoption"
     },
     {
@@ -2817,7 +2817,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_components_promotionsfilterbar_promotionsfilterbar",
-      "community": 26,
+      "community": 32,
       "norm_label": "promotionsfilterbar()"
     },
     {
@@ -2827,7 +2827,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_promotionstab",
-      "community": 161,
+      "community": 82,
       "norm_label": "promotionstab.tsx"
     },
     {
@@ -2837,7 +2837,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_components_promotionstab_promotionstabprops",
-      "community": 161,
+      "community": 82,
       "norm_label": "promotionstabprops"
     },
     {
@@ -2847,7 +2847,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_components_promotionstab_promotionstab",
-      "community": 161,
+      "community": 82,
       "norm_label": "promotionstab()"
     },
     {
@@ -2857,7 +2857,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_settingstab",
-      "community": 32,
+      "community": 161,
       "norm_label": "settingstab.tsx"
     },
     {
@@ -2867,7 +2867,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_components_settingstab_settingsschema",
-      "community": 32,
+      "community": 161,
       "norm_label": "settingsschema"
     },
     {
@@ -2877,7 +2877,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_components_settingstab_settingsformdata",
-      "community": 32,
+      "community": 161,
       "norm_label": "settingsformdata"
     },
     {
@@ -2887,7 +2887,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_components_settingstab_settingstab",
-      "community": 32,
+      "community": 161,
       "norm_label": "settingstab()"
     },
     {
@@ -2927,7 +2927,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_targetaudiencechips",
-      "community": 161,
+      "community": 26,
       "norm_label": "targetaudiencechips.tsx"
     },
     {
@@ -2937,7 +2937,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_components_targetaudiencechips_targetaudiencechipsprops",
-      "community": 161,
+      "community": 26,
       "norm_label": "targetaudiencechipsprops"
     },
     {
@@ -2947,7 +2947,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_components_targetaudiencechips_targetaudiencechips",
-      "community": 161,
+      "community": 26,
       "norm_label": "targetaudiencechips()"
     },
     {
@@ -3597,7 +3597,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_chart",
-      "community": 57,
+      "community": 78,
       "norm_label": "chart.tsx"
     },
     {
@@ -3607,7 +3607,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_components_ui_chart_themes",
-      "community": 57,
+      "community": 78,
       "norm_label": "themes"
     },
     {
@@ -3617,7 +3617,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_components_ui_chart_chartconfig",
-      "community": 57,
+      "community": 78,
       "norm_label": "chartconfig"
     },
     {
@@ -3627,7 +3627,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_components_ui_chart_chartcontextprops",
-      "community": 57,
+      "community": 78,
       "norm_label": "chartcontextprops"
     },
     {
@@ -3637,7 +3637,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_components_ui_chart_chartcontext",
-      "community": 57,
+      "community": 78,
       "norm_label": "chartcontext"
     },
     {
@@ -3647,7 +3647,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_components_ui_chart_usechart",
-      "community": 57,
+      "community": 78,
       "norm_label": "usechart()"
     },
     {
@@ -3657,7 +3657,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_components_ui_chart_chartcontainer",
-      "community": 57,
+      "community": 78,
       "norm_label": "chartcontainer"
     },
     {
@@ -3667,7 +3667,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_components_ui_chart_chartstyle",
-      "community": 57,
+      "community": 78,
       "norm_label": "chartstyle()"
     },
     {
@@ -3677,7 +3677,7 @@
       "source_location": "L103",
       "_origin": "ast",
       "id": "src_components_ui_chart_charttooltipcontent",
-      "community": 57,
+      "community": 78,
       "norm_label": "charttooltipcontent"
     },
     {
@@ -3687,7 +3687,7 @@
       "source_location": "L259",
       "_origin": "ast",
       "id": "src_components_ui_chart_chartlegendcontent",
-      "community": 57,
+      "community": 78,
       "norm_label": "chartlegendcontent"
     },
     {
@@ -3697,7 +3697,7 @@
       "source_location": "L318",
       "_origin": "ast",
       "id": "src_components_ui_chart_getpayloadconfigfrompayload",
-      "community": 57,
+      "community": 78,
       "norm_label": "getpayloadconfigfrompayload()"
     },
     {
@@ -3707,7 +3707,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_checkbox",
-      "community": 7,
+      "community": 70,
       "norm_label": "checkbox.tsx"
     },
     {
@@ -3717,7 +3717,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_components_ui_checkbox_checkbox",
-      "community": 7,
+      "community": 70,
       "norm_label": "checkbox"
     },
     {
@@ -4127,7 +4127,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_components_ui_dropdown_menu_dropdownmenucontent",
-      "community": 14,
+      "community": 44,
       "norm_label": "dropdownmenucontent"
     },
     {
@@ -4137,7 +4137,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_components_ui_dropdown_menu_dropdownmenuitem",
-      "community": 14,
+      "community": 44,
       "norm_label": "dropdownmenuitem"
     },
     {
@@ -4177,7 +4177,7 @@
       "source_location": "L157",
       "_origin": "ast",
       "id": "src_components_ui_dropdown_menu_dropdownmenuseparator",
-      "community": 14,
+      "community": 44,
       "norm_label": "dropdownmenuseparator"
     },
     {
@@ -4317,7 +4317,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_hover_card",
-      "community": 78,
+      "community": 70,
       "norm_label": "hover-card.tsx"
     },
     {
@@ -4327,7 +4327,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_components_ui_hover_card_hovercardcontent",
-      "community": 78,
+      "community": 70,
       "norm_label": "hovercardcontent"
     },
     {
@@ -4727,7 +4727,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_popover",
-      "community": 26,
+      "community": 32,
       "norm_label": "popover.tsx"
     },
     {
@@ -4737,7 +4737,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_components_ui_popover_popovercontent",
-      "community": 26,
+      "community": 32,
       "norm_label": "popovercontent"
     },
     {
@@ -4747,7 +4747,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_progress",
-      "community": 161,
+      "community": 70,
       "norm_label": "progress.tsx"
     },
     {
@@ -4757,7 +4757,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_components_ui_progress_progress",
-      "community": 161,
+      "community": 70,
       "norm_label": "progress"
     },
     {
@@ -4767,7 +4767,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_radio_group",
-      "community": 64,
+      "community": 70,
       "norm_label": "radio-group.tsx"
     },
     {
@@ -4777,7 +4777,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_components_ui_radio_group_radiogroup",
-      "community": 64,
+      "community": 70,
       "norm_label": "radiogroup"
     },
     {
@@ -4787,7 +4787,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_components_ui_radio_group_radiogroupitem",
-      "community": 64,
+      "community": 70,
       "norm_label": "radiogroupitem"
     },
     {
@@ -4857,7 +4857,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_select",
-      "community": 26,
+      "community": 32,
       "norm_label": "select.tsx"
     },
     {
@@ -4867,7 +4867,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_components_ui_select_selecttrigger",
-      "community": 26,
+      "community": 32,
       "norm_label": "selecttrigger"
     },
     {
@@ -4877,7 +4877,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_components_ui_select_selectscrollupbutton",
-      "community": 26,
+      "community": 32,
       "norm_label": "selectscrollupbutton"
     },
     {
@@ -4887,7 +4887,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_components_ui_select_selectscrolldownbutton",
-      "community": 26,
+      "community": 32,
       "norm_label": "selectscrolldownbutton"
     },
     {
@@ -4897,7 +4897,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_components_ui_select_selectcontent",
-      "community": 26,
+      "community": 32,
       "norm_label": "selectcontent"
     },
     {
@@ -4907,7 +4907,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "src_components_ui_select_selectlabel",
-      "community": 26,
+      "community": 32,
       "norm_label": "selectlabel"
     },
     {
@@ -4917,7 +4917,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "src_components_ui_select_selectitem",
-      "community": 26,
+      "community": 32,
       "norm_label": "selectitem"
     },
     {
@@ -4927,7 +4927,7 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "src_components_ui_select_selectseparator",
-      "community": 26,
+      "community": 32,
       "norm_label": "selectseparator"
     },
     {
@@ -5317,7 +5317,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_skeleton",
-      "community": 5,
+      "community": 81,
       "norm_label": "skeleton.tsx"
     },
     {
@@ -5327,7 +5327,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_components_ui_skeleton_skeleton",
-      "community": 5,
+      "community": 81,
       "norm_label": "skeleton()"
     },
     {
@@ -5337,7 +5337,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_slider",
-      "community": 7,
+      "community": 70,
       "norm_label": "slider.tsx"
     },
     {
@@ -5347,7 +5347,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_components_ui_slider_slider",
-      "community": 7,
+      "community": 70,
       "norm_label": "slider"
     },
     {
@@ -5387,7 +5387,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_switch",
-      "community": 79,
+      "community": 70,
       "norm_label": "switch.tsx"
     },
     {
@@ -5397,7 +5397,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_components_ui_switch_switch",
-      "community": 79,
+      "community": 70,
       "norm_label": "switch"
     },
     {
@@ -5777,7 +5777,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_components_ui_use_toast",
-      "community": 161,
+      "community": 8,
       "norm_label": "use-toast.ts"
     },
     {
@@ -5937,7 +5937,7 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "src_hooks_use_toast_toast",
-      "community": 32,
+      "community": 8,
       "norm_label": "toast"
     },
     {
@@ -6017,7 +6017,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_audience",
-      "community": 161,
+      "community": 26,
       "norm_label": "audience.ts"
     },
     {
@@ -6027,7 +6027,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_lib_audience_predefined_audiences",
-      "community": 161,
+      "community": 26,
       "norm_label": "predefined_audiences"
     },
     {
@@ -6037,7 +6037,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_lib_audience_parseaudiences",
-      "community": 161,
+      "community": 26,
       "norm_label": "parseaudiences()"
     },
     {
@@ -6047,7 +6047,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_lib_audience_ispredefinedaudience",
-      "community": 161,
+      "community": 26,
       "norm_label": "ispredefinedaudience()"
     },
     {
@@ -6407,7 +6407,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_metrics",
-      "community": 57,
+      "community": 79,
       "norm_label": "metrics.ts"
     },
     {
@@ -6417,7 +6417,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_lib_metrics_toms",
-      "community": 57,
+      "community": 79,
       "norm_label": "toms()"
     },
     {
@@ -6427,7 +6427,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_lib_metrics_isdateonly",
-      "community": 57,
+      "community": 79,
       "norm_label": "isdateonly()"
     },
     {
@@ -6437,7 +6437,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_lib_metrics_endboundaryms",
-      "community": 57,
+      "community": 79,
       "norm_label": "endboundaryms()"
     },
     {
@@ -6447,7 +6447,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_lib_metrics_iscampaignlivenow",
-      "community": 57,
+      "community": 79,
       "norm_label": "iscampaignlivenow()"
     },
     {
@@ -6457,7 +6457,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_lib_metrics_datedrecord",
-      "community": 57,
+      "community": 64,
       "norm_label": "datedrecord"
     },
     {
@@ -6467,7 +6467,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_lib_metrics_expirable_statuses",
-      "community": 57,
+      "community": 79,
       "norm_label": "expirable_statuses"
     },
     {
@@ -6477,7 +6477,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_lib_metrics_hasexpired",
-      "community": 57,
+      "community": 79,
       "norm_label": "hasexpired()"
     },
     {
@@ -6487,7 +6487,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "src_lib_metrics_effectivecampaignstatus",
-      "community": 57,
+      "community": 79,
       "norm_label": "effectivecampaignstatus()"
     },
     {
@@ -6497,7 +6497,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_lib_metrics_effectivedealstatus",
-      "community": 57,
+      "community": 79,
       "norm_label": "effectivedealstatus()"
     },
     {
@@ -6507,7 +6507,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "src_lib_metrics_lifecyclebucket",
-      "community": 57,
+      "community": 64,
       "norm_label": "lifecyclebucket"
     },
     {
@@ -6517,7 +6517,7 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "src_lib_metrics_lifecycleof",
-      "community": 57,
+      "community": 79,
       "norm_label": "lifecycleof()"
     },
     {
@@ -6527,7 +6527,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_lib_metrics_endswithindays",
-      "community": 57,
+      "community": 79,
       "norm_label": "endswithindays()"
     },
     {
@@ -6537,7 +6537,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_utils",
-      "community": 44,
+      "community": 70,
       "norm_label": "utils.ts"
     },
     {
@@ -6567,7 +6567,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_validators_isvalidemail",
-      "community": 11,
+      "community": 63,
       "norm_label": "isvalidemail()"
     },
     {
@@ -6581,10 +6581,20 @@
       "norm_label": "isvalidurl()"
     },
     {
+      "label": "toExternalHref()",
+      "file_type": "code",
+      "source_file": "src/lib/validators.ts",
+      "source_location": "L24",
+      "_origin": "ast",
+      "id": "src_lib_validators_toexternalhref",
+      "community": 161,
+      "norm_label": "toexternalhref()"
+    },
+    {
       "label": "isValidPhone()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L16",
+      "source_location": "L30",
       "_origin": "ast",
       "id": "src_lib_validators_isvalidphone",
       "community": 11,
@@ -6594,7 +6604,7 @@
       "label": "isValidDomain()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L23",
+      "source_location": "L37",
       "_origin": "ast",
       "id": "src_lib_validators_isvaliddomain",
       "community": 63,
@@ -6604,7 +6614,7 @@
       "label": "isValidHex()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L28",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "src_lib_validators_isvalidhex",
       "community": 63,
@@ -6614,7 +6624,7 @@
       "label": "toDate()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L35",
+      "source_location": "L49",
       "_origin": "ast",
       "id": "src_lib_validators_todate",
       "community": 63,
@@ -6624,7 +6634,7 @@
       "label": "startOfDay()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L43",
+      "source_location": "L57",
       "_origin": "ast",
       "id": "src_lib_validators_startofday",
       "community": 63,
@@ -6634,7 +6644,7 @@
       "label": "today()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L50",
+      "source_location": "L64",
       "_origin": "ast",
       "id": "src_lib_validators_today",
       "community": 63,
@@ -6644,7 +6654,7 @@
       "label": "isoDayOffset()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L54",
+      "source_location": "L68",
       "_origin": "ast",
       "id": "src_lib_validators_isodayoffset",
       "community": 63,
@@ -6654,7 +6664,7 @@
       "label": "isValidDateRange()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L67",
+      "source_location": "L81",
       "_origin": "ast",
       "id": "src_lib_validators_isvaliddaterange",
       "community": 63,
@@ -6664,7 +6674,7 @@
       "label": "minLength()",
       "file_type": "code",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L77",
+      "source_location": "L91",
       "_origin": "ast",
       "id": "src_lib_validators_minlength",
       "community": 11,
@@ -7067,7 +7077,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_types_brand",
-      "community": 1,
+      "community": 161,
       "norm_label": "brand"
     },
     {
@@ -7117,7 +7127,7 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_types_campaign",
-      "community": 161,
+      "community": 82,
       "norm_label": "campaign"
     },
     {
@@ -7127,7 +7137,7 @@
       "source_location": "L104",
       "_origin": "ast",
       "id": "src_types_campaigndocument",
-      "community": 1,
+      "community": 82,
       "norm_label": "campaigndocument"
     },
     {
@@ -7347,7 +7357,7 @@
       "source_location": "L303",
       "_origin": "ast",
       "id": "src_types_deal",
-      "community": 161,
+      "community": 82,
       "norm_label": "deal"
     },
     {
@@ -9781,7 +9791,7 @@
       "contributor": null,
       "community": 87,
       "norm_label": "graphify /graphify trigger (root claude.md)",
-      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
+      "id": "claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_claude_graphify_trigger"
     },
     {
       "label": "Step 0 - GitHub repos and multi-path merge",
@@ -14272,7 +14282,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L185",
+      "source_location": "L194",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_brandnotfounderror",
@@ -14282,7 +14292,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L38",
+      "source_location": "L47",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_campaignsummary",
@@ -14292,7 +14302,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L336",
+      "source_location": "L345",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_createcampaign",
@@ -14302,7 +14312,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L421",
+      "source_location": "L430",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_createdeal",
@@ -14312,7 +14322,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L246",
+      "source_location": "L255",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_createorgbrand",
@@ -14322,7 +14332,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L807",
+      "source_location": "L816",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_deletecampaign",
@@ -14332,7 +14342,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L672",
+      "source_location": "L681",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_deletedeal",
@@ -14342,7 +14352,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L822",
+      "source_location": "L831",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchallcampaigns",
@@ -14352,7 +14362,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L560",
+      "source_location": "L569",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchalldeals",
@@ -14362,7 +14372,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L535",
+      "source_location": "L544",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchbrandanalytics",
@@ -14372,7 +14382,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L268",
+      "source_location": "L277",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchbrandbyid",
@@ -14382,7 +14392,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L157",
+      "source_location": "L166",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchbrands",
@@ -14392,7 +14402,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L139",
+      "source_location": "L148",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchbrandsresponse",
@@ -14402,7 +14412,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L314",
+      "source_location": "L323",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchcampaignsforbrand",
@@ -14412,7 +14422,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L401",
+      "source_location": "L410",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchdealsforbrand",
@@ -14422,7 +14432,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L232",
+      "source_location": "L241",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_fetchorgbrands",
@@ -14432,7 +14442,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L145",
+      "source_location": "L154",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14442,7 +14452,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L202",
+      "source_location": "L211",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_insufficientpermissionerror",
@@ -14452,7 +14462,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L193",
+      "source_location": "L202",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_modulenotsubscribederror",
@@ -14462,7 +14472,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L152",
+      "source_location": "L161",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_normalizebranddates",
@@ -14472,7 +14482,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L851",
+      "source_location": "L860",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_registerbrand",
@@ -14482,7 +14492,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L51",
+      "source_location": "L60",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_registerbrandpayload",
@@ -14492,7 +14502,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L68",
+      "source_location": "L77",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_registerbrandresponse",
@@ -14502,7 +14512,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L102",
+      "source_location": "L111",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_registerorg",
@@ -14512,7 +14522,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L75",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_registerorgpayload",
@@ -14522,7 +14532,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L90",
+      "source_location": "L99",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_registerorgresponse",
@@ -14532,7 +14542,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L213",
+      "source_location": "L222",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -14542,7 +14552,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L528",
+      "source_location": "L537",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_todateparam",
@@ -14552,7 +14562,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L750",
+      "source_location": "L759",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_updatebrandcampaign",
@@ -14562,7 +14572,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L633",
+      "source_location": "L642",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_updatebranddeal",
@@ -14572,7 +14582,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L462",
+      "source_location": "L471",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_updatebrandsettings",
@@ -14582,7 +14592,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L690",
+      "source_location": "L699",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_updatecampaign",
@@ -14592,7 +14602,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L591",
+      "source_location": "L600",
       "weight": 1.0,
       "source": "src_actions_brandactions",
       "target": "src_actions_brandactions_updatedeal",
@@ -14867,7 +14877,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L94",
+      "source_location": "L103",
       "weight": 1.0,
       "source": "src_actions_brandactions_registerorgresponse",
       "target": "src_lib_brandauth_orgbrand",
@@ -14878,7 +14888,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L125",
+      "source_location": "L134",
       "weight": 1.0,
       "source": "src_actions_brandactions_registerorg",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14911,7 +14921,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L141",
+      "source_location": "L150",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchbrandsresponse",
       "target": "src_types_brand",
@@ -14922,7 +14932,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L383",
+      "source_location": "L392",
       "weight": 1.0,
       "source": "src_actions_brandactions_createcampaign",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14933,7 +14943,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L437",
+      "source_location": "L446",
       "weight": 1.0,
       "source": "src_actions_brandactions_createdeal",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14944,7 +14954,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L250",
+      "source_location": "L259",
       "weight": 1.0,
       "source": "src_actions_brandactions_createorgbrand",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14955,7 +14965,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L812",
+      "source_location": "L821",
       "weight": 1.0,
       "source": "src_actions_brandactions_deletecampaign",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14966,7 +14976,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L677",
+      "source_location": "L686",
       "weight": 1.0,
       "source": "src_actions_brandactions_deletedeal",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14977,7 +14987,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L832",
+      "source_location": "L841",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchallcampaigns",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14988,7 +14998,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L570",
+      "source_location": "L579",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchalldeals",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -14999,7 +15009,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L545",
+      "source_location": "L554",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchbrandanalytics",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15010,7 +15020,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L269",
+      "source_location": "L278",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchbrandbyid",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15021,7 +15031,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L158",
+      "source_location": "L167",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchbrands",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15032,7 +15042,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L318",
+      "source_location": "L327",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchcampaignsforbrand",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15043,7 +15053,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L403",
+      "source_location": "L412",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchdealsforbrand",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15054,7 +15064,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L233",
+      "source_location": "L242",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchorgbrands",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15065,7 +15075,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L872",
+      "source_location": "L881",
       "weight": 1.0,
       "source": "src_actions_brandactions_registerbrand",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15076,7 +15086,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L792",
+      "source_location": "L801",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatebrandcampaign",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15087,7 +15097,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L650",
+      "source_location": "L659",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatebranddeal",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15098,7 +15108,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L506",
+      "source_location": "L515",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatebrandsettings",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15109,7 +15119,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L733",
+      "source_location": "L742",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatecampaign",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15120,7 +15130,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L608",
+      "source_location": "L617",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatedeal",
       "target": "src_actions_brandactions_getapibaseurl",
@@ -15131,7 +15141,7 @@
       "context": "argument",
       "confidence": "INFERRED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L169",
+      "source_location": "L178",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchbrands",
       "target": "src_actions_brandactions_normalizebranddates",
@@ -15152,7 +15162,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L186",
+      "source_location": "L195",
       "weight": 1.0,
       "source": "src_actions_brandactions_brandnotfounderror",
       "target": "src_actions_brandactions_brandnotfounderror_constructor",
@@ -15173,7 +15183,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L194",
+      "source_location": "L203",
       "weight": 1.0,
       "source": "src_actions_brandactions_modulenotsubscribederror",
       "target": "src_actions_brandactions_modulenotsubscribederror_constructor",
@@ -15205,7 +15215,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L203",
+      "source_location": "L212",
       "weight": 1.0,
       "source": "src_actions_brandactions_insufficientpermissionerror",
       "target": "src_actions_brandactions_insufficientpermissionerror_constructor",
@@ -15238,7 +15248,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L387",
+      "source_location": "L396",
       "weight": 1.0,
       "source": "src_actions_brandactions_createcampaign",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15249,7 +15259,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L448",
+      "source_location": "L457",
       "weight": 1.0,
       "source": "src_actions_brandactions_createdeal",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15260,7 +15270,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L815",
+      "source_location": "L824",
       "weight": 1.0,
       "source": "src_actions_brandactions_deletecampaign",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15271,7 +15281,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L680",
+      "source_location": "L689",
       "weight": 1.0,
       "source": "src_actions_brandactions_deletedeal",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15282,7 +15292,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L548",
+      "source_location": "L557",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchbrandanalytics",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15293,7 +15303,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L322",
+      "source_location": "L331",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchcampaignsforbrand",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15304,7 +15314,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L406",
+      "source_location": "L415",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchdealsforbrand",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15315,7 +15325,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L795",
+      "source_location": "L804",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatebrandcampaign",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15326,7 +15336,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L660",
+      "source_location": "L669",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatebranddeal",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15337,7 +15347,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L512",
+      "source_location": "L521",
       "weight": 1.0,
       "source": "src_actions_brandactions_updatebrandsettings",
       "target": "src_actions_brandactions_throwforbrandapistatus",
@@ -15436,7 +15446,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/actions/brandActions.ts",
-      "source_location": "L540",
+      "source_location": "L549",
       "weight": 1.0,
       "source": "src_actions_brandactions_fetchbrandanalytics",
       "target": "src_actions_brandactions_todateparam",
@@ -16229,7 +16239,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L78",
+      "source_location": "L84",
       "weight": 1.0,
       "source": "src_components_createcampaignform",
       "target": "src_components_createcampaignform_campaignformdata",
@@ -16249,7 +16259,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L94",
+      "source_location": "L100",
       "weight": 1.0,
       "source": "src_components_createcampaignform",
       "target": "src_components_createcampaignform_createcampaignform",
@@ -16259,7 +16269,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L80",
+      "source_location": "L86",
       "weight": 1.0,
       "source": "src_components_createcampaignform",
       "target": "src_components_createcampaignform_createcampaignformprops",
@@ -16269,7 +16279,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L68",
+      "source_location": "L74",
       "weight": 1.0,
       "source": "src_components_createcampaignform",
       "target": "src_components_createcampaignform_getcontrastingtextcolor",
@@ -16279,7 +16289,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L90",
+      "source_location": "L96",
       "weight": 1.0,
       "source": "src_components_createcampaignform",
       "target": "src_components_createcampaignform_requiredmark",
@@ -16653,7 +16663,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L136",
+      "source_location": "L145",
       "weight": 1.0,
       "source": "src_components_createcampaignform_createcampaignform",
       "target": "src_components_createcampaignform_getcontrastingtextcolor",
@@ -16664,7 +16674,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L83",
+      "source_location": "L89",
       "weight": 1.0,
       "source": "src_components_createcampaignform_createcampaignformprops",
       "target": "src_types_campaign",
@@ -16676,7 +16686,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/components/CreateCampaignForm.tsx",
-      "source_location": "L126",
+      "source_location": "L132",
       "weight": 1.0,
       "source": "src_components_createcampaignform_createcampaignform",
       "target": "src_lib_validators_startofday"
@@ -17082,6 +17092,17 @@
       "weight": 1.0,
       "source": "src_components_createdealform",
       "target": "src_lib_validators_startofday",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/CreateDealForm.tsx",
+      "source_location": "L41",
+      "weight": 1.0,
+      "source": "src_components_createdealform",
+      "target": "src_lib_validators_today",
       "confidence_score": 1.0
     },
     {
@@ -18509,7 +18530,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/components/EsgTab.tsx",
-      "source_location": "L467",
+      "source_location": "L540",
       "weight": 1.0,
       "source": "src_components_esgtab_esgtab",
       "target": "src_components_esgtab_formatkg",
@@ -18532,7 +18553,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/components/EsgTab.tsx",
-      "source_location": "L270",
+      "source_location": "L358",
       "weight": 1.0,
       "source": "src_components_esgtab_esgtab",
       "target": "src_components_overviewtab_plural"
@@ -18543,7 +18564,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "src/components/EsgTab.tsx",
-      "source_location": "L191",
+      "source_location": "L239",
       "weight": 1.0,
       "source": "src_components_esgtab_esgtab",
       "target": "src_lib_metrics_iscampaignlivenow"
@@ -20210,6 +20231,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/SettingsTab.tsx",
+      "source_location": "L34",
+      "weight": 1.0,
+      "source": "src_components_settingstab",
+      "target": "src_lib_validators_toexternalhref",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -20241,6 +20273,17 @@
       "source": "src_pages_branddashboard",
       "target": "src_components_settingstab",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/components/SettingsTab.tsx",
+      "source_location": "L290",
+      "weight": 1.0,
+      "source": "src_components_settingstab_settingstab",
+      "target": "src_lib_validators_toexternalhref"
     },
     {
       "relation": "contains",
@@ -27513,7 +27556,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L508",
+      "source_location": "L518",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_getorgrole"
@@ -27546,7 +27589,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L507",
+      "source_location": "L517",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_getsubscribedmodules"
@@ -27579,7 +27622,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/pages/BrandDashboard.tsx",
-      "source_location": "L510",
+      "source_location": "L520",
       "weight": 1.0,
       "source": "src_pages_branddashboard_branddashboard",
       "target": "src_lib_brandauth_hasmodule"
@@ -28187,7 +28230,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L54",
+      "source_location": "L68",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_isodayoffset",
@@ -28197,7 +28240,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L67",
+      "source_location": "L81",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_isvaliddaterange",
@@ -28207,7 +28250,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L23",
+      "source_location": "L37",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_isvaliddomain",
@@ -28227,7 +28270,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L28",
+      "source_location": "L42",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_isvalidhex",
@@ -28237,7 +28280,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L16",
+      "source_location": "L30",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_isvalidphone",
@@ -28257,7 +28300,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L77",
+      "source_location": "L91",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_minlength",
@@ -28267,7 +28310,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L43",
+      "source_location": "L57",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_startofday",
@@ -28277,7 +28320,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L35",
+      "source_location": "L49",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_todate",
@@ -28287,10 +28330,20 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L50",
+      "source_location": "L64",
       "weight": 1.0,
       "source": "src_lib_validators",
       "target": "src_lib_validators_today",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/validators.ts",
+      "source_location": "L24",
+      "weight": 1.0,
+      "source": "src_lib_validators",
+      "target": "src_lib_validators_toexternalhref",
       "confidence_score": 1.0
     },
     {
@@ -28375,7 +28428,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L71",
+      "source_location": "L85",
       "weight": 1.0,
       "source": "src_lib_validators_isvaliddaterange",
       "target": "src_lib_validators_todate",
@@ -28386,7 +28439,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L44",
+      "source_location": "L58",
       "weight": 1.0,
       "source": "src_lib_validators_startofday",
       "target": "src_lib_validators_todate",
@@ -28397,7 +28450,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L58",
+      "source_location": "L72",
       "weight": 1.0,
       "source": "src_lib_validators_isodayoffset",
       "target": "src_lib_validators_startofday",
@@ -28408,7 +28461,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/validators.ts",
-      "source_location": "L50",
+      "source_location": "L64",
       "weight": 1.0,
       "source": "src_lib_validators_today",
       "target": "src_lib_validators_startofday",
@@ -32981,5 +33034,5 @@
       "source_file": ".specify/memory/AGENTS.md"
     }
   ],
-  "built_at_commit": "2b83691eabded4163155d8219dfd677314f53fd5"
+  "built_at_commit": "6ae0d98cc2987c105941adfc6ab4222be651f412"
 }

@@ -212,14 +212,22 @@ const OverviewTab: React.FC<{
           counts derived from the real lists. */}
       <div className="space-y-2">
         <p className="text-xs font-medium text-muted-foreground">
-          Campaign performance <span className="text-muted-foreground/70">· all-time</span>
+          Campaign performance
         </p>
         <dl className="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-border border border-border rounded-lg overflow-hidden">
           <Figure
             icon={TrendingUp}
             label="Active Campaigns"
             value={activeCampaigns.toLocaleString()}
-            context={`of ${plural(totalCampaigns, "campaign", "campaigns")} total`}
+            // context={`of ${plural(totalCampaigns, "campaign", "campaigns")} total`}
+            context={`current time period`}
+          />
+          <Figure
+            icon={TrendingUp}
+            label="Active Deals"
+            value={activeDeals.toLocaleString()}
+            // context={`of ${plural(totalDeals, "deal", "deals")} total`}
+            context={`current time period`}
           />
           <Figure
             icon={Recycle}
@@ -232,12 +240,6 @@ const OverviewTab: React.FC<{
                 ? `across ${plural(activeDeals, "approved deal", "approved deals")}`
                 : undefined
             }
-          />
-          <Figure
-            icon={TrendingUp}
-            label="Active Deals"
-            value={activeDeals.toLocaleString()}
-            context={`of ${plural(totalDeals, "deal", "deals")} total`}
           />
           <Figure
             icon={Users}

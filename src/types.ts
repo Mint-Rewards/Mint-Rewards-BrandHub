@@ -313,7 +313,6 @@ export interface Deal {
   codeCount?: number;
   startDate?: string | null;
   endDate?: string | null;
-  maxUses?: number | null;
   currentUses?: number | null;
   minimumPurchase?: number | null;
   status?: DealStatus | string;
