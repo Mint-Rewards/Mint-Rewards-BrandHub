@@ -126,6 +126,9 @@ export function CreateCampaignForm({
   const startDay = startOfDay(form.watch("startDate"));
   const endDay = startOfDay(form.watch("endDate"));
 
+  const today = (): Date => startOfDay(new Date())!;
+
+
   const badgePreview = form.watch("badge")?.trim() || "";
   const namePreview = form.watch("name")?.trim() || "";
   const subtitlePreview = form.watch("subtitle")?.trim() || "";
@@ -512,7 +515,9 @@ export function CreateCampaignForm({
                       mode="single"
                       selected={field.value}
                       onSelect={field.onChange}
-                      disabled={(date) => !!startDay && date <= startDay}
+                      disabled={(date) =>
+                        date < today() || (!!startDay && date <= startDay)
+                      }
                       initialFocus
                       className="p-3 pointer-events-auto"
                     />
