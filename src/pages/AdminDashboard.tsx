@@ -976,6 +976,12 @@ const AdminDashboard = () => {
                             {campaigns.filter((c) => c.status?.toUpperCase() === "REJECTED").length}
                           </dd>
                         </div>
+                        <div className="flex justify-between text-sm">
+                          <dt className="text-muted-foreground">Expired</dt>
+                          <dd className="font-semibold text-muted-foreground">
+                            {campaigns.filter((c) => c.status?.toUpperCase() === "EXPIRED").length}
+                          </dd>
+                        </div>
                       </dl>
                     </div>
 
@@ -1009,8 +1015,14 @@ const AdminDashboard = () => {
                           </dd>
                         </div>
                         <div className="flex justify-between text-sm">
+                          <dt className="text-muted-foreground">Expired</dt>
+                          <dd className="font-semibold text-muted-foreground">
+                            {deals.filter((d) => d.status?.toLowerCase() === "expired").length}
+                          </dd>
+                        </div>
+                        <div className="flex justify-between text-sm">
                           <dt className="text-muted-foreground">Inactive</dt>
-                          <dd className="font-semibold text-foreground">
+                          <dd className="font-semibold text-muted-foreground">
                             {deals.filter((d) => d.status?.toLowerCase() === "inactive").length}
                           </dd>
                         </div>
@@ -1165,10 +1177,6 @@ const AdminDashboard = () => {
               {[
                 ["Title", selectedDeal.title],
                 ["Promo Code", selectedDeal.promoCode],
-                [
-                  "Discount Amount",
-                  selectedDeal.discountAmount != null ? `$${selectedDeal.discountAmount}` : undefined,
-                ],
                 [
                   "Discount %",
                   selectedDeal.discountPercentage != null
