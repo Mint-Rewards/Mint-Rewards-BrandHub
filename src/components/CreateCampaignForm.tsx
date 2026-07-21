@@ -53,8 +53,8 @@ const campaignSchema = z.object({
       (v) => !Number.isNaN(Number(v)) && Number(v) > 0,
       "Enter an amount greater than 0",
     ),
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
+  startDate: z.date({ required_error: "Start date is required" }),
+  endDate: z.date({ required_error: "End date is required" }),
   targetAudience: z.string().optional(),
   campaignType: z.string().min(1, "Campaign type is required"),
   backgroundColor: z
@@ -463,7 +463,7 @@ export function CreateCampaignForm({
             name="startDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>Start Date</FormLabel>
+                <FormLabel>Start Date<RequiredMark /></FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
@@ -500,7 +500,7 @@ export function CreateCampaignForm({
             name="endDate"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel>End Date</FormLabel>
+                <FormLabel>End Date<RequiredMark /></FormLabel>
                 <Popover>
                   <PopoverTrigger asChild>
                     <FormControl>
