@@ -930,7 +930,7 @@ const AdminDashboard = () => {
             <DialogTitle>Brand Details</DialogTitle>
           </DialogHeader>
           {selectedBrand && (
-            <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            <div className="grid grid-cols-2 gap-3 text-sm">
               {[
                 ["Company Name", selectedBrand.companyName],
                 ["Brand Name", selectedBrand.brandName],

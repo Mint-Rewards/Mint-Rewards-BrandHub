@@ -15,8 +15,8 @@
     "semantic_hash": "fa856d82dc4f1ea9c445c40556450228"
   },
   ".impeccable/hook.cache.json": {
-    "mtime": 1784595862.5188587,
-    "ast_hash": "6d10b315c6e499e94e08afd33c9c75de",
+    "mtime": 1784596434.2823281,
+    "ast_hash": "375fdc7afb230a587e2965b52649415b",
     "semantic_hash": ""
   },
   ".impeccable/live/config.json": {
@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "src/components/EsgTab.tsx": {
-    "mtime": 1784595862.468174,
-    "ast_hash": "ed2972ec942b06e83a0b5cb4c2968455",
+    "mtime": 1784596434.2314656,
+    "ast_hash": "e3506c02c656cf2c44d10878d9bb83af",
     "semantic_hash": ""
   },
   "src/components/MintTraceTab.tsx": {
