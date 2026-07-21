@@ -504,20 +504,8 @@ const BrandRegister = () => {
         return (
           <div className="space-y-8">
             {/* Group 1 — who the brand is */}
-            <div role="group" aria-labelledby="group-identity">
-              <div className="space-y-1">
-                <h4
-                  id="group-identity"
-                  className="text-base font-semibold text-foreground"
-                >
-                  Brand identity
-                </h4>
-                <p className="text-xs text-muted-foreground">
-                  How your brand appears across MintRewards.
-                </p>
-              </div>
-
-              <div className="mt-5 space-y-6">
+            <div role="group" aria-label="Brand identity">
+              <div className="space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="brandName">Brand Name *</Label>
                   <Input
@@ -776,7 +764,7 @@ const BrandRegister = () => {
     }
   };
 
-  const stepTitles = ["Organisation & Account", "Brand & Logo", "Review"];
+  const stepTitles = ["Organisation & Account", "Brand Identity", "Review"];
 
   return (
     <div className="min-h-screen bg-background">
