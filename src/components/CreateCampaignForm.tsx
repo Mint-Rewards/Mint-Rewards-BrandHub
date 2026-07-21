@@ -46,7 +46,13 @@ const campaignSchema = z.object({
     .string()
     .min(10, "Description must be at least 10 characters")
     .max(400, "Keep the description under 400 characters"),
-  budget: z.string().optional(),
+  budget: z
+    .string()
+    .min(1, "Budget is required")
+    .refine(
+      (v) => !Number.isNaN(Number(v)) && Number(v) > 0,
+      "Enter an amount greater than 0",
+    ),
   startDate: z.date().optional(),
   endDate: z.date().optional(),
   targetAudience: z.string().optional(),
@@ -169,7 +175,7 @@ export function CreateCampaignForm({
         description: data.description,
         campaignType: data.campaignType,
         targetAudience: data.targetAudience || undefined,
-        budget: data.budget ? parseFloat(data.budget) : null,
+        budget: parseFloat(data.budget),
         backgroundColor: data.backgroundColor,
         badge: data.badge || undefined,
         subtitle: data.subtitle || undefined,
@@ -443,7 +449,7 @@ export function CreateCampaignForm({
             name="budget"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Budget (PKR)</FormLabel>
+                <FormLabel>Budget (PKR)<RequiredMark /></FormLabel>
                 <FormControl>
                   <Input type="number" placeholder="0.00" {...field} />
                 </FormControl>
