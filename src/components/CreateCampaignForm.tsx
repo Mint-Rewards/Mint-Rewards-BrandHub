@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -38,7 +39,31 @@ import { isValidDateRange, startOfDay } from "@/lib/validators";
 
 const hexColorRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/;
 
-const campaignSchema = z.object({
+// Mirrors lib/dealCodes.ts on the backend, which is the authority — this is
+// only here so a brand sees the problem before submitting.
+const MAX_CODES = 500;
+const codeRegex = /^[A-Z0-9\-_]{4,32}$/;
+
+/** Codes are pasted as a newline- or comma-separated list. */
+const parseCodeInput = (raw: string): string[] =>
+  raw
+    .split(/[\n,]/)
+    .map((code) => code.trim().toUpperCase())
+    .filter(Boolean);
+
+const makeCampaignSchema = (isEdit: boolean) => z.object({
+  // Redemption fields. A campaign with no codes is created but can never be
+  // redeemed in the app, so these are required on create; editing an existing
+  // campaign's codes is not supported by the backend PATCH route yet.
+  discountCodes: z.string(),
+  isSingleCode: z.boolean(),
+  discountPercentage: z
+    .string()
+    .optional()
+    .refine(
+      (v) => !v || (!Number.isNaN(Number(v)) && Number(v) > 0 && Number(v) <= 100),
+      "Enter a percentage between 1 and 100",
+    ),
   badge: z.string().optional(),
   name: z.string().min(1, "Title is required"),
   subtitle: z.string().optional(),
@@ -61,6 +86,36 @@ const campaignSchema = z.object({
     .string()
     .regex(hexColorRegex, "Use a valid hex color (e.g. #0EA5E9)"),
 }).superRefine((data, ctx) => {
+  // Codes are only collected on create — edit leaves the existing pool alone.
+  if (!isEdit) {
+    const codes = parseCodeInput(data.discountCodes);
+    const invalid = codes.filter((code) => !codeRegex.test(code));
+    const unique = new Set(codes);
+
+    const codeIssue = (message: string) =>
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["discountCodes"],
+        message,
+      });
+
+    if (codes.length === 0) {
+      codeIssue("Add at least one discount code, or the campaign cannot be redeemed");
+    } else if (invalid.length > 0) {
+      codeIssue(
+        `Codes must be 4-32 characters of A-Z, 0-9, - or _: ${invalid.slice(0, 3).join(", ")}`,
+      );
+    } else if (unique.size !== codes.length) {
+      codeIssue("Remove duplicate codes — each code can only be listed once");
+    } else if (codes.length > MAX_CODES) {
+      codeIssue(`A campaign cannot hold more than ${MAX_CODES} codes`);
+    } else if (!data.isSingleCode && unique.size < 2) {
+      codeIssue(
+        "Add more than one code, or switch on “Share one code with every user”",
+      );
+    }
+  }
+
   const message = isValidDateRange(data.startDate, data.endDate);
   if (!message) return;
   ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endDate"], message });
@@ -81,7 +136,7 @@ const getContrastingTextColor = (hexColor: string) => {
   return luminance > 0.6 ? "#0F172A" : "#FFFFFF";
 };
 
-type CampaignFormData = z.infer<typeof campaignSchema>;
+type CampaignFormData = z.infer<ReturnType<typeof makeCampaignSchema>>;
 
 interface CreateCampaignFormProps {
   brandId: string;
@@ -112,9 +167,17 @@ export function CreateCampaignForm({
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const campaignSchema = useMemo(() => makeCampaignSchema(isEdit), [isEdit]);
+
   const form = useForm<CampaignFormData>({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
+      discountCodes: "",
+      isSingleCode: false,
+      discountPercentage:
+        campaign?.discountPercentage != null
+          ? String(campaign.discountPercentage)
+          : "",
       badge: campaign?.badge ?? "",
       name: campaign?.name ?? "",
       subtitle: campaign?.subtitle ?? "",
@@ -180,9 +243,12 @@ export function CreateCampaignForm({
         badge: data.badge || undefined,
         subtitle: data.subtitle || undefined,
         banner: bannerFile ?? undefined,
+        discountPercentage: data.discountPercentage || undefined,
       };
 
       if (isEdit && campaign?.id) {
+        // The backend PATCH route ignores code fields, so they stay out of the
+        // edit payload rather than appearing to save and silently not doing so.
         const updated = await updateBrandCampaign(brandId, campaign.id, payload);
         // Any brand edit sends the campaign back through admin review.
         toast({
@@ -191,7 +257,11 @@ export function CreateCampaignForm({
         });
         onSuccess(updated);
       } else {
-        await createCampaign(brandId, payload);
+        await createCampaign(brandId, {
+          ...payload,
+          discountCodes: parseCodeInput(data.discountCodes),
+          isSingleCode: data.isSingleCode,
+        });
         toast({
           title: "Campaign submitted",
           description: "Your campaign is pending admin approval.",
@@ -552,6 +622,92 @@ export function CreateCampaignForm({
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="discountPercentage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Discount (%)</FormLabel>
+              <FormControl>
+                <Input
+                  type="number"
+                  min={1}
+                  max={100}
+                  placeholder="e.g. 20"
+                  {...field}
+                  value={field.value ?? ""}
+                />
+              </FormControl>
+              <p className="text-xs text-muted-foreground">
+                Shown on the deal card in the app.
+              </p>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Codes cannot be changed after creation — the backend PATCH route
+            does not accept them — so this block is create-only. */}
+        {!isEdit && (
+          <div className="space-y-4 rounded-lg border p-4">
+            <div>
+              <h4 className="text-sm font-medium">Redemption codes</h4>
+              <p className="text-xs text-muted-foreground">
+                Users cannot redeem this campaign without codes, and they cannot
+                be added later yet — enter them now.
+              </p>
+            </div>
+
+            <FormField
+              control={form.control}
+              name="isSingleCode"
+              render={({ field }) => (
+                <FormItem className="flex items-center justify-between gap-4">
+                  <div className="space-y-0.5">
+                    <FormLabel>Share one code with every user</FormLabel>
+                    <p className="text-xs text-muted-foreground">
+                      Off: each user is handed a different code from the list,
+                      so the number of codes caps how many can redeem.
+                    </p>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="discountCodes"
+              render={({ field }) => {
+                const count = parseCodeInput(field.value ?? "").length;
+                return (
+                  <FormItem>
+                    <FormLabel>Codes<RequiredMark /></FormLabel>
+                    <FormControl>
+                      <Textarea
+                        rows={5}
+                        placeholder={"SAVE20\nSAVE20-B\nSAVE20-C"}
+                        className="font-mono text-sm"
+                        {...field}
+                      />
+                    </FormControl>
+                    <p className="text-xs text-muted-foreground">
+                      One per line, or comma separated. 4–32 characters of A–Z,
+                      0–9, - or _. {count > 0 && `${count} code${count === 1 ? "" : "s"} entered.`}
+                    </p>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
+            />
+          </div>
+        )}
 
         <div className="flex justify-end space-x-3">
           <Button type="button" variant="outline" onClick={onCancel}>

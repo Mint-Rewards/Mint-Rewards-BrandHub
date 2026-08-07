@@ -356,6 +356,12 @@ export const createCampaign = async (
     badge?: string;
     subtitle?: string;
     banner?: File | null;
+    // Required by the backend: a campaign with no codes cannot be redeemed in
+    // the app. `isSingleCode` shares one code with every user; otherwise each
+    // redeemer is handed a distinct code from the pool.
+    discountCodes: string[];
+    isSingleCode: boolean;
+    discountPercentage?: string;
   },
 ): Promise<Campaign> => {
   let body: BodyInit;
@@ -364,6 +370,13 @@ export const createCampaign = async (
   if (payload.banner instanceof File) {
     const fd = new FormData();
     fd.append("name", payload.name);
+    // FormData flattens values to strings; the backend parses this JSON array
+    // and the "true"/"false" literal back out.
+    fd.append("discountCodes", JSON.stringify(payload.discountCodes));
+    fd.append("isSingleCode", String(payload.isSingleCode));
+    if (payload.discountPercentage) {
+      fd.append("discountPercentage", payload.discountPercentage);
+    }
     if (payload.startDate) fd.append("startDate", payload.startDate);
     if (payload.endDate) fd.append("endDate", payload.endDate);
     if (payload.description) fd.append("description", payload.description);
@@ -771,6 +784,8 @@ export const updateBrandCampaign = async (
     badge: string;
     subtitle: string;
     banner: File | null;
+    // Editable after creation, unlike the code inventory itself.
+    discountPercentage: string;
   }>,
 ): Promise<Campaign> => {
   let body: BodyInit;
