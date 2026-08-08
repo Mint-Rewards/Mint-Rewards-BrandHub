@@ -476,8 +476,12 @@ export const createDeal = async (
     discountAmount?: number | null;
     codes?: string[];
     generateCodes?: { count: number; prefix?: string };
+    codeMode?: "inventory" | "shared";
     startDate?: string | null;
     endDate?: string | null;
+    // Accepted ONLY with codeMode "shared", where it caps how many users may
+    // use the one code. An inventory deal derives it from the code count and
+    // the server rejects it outright.
     maxUses?: number | null;
     minimumPurchase?: number | null;
   },
@@ -694,6 +698,8 @@ export const updateBrandDeal = async (
     addCodes: string[] | { count: number; prefix?: string };
     startDate: string | null;
     endDate: string | null;
+    // Shared deals only — this is how their capacity is raised. On an inventory
+    // deal use addCodes instead; the server rejects maxUses there.
     maxUses: number | null;
     minimumPurchase: number | null;
     status: "active" | "inactive" | "expired";

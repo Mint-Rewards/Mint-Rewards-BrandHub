@@ -40,6 +40,8 @@ import {
 } from "@/components/DealCodesInput";
 import { isValidDateRange, startOfDay, today } from "@/lib/validators";
 
+type CodeMode = "inventory" | "shared";
+
 const dealSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
@@ -87,6 +89,10 @@ export function CreateDealForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [codesValue, setCodesValue] = useState<DealCodesValue>(emptyDealCodesValue);
   const [codesError, setCodesError] = useState<string | null>(null);
+  // How the codes are rationed. Fixed at creation: switching a live deal would
+  // retroactively change what the codes already handed out mean.
+  const [codeMode, setCodeMode] = useState<CodeMode>("inventory");
+  const [maxUses, setMaxUses] = useState("");
 
   const form = useForm<DealFormData>({
     resolver: zodResolver(dealSchema),
@@ -109,14 +115,42 @@ export function CreateDealForm({
       setCodesError(resolved.error);
       return;
     }
+
+    // A shared deal hands codes[0] to everyone, so any further code would be
+    // unreachable. The server enforces this too; catching it here keeps the
+    // message next to the input the brand has to change.
+    const codeCount =
+      "codes" in resolved ? resolved.codes.length : resolved.generateCodes.count;
+    if (codeMode === "shared" && codeCount !== 1) {
+      setCodesError(
+        "A shared deal takes exactly one code. Choose “Unique code per user” to issue several.",
+      );
+      return;
+    }
+
+    let sharedMaxUses: number | null = null;
+    if (codeMode === "shared" && maxUses.trim() !== "") {
+      const parsed = Number(maxUses);
+      if (!Number.isInteger(parsed) || parsed < 1) {
+        setCodesError("Redemption limit must be a whole number of 1 or more.");
+        return;
+      }
+      sharedMaxUses = parsed;
+    }
+
     setCodesError(null);
     setIsSubmitting(true);
     try {
-      // maxUses is not sent: the server derives it from the code count after
-      // cleaning — one redemption per unique code. Deriving it client-side
-      // overshoots whenever a duplicate is dropped (issue #44).
+      // maxUses is sent only for a shared deal, where it is the sole bound on a
+      // reusable code. An inventory deal's is derived server-side from the code
+      // count after cleaning — deriving it client-side overshoots whenever a
+      // duplicate is dropped (issue #44).
       await createDeal(brandId, {
         ...resolved,
+        codeMode,
+        ...(codeMode === "shared" && sharedMaxUses !== null
+          ? { maxUses: sharedMaxUses }
+          : {}),
         title: data.title,
         description: data.description || undefined,
         discountPercentage: parseInt(data.discountPercentage),
@@ -171,10 +205,50 @@ export function CreateDealForm({
         </div>
 
         <div className="space-y-2">
-          <FormLabel>Promo Codes</FormLabel>
+          <FormLabel htmlFor="create-deal-code-mode">Redemption</FormLabel>
+          <Select
+            value={codeMode}
+            onValueChange={(value) => setCodeMode(value as CodeMode)}
+          >
+            <SelectTrigger id="create-deal-code-mode">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="inventory">Unique code per user</SelectItem>
+              <SelectItem value="shared">One shared code</SelectItem>
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">
+            {codeMode === "inventory"
+              ? "Each code goes to one user, so the number of codes is the number of redemptions."
+              : "Every user is given the same code, up to the limit you set below."}
+          </p>
+        </div>
+
+        {codeMode === "shared" && (
+          <div className="space-y-2">
+            <FormLabel htmlFor="create-deal-max-uses">Redemption limit</FormLabel>
+            <Input
+              id="create-deal-max-uses"
+              type="number"
+              min={1}
+              placeholder="Leave blank for unlimited"
+              value={maxUses}
+              onChange={(event) => setMaxUses(event.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              How many users may redeem the shared code in total.
+            </p>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <FormLabel>{codeMode === "shared" ? "Promo Code" : "Promo Codes"}</FormLabel>
           <DealCodesInput idPrefix="create-deal" value={codesValue} onChange={setCodesValue} />
           <p className="text-xs text-muted-foreground">
-            Each code is redeemable once, by one user.
+            {codeMode === "inventory"
+              ? "Each code is redeemable once, by one user."
+              : "A shared deal takes exactly one code — every user is handed this one."}
           </p>
           {codesError && <p className="text-sm font-medium text-destructive">{codesError}</p>}
         </div>

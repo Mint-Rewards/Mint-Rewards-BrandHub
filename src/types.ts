@@ -313,12 +313,19 @@ export interface Deal {
   codeCount?: number;
   startDate?: string | null;
   endDate?: string | null;
-  // Server-derived: always equals the code count, since one code is redeemable
-  // exactly once by one user. Read by DealsTab and OverviewAttention but never
-  // declared here until now — nothing caught it, because `vite build` is
-  // transpile-only and there was no typecheck script.
+  // How the codes are rationed. "inventory" gives each code to one user;
+  // "shared" hands one code to many users, capped by maxUses.
+  codeMode?: "inventory" | "shared";
+  // Only meaningful for shared deals. For inventory deals the server derives it
+  // from the code count, so it is NOT the number to display — a stale maxUses
+  // above the code count is exactly what made the app show "Sold Out" on a deal
+  // this UI advertised as "1/100 uses". Render `capacity`/`remaining` instead.
   maxUses?: number | null;
   currentUses?: number | null;
+  // Server-computed real capacity (lib/dealCapacity.ts). null means uncapped,
+  // which only an uncapped shared deal can be.
+  capacity?: number | null;
+  remaining?: number | null;
   minimumPurchase?: number | null;
   status?: DealStatus | string;
   createdAt?: string;

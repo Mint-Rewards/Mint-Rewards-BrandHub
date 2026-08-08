@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { downloadCodes } from "@/lib/dealCodes";
+import { formatDealUses, isDealExhausted } from "@/lib/dealCapacity";
 import { DEAL_STATUS_CONFIG } from "@/lib/dealStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -371,9 +372,17 @@ const DealsTab: React.FC<{
                               {new Date(deal.endDate).toLocaleDateString()}
                             </span>
                           )}
-                          {deal.maxUses != null && (
+                          {/* Real capacity, not maxUses: for an inventory deal
+                              maxUses can sit above the code count and promise
+                              redemptions the app will refuse. */}
+                          {formatDealUses(deal) && (
                             <span className="text-xs text-muted-foreground">
-                              {deal.currentUses ?? 0}/{deal.maxUses} uses
+                              {formatDealUses(deal)}
+                            </span>
+                          )}
+                          {isDealExhausted(deal) && (
+                            <span className="text-xs font-medium text-amber-600">
+                              Fully redeemed
                             </span>
                           )}
                         </div>
