@@ -313,6 +313,11 @@ export interface Deal {
   codeCount?: number;
   startDate?: string | null;
   endDate?: string | null;
+  // Server-derived: always equals the code count, since one code is redeemable
+  // exactly once by one user. Read by DealsTab and OverviewAttention but never
+  // declared here until now — nothing caught it, because `vite build` is
+  // transpile-only and there was no typecheck script.
+  maxUses?: number | null;
   currentUses?: number | null;
   minimumPurchase?: number | null;
   status?: DealStatus | string;

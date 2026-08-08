@@ -112,9 +112,9 @@ export function CreateDealForm({
     setCodesError(null);
     setIsSubmitting(true);
     try {
-      // Maximum uses always equals the number of codes on the deal — one
-      // redemption per unique code — so it's derived here, not user-entered.
-      const maxUses = "codes" in resolved ? resolved.codes.length : resolved.generateCodes.count;
+      // maxUses is not sent: the server derives it from the code count after
+      // cleaning — one redemption per unique code. Deriving it client-side
+      // overshoots whenever a duplicate is dropped (issue #44).
       await createDeal(brandId, {
         ...resolved,
         title: data.title,
@@ -123,7 +123,6 @@ export function CreateDealForm({
         // discountAmount: parseFloat(data.discountAmount),
         startDate: format(data.startDate, "yyyy-MM-dd"),
         endDate: format(data.endDate, "yyyy-MM-dd"),
-        maxUses,
         minimumPurchase: parseFloat(data.minimumPurchase),
       });
 

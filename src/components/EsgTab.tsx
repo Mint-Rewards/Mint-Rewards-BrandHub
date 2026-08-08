@@ -583,7 +583,7 @@ const EsgTab: React.FC<{
                 ) : (
                   <p className="text-sm text-muted-foreground py-4">
                     No collections have been attributed to your brand yet. Material weights appear
-                    here once recycling activity is linked to your campaigns.
+                    here once recycling activity is attributed to your brand.
                   </p>
                 )}
               </CardContent>
@@ -923,7 +923,7 @@ const EsgTab: React.FC<{
                             <div className="min-w-0">
                               <p className="font-medium truncate">{deal.title}</p>
                               <p className="text-sm text-muted-foreground">
-                                {meta.length > 0 ? meta.join(" · ") : "No discount details"}
+                                {meta.length > 0 ? meta.join(" · ") : "No deal terms"}
                               </p>
                             </div>
                           </div>
