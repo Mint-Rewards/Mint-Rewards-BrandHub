@@ -13,6 +13,7 @@ import { Store, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { brandAuth, brandSession, type OrgBrand } from "@/lib/brandAuth";
+import { getApiBaseUrl } from "@/actions/brandActions";
 
 const BrandLogin = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const BrandLogin = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/brandhub/auth/login`,
+        `${getApiBaseUrl()}/brandhub/auth/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

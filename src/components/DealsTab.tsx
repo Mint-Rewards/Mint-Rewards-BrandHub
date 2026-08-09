@@ -5,6 +5,7 @@ import { z } from "zod";
 import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { downloadCodes } from "@/lib/dealCodes";
+import { dealCodeCount, formatDealUses, isDealExhausted } from "@/lib/dealCapacity";
 import { DEAL_STATUS_CONFIG } from "@/lib/dealStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -145,7 +146,9 @@ const DealsTab: React.FC<{
 
   const editForm = useForm<EditDealFormData>({
     resolver: zodResolver(editDealSchema),
-    defaultValues: { title: "", description: "", status: "active" },
+    // `status` is not part of editDealSchema — it was a dead key that never
+    // reached the form and never round-tripped anywhere.
+    defaultValues: { title: "", description: "" },
   });
 
   // Each date input bounds the other so an invalid range can't be picked.
@@ -188,37 +191,33 @@ const DealsTab: React.FC<{
   const handleEditSubmit = async (data: EditDealFormData) => {
     if (!editingDeal || !brandId) return;
 
+    // Same precedence as the dialog's own "{n} on this deal" label below, so
+    // the number shown and the number validated against can never disagree.
+    const existingCodeCount = dealCodeCount(editingDeal);
+
     // "Add more codes" is optional — only include addCodes when the section is
     // open and has input; validation errors block the save so nothing is lost.
     let addCodes: string[] | { count: number; prefix?: string } | undefined;
-    let addedCodesCount = 0;
     if (addCodesOpen && (addCodesValue.rawCodes.trim() || addCodesValue.mode === "generate")) {
-      const resolved = resolveDealCodes(addCodesValue);
+      const resolved = resolveDealCodes(addCodesValue, existingCodeCount);
       if ("error" in resolved) {
         setAddCodesError(resolved.error);
         return;
       }
-      if ("codes" in resolved) {
-        addCodes = resolved.codes;
-        addedCodesCount = resolved.codes.length;
-      } else {
-        addCodes = resolved.generateCodes;
-        addedCodesCount = resolved.generateCodes.count;
-      }
+      addCodes = "codes" in resolved ? resolved.codes : resolved.generateCodes;
     }
     setAddCodesError(null);
     setBusyId(editingDeal.id);
     try {
-      // Maximum uses always equals the total number of codes on the deal —
-      // only recompute it when the code inventory actually changes.
-      const existingCodeCount = editingDeal.codeCount ?? editingDeal.codes?.length ?? 0;
+      // maxUses is deliberately NOT sent: the server derives it from the real
+      // code count after cleaning. Computing it here from what was submitted
+      // overshot whenever an overlapping code was silently deduped, so the
+      // deal promised more redemptions than it had codes for (issue #44).
       await updateBrandDeal(brandId, editingDeal.id, {
         title: data.title,
         description: data.description || undefined,
         discountPercentage: data.discountPercentage ? parseFloat(data.discountPercentage) : null,
-        ...(addCodes !== undefined
-          ? { addCodes, maxUses: existingCodeCount + addedCodesCount }
-          : {}),
+        ...(addCodes !== undefined ? { addCodes } : {}),
         startDate: data.startDate || null,
         endDate: data.endDate || null,
         minimumPurchase: data.minimumPurchase ? parseFloat(data.minimumPurchase) : null,
@@ -300,8 +299,8 @@ const DealsTab: React.FC<{
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <CardTitle>Deals & Discounts</CardTitle>
-            <CardDescription>Manage your promotional offers</CardDescription>
+            <CardTitle>Deals</CardTitle>
+            <CardDescription>Manage your deals</CardDescription>
           </div>
           {canWrite && (
             <Button onClick={() => setCreateOpen(true)}>
@@ -362,9 +361,9 @@ const DealsTab: React.FC<{
                               ${deal.discountAmount} off
                             </span>
                           )}
-                          {(deal.codeCount ?? deal.codes?.length ?? 0) > 0 && (
+                          {dealCodeCount(deal) > 0 && (
                             <span className="text-xs font-mono bg-muted text-foreground px-1.5 py-0.5 rounded">
-                              {deal.codeCount ?? deal.codes?.length} {(deal.codeCount ?? deal.codes?.length) === 1 ? "code" : "codes"}
+                              {dealCodeCount(deal)} {dealCodeCount(deal) === 1 ? "code" : "codes"}
                             </span>
                           )}
                           {deal.startDate && deal.endDate && (
@@ -373,9 +372,17 @@ const DealsTab: React.FC<{
                               {new Date(deal.endDate).toLocaleDateString()}
                             </span>
                           )}
-                          {deal.maxUses != null && (
+                          {/* Real capacity, not maxUses: for an inventory deal
+                              maxUses can sit above the code count and promise
+                              redemptions the app will refuse. */}
+                          {formatDealUses(deal) && (
                             <span className="text-xs text-muted-foreground">
-                              {deal.currentUses ?? 0}/{deal.maxUses} uses
+                              {formatDealUses(deal)}
+                            </span>
+                          )}
+                          {isDealExhausted(deal) && (
+                            <span className="text-xs font-medium text-amber-600">
+                              Fully redeemed
                             </span>
                           )}
                         </div>
@@ -588,7 +595,7 @@ const DealsTab: React.FC<{
                     <p className="text-sm font-medium">
                       Promo codes
                       <span className="text-muted-foreground font-normal">
-                        {" "}— {editingDeal?.codes?.length ?? editingDeal?.codeCount ?? 0} on this deal
+                        {" "}— {editingDeal ? dealCodeCount(editingDeal) : 0} on this deal
                       </span>
                     </p>
                     <p className="text-xs text-muted-foreground">

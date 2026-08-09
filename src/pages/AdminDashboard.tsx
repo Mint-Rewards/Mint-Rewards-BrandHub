@@ -46,6 +46,7 @@ import {
   fetchBrands,
   fetchAllCampaigns,
   fetchAllDeals,
+  getApiBaseUrl,
   updateCampaign,
   updateDeal,
 } from "@/actions/brandActions";
@@ -146,7 +147,11 @@ const AdminDashboard = () => {
   const handleApproval = async (brandId: string, status: "APPROVED" | "REJECTED", reason?: string) => {
     let res: Response;
     try {
-      res = await fetch(`${import.meta.env.VITE_API_URL}/brands/${brandId}`, {
+      // Via getApiBaseUrl, like every other call: reading the env var directly
+      // skipped the fallback, so with no .env present approvals POSTed to
+      // "undefined/brands/<id>" while the rest of the app worked fine against
+      // the hosted API (issue #43).
+      res = await fetch(`${getApiBaseUrl()}/brands/${brandId}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -171,16 +176,30 @@ const AdminDashboard = () => {
     }
 
     if (!res.ok) {
+      // Surface the server's own message when there is one, rather than
+      // discarding the body and always showing the generic string.
+      const body = await res.json().catch(() => ({} as { message?: string; error?: string }));
       toast({
         title: "Error",
-        description: "Failed to update brand status",
+        description:
+          body.message ?? body.error ?? "Failed to update brand status",
         variant: "destructive",
       });
       return;
     }
 
-    const { brand } = await res.json();
-    setBrands(prev => prev.map(b => b._id === brandId ? brand : b));
+    const { brand } = await res
+      .json()
+      .catch(() => ({} as { brand?: Brand }));
+
+    // A 200 with no `brand` used to write undefined into the list, crashing
+    // the row on the next render. Refetch instead of corrupting local state.
+    if (!brand) {
+      await fetchApplications();
+    } else {
+      setBrands(prev => prev.map(b => b._id === brandId ? brand : b));
+    }
+
     toast({
       title: `Brand ${status === "APPROVED" ? "Approved" : "Rejected"}`,
       description: `Brand has been ${status === "APPROVED" ? "approved" : "rejected"} successfully.`,
