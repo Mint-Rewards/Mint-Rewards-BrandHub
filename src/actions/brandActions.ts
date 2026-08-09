@@ -151,17 +151,9 @@ interface FetchBrandsResponse {
   message?: string;
 }
 
-// Exported because every caller must go through it. Reading
-// import.meta.env.VITE_API_URL directly skips the fallback, so with no .env
-// present that call builds "undefined/..." while the rest of the app works
-// against the hosted API — which reads as a backend fault rather than missing
-// configuration (issue #43).
-//
-// Truthiness, not `??`: an empty-string VITE_API_URL is missing configuration
-// too, and `??` would let it win over the fallback.
-export const getApiBaseUrl = () =>
-  import.meta.env.VITE_API_URL ||
-  "https://mint-rewards-mern-next-js.vercel.app/api";
+const getApiBaseUrl = () =>
+  import.meta.env.VITE_API_URL ??
+  "https://mint-rewards-backend.vercel.app/api";
 
 /**
  * Read a JSON body without letting a non-JSON one mask the real failure.
