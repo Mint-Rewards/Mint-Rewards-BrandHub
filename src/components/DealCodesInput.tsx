@@ -42,7 +42,7 @@ export const resolveDealCodes = (
   | { generateCodes: { count: number; prefix?: string } }
   | { error: string } => {
   const remaining = MAX_CODES - existingCodeCount;
-  const tooMany = (n: number) =>
+  const tooMany = () =>
     existingCodeCount > 0
       ? `Too many codes — this deal already has ${existingCodeCount}, so you can add at most ${Math.max(remaining, 0)} more (${MAX_CODES} total)`
       : `Too many codes — the limit is ${MAX_CODES} per deal`;
@@ -50,13 +50,13 @@ export const resolveDealCodes = (
   if (value.mode === "upload") {
     const { codes } = parseCodesInput(value.rawCodes);
     if (codes.length === 0) return { error: "Enter at least one valid code" };
-    if (codes.length > remaining) return { error: tooMany(codes.length) };
+    if (codes.length > remaining) return { error: tooMany() };
     return { codes };
   }
   const count = parseInt(value.generateCount, 10);
   if (!Number.isFinite(count) || count < 1 || count > MAX_CODES)
     return { error: `Enter a code count between 1 and ${MAX_CODES}` };
-  if (count > remaining) return { error: tooMany(count) };
+  if (count > remaining) return { error: tooMany() };
   if (!isValidPrefix(value.generatePrefix))
     return {
       error: `Prefix must be at most ${MAX_PREFIX_LENGTH} characters (letters, numbers, - and _)`,

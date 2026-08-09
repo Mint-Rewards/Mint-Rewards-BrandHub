@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Plus, MoreHorizontal, Pencil, Trash2, Power, Loader2, Tag, Copy, Ticket, Download, Info } from "lucide-react";
 import type { DateRange } from "react-day-picker";
 import { downloadCodes } from "@/lib/dealCodes";
-import { formatDealUses, isDealExhausted } from "@/lib/dealCapacity";
+import { dealCodeCount, formatDealUses, isDealExhausted } from "@/lib/dealCapacity";
 import { DEAL_STATUS_CONFIG } from "@/lib/dealStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
@@ -193,7 +193,7 @@ const DealsTab: React.FC<{
 
     // Same precedence as the dialog's own "{n} on this deal" label below, so
     // the number shown and the number validated against can never disagree.
-    const existingCodeCount = editingDeal.codes?.length ?? editingDeal.codeCount ?? 0;
+    const existingCodeCount = dealCodeCount(editingDeal);
 
     // "Add more codes" is optional — only include addCodes when the section is
     // open and has input; validation errors block the save so nothing is lost.
@@ -361,9 +361,9 @@ const DealsTab: React.FC<{
                               ${deal.discountAmount} off
                             </span>
                           )}
-                          {(deal.codeCount ?? deal.codes?.length ?? 0) > 0 && (
+                          {dealCodeCount(deal) > 0 && (
                             <span className="text-xs font-mono bg-muted text-foreground px-1.5 py-0.5 rounded">
-                              {deal.codeCount ?? deal.codes?.length} {(deal.codeCount ?? deal.codes?.length) === 1 ? "code" : "codes"}
+                              {dealCodeCount(deal)} {dealCodeCount(deal) === 1 ? "code" : "codes"}
                             </span>
                           )}
                           {deal.startDate && deal.endDate && (
@@ -595,7 +595,7 @@ const DealsTab: React.FC<{
                     <p className="text-sm font-medium">
                       Promo codes
                       <span className="text-muted-foreground font-normal">
-                        {" "}— {editingDeal?.codes?.length ?? editingDeal?.codeCount ?? 0} on this deal
+                        {" "}— {editingDeal ? dealCodeCount(editingDeal) : 0} on this deal
                       </span>
                     </p>
                     <p className="text-xs text-muted-foreground">
