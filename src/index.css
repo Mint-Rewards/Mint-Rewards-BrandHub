@@ -17,31 +17,31 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 224 15% 15%;
 
-    --primary: 186 100% 19%;
+    --primary: 180 100% 25%;
     --primary-foreground: 0 0% 98%;
-    --primary-glow: 186 100% 33%;
+    --primary-glow: 180 100% 38%;
 
     --secondary: 210 20% 96%;
     --secondary-foreground: 224 15% 25%;
 
     --muted: 210 20% 96%;
-    --muted-foreground: 215 15% 55%;
+    --muted-foreground: 215 15% 43%;
 
-    --accent: 264 89% 58%;
+    --accent: 264 89% 58%; /* Precision Violet #8135F3 — platform interactive accent (gradient CTA, focus/selected states) */
     --accent-foreground: 0 0% 98%;
 
-    --success: 142 76% 36%;
+    --success: 142 55% 26%;
     --success-foreground: 0 0% 98%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 224 15% 15%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 350 65% 32%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 186 20% 90%;
-    --input: 186 20% 94%;
-    --ring: 186 100% 19%;
+    --border: 180 20% 90%;
+    --input: 180 20% 94%;
+    --ring: 180 100% 25%;
 
     --radius: 0.625rem;
 
@@ -58,7 +58,7 @@ All colors MUST be HSL.
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-bounce: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 
     --sidebar-background: 0 0% 98%;
 
@@ -113,6 +113,33 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer components {
+  .country-phone-input.react-tel-input {
+    @apply w-full font-sans;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__field.form-control {
+    @apply h-10 w-full rounded-md border border-input bg-background py-2 pr-3 text-sm text-foreground shadow-sm transition-colors;
+    padding-left: 3rem;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__field.form-control:focus {
+    @apply border-ring outline-none ring-1 ring-ring;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__field--invalid.form-control {
+    @apply border-destructive;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__button.flag-dropdown {
+    @apply rounded-l-md border-input bg-muted/40;
+  }
+
+  .country-phone-input.react-tel-input .country-phone-input__dropdown.country-list {
+    @apply border-border bg-popover text-popover-foreground shadow-md;
   }
 }
 

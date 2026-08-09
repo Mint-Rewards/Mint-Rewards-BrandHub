@@ -12,22 +12,47 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2,
   Clock,
-  CheckCircle,
   AlertCircle,
+  CalendarIcon,
   Eye,
-  Bell,
   Mail,
-  Phone,
-  Loader2,
+  Lock,
+  LayoutGrid,
+  LogOut,
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import type { DateRange } from "react-day-picker";
 import { useParams, useNavigate } from "react-router-dom";
+import {
+  BrandNotFoundError,
+  fetchBrandById,
+  fetchCampaignsForBrand,
+  fetchDealsForBrand,
+  fetchBrandAnalytics,
+  type BrandAnalytics,
+} from "@/actions/brandActions";
 
 import { useToast } from "@/hooks/use-toast";
+import {
+  brandAuth,
+  getOrgRole,
+  getSubscribedModules,
+  hasModule,
+} from "@/lib/brandAuth";
 
+import { resolveBrandEmail } from "@/lib/brandEmail";
 import OverviewTab from "@/components/OverviewTab";
-import CampaignsTab from "@/components/CampaignsTab";
+import PromotionsTab from "@/components/PromotionsTab";
+import EsgTab from "@/components/EsgTab";
+import MintTraceTab from "@/components/MintTraceTab";
 import { Brand, Campaign, Deal } from "@/types";
-import DealsTab from "@/components/DealsTab";
 import SettingsTab from "@/components/SettingsTab";
 
 const BrandDashboard = () => {
@@ -38,7 +63,40 @@ const BrandDashboard = () => {
   const [brandData, setBrandData] = useState<Brand>();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [deals, setDeals] = useState<Deal[]>([]);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [campaignsError, setCampaignsError] = useState(false);
+  const [dealsError, setDealsError] = useState(false);
+  // Distinct from `campaigns`/`deals` truthiness: those start as `[]` (truthy)
+  // before the fetch resolves, so Overview/ESG need an explicit "has the
+  // first fetch actually completed" signal to avoid reading an empty initial
+  // array as "confirmed zero campaigns/deals" and showing a wrong count.
+  const [campaignsLoaded, setCampaignsLoaded] = useState(false);
+  const [dealsLoaded, setDealsLoaded] = useState(false);
+  const [logoFailed, setLogoFailed] = useState(false);
+  // All-time analytics — shared by Overview and the ESG/board-report tab.
+  // Never scoped to a period, so those numbers don't shift under the reader.
+  const [analytics, setAnalytics] = useState<BrandAnalytics | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [analyticsError, setAnalyticsError] = useState<string | null>(null);
+  // ESG's own period filter. Defaults to month-to-date (first of the current
+  // month → today), the common reporting window for brand managers.
+  const [esgDateRange, setEsgDateRange] = useState<DateRange | undefined>(() => {
+    const now = new Date();
+    return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: now };
+  });
+  // Period-scoped analytics for the ESG tab's Campaigns/Deals breakdowns —
+  // same pattern as overviewAnalytics below, re-queried on range change rather
+  // than relabelling stale data.
+  const [esgPeriodAnalytics, setEsgPeriodAnalytics] =
+    useState<BrandAnalytics | null>(null);
+  const [esgPeriodLoading, setEsgPeriodLoading] = useState(true);
+  const [esgPeriodError, setEsgPeriodError] = useState<string | null>(null);
+  // Tabs are state-driven (no sub-routes), so "route-level" module gating
+  // happens here: deep links to /dashboard/:brandId always land on a tab the
+  // user is allowed to see, and tab switches are validated.
+  const [activeTab, setActiveTab] = useState(() =>
+    hasModule("consumer-reporting") ? "overview" : "settings",
+  );
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
 
   useEffect(() => {
     const fetchBrandData = async () => {
@@ -48,34 +106,19 @@ const BrandDashboard = () => {
       }
 
       try {
-        // Fetch brand data
-        //set dummy data
-        setBrandData({
-          id: "1",
-          brand_name: "Dummy Brand",
-          company_name: "Dummy Company",
-          category: "Technology",
-          status: "approved",
-          created_at: new Date().toISOString(),
-          website: "https://dummybrand.com",
-          description: "This is a dummy brand.",
-          logo_url: "https://dummybrand.com/logo.png",
-          theme_color: "#3B82F6",
-          contact_email: "contact@dummybrand.com",
-          contact_phone: "+1234567890",
-          address: "123 Dummy St, Dummy City",
-          app_link: "https://dummybrand.com/app",
-          custom_emails: "support@dummybrand.com",
-          domain: "dummybrand.com",
-        });
+        const brand = await fetchBrandById(brandId);
+        setBrandData(brand);
       } catch (error) {
-        console.error("Unexpected error:", error);
-        toast({
-          title: "Error loading brand data",
-          description: "Please try again later.",
-          variant: "destructive",
-        });
-        navigate("/");
+        // 404 covers stale cached brand links and foreign/orphan ids alike —
+        // fall through to the not-found view instead of bouncing away.
+        if (!(error instanceof BrandNotFoundError)) {
+          console.error("Unexpected error:", error);
+          toast({
+            title: "Error loading brand data",
+            description: "Please try again later.",
+            variant: "destructive",
+          });
+        }
       } finally {
         setLoading(false);
       }
@@ -83,10 +126,28 @@ const BrandDashboard = () => {
 
     const fetchCampaigns = async () => {
       if (!brandId) return;
+      setCampaignsError(false);
+      try {
+        const data = await fetchCampaignsForBrand(brandId);
+        setCampaigns(data);
+      } catch {
+        setCampaignsError(true);
+      } finally {
+        setCampaignsLoaded(true);
+      }
     };
 
     const fetchDeals = async () => {
       if (!brandId) return;
+      setDealsError(false);
+      try {
+        const data = await fetchDealsForBrand(brandId);
+        setDeals(data);
+      } catch {
+        setDealsError(true);
+      } finally {
+        setDealsLoaded(true);
+      }
     };
 
     fetchBrandData();
@@ -94,62 +155,208 @@ const BrandDashboard = () => {
     fetchDeals();
   }, [brandId, navigate, toast]);
 
-  // Function to refresh campaigns data
+  // All-time analytics — loaded once per brand, independent of the picker.
+  useEffect(() => {
+    if (!brandId) return;
+    let cancelled = false;
+    const run = async () => {
+      setAnalyticsLoading(true);
+      setAnalyticsError(null);
+      try {
+        const data = await fetchBrandAnalytics(brandId);
+        if (!cancelled) setAnalytics(data);
+      } catch (error) {
+        // Typed 402/403 messages from throwForBrandApiStatus read well as-is.
+        if (!cancelled) {
+          setAnalyticsError(
+            error instanceof Error ? error.message : "Failed to load analytics.",
+          );
+        }
+      } finally {
+        if (!cancelled) setAnalyticsLoading(false);
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [brandId]);
+
+  // Period-scoped analytics for the ESG tab — re-queries the backend whenever
+  // its own reporting period changes, exactly like the Overview fetch above.
+  const esgRangeFrom = esgDateRange?.from ? esgDateRange.from.getTime() : null;
+  const esgRangeTo = esgDateRange?.to ? esgDateRange.to.getTime() : null;
+  useEffect(() => {
+    if (!brandId) return;
+    let cancelled = false;
+    const run = async () => {
+      setEsgPeriodLoading(true);
+      setEsgPeriodError(null);
+      try {
+        const range =
+          esgRangeFrom !== null && esgRangeTo !== null
+            ? { from: new Date(esgRangeFrom), to: new Date(esgRangeTo) }
+            : undefined;
+        const data = await fetchBrandAnalytics(brandId, range);
+        if (!cancelled) setEsgPeriodAnalytics(data);
+      } catch (error) {
+        if (!cancelled) {
+          setEsgPeriodError(
+            error instanceof Error ? error.message : "Failed to load analytics.",
+          );
+        }
+      } finally {
+        if (!cancelled) setEsgPeriodLoading(false);
+      }
+    };
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [brandId, esgRangeFrom, esgRangeTo]);
+
   const refreshCampaigns = async () => {
     if (!brandId) return;
+    try {
+      const data = await fetchCampaignsForBrand(brandId);
+      setCampaigns(data);
+      setCampaignsError(false);
+    } catch {
+      setCampaignsError(true);
+    } finally {
+      setCampaignsLoaded(true);
+    }
+  };
+
+  const refreshDeals = async () => {
+    if (!brandId) return;
+    try {
+      const data = await fetchDealsForBrand(brandId);
+      setDeals(data);
+      setDealsError(false);
+    } catch {
+      setDealsError(true);
+    } finally {
+      setDealsLoaded(true);
+    }
+  };
+
+  const applyUpdatedBrand = (brand: Brand) => {
+    // The PATCH response contains writable fields (including `phone`) that the
+    // current scoped GET projection omits. Apply it directly so a successful
+    // save is not immediately replaced by an incomplete refetch.
+    setBrandData((current) => ({
+      ...current,
+      ...brand,
+      id: brand.id ?? brand._id ?? current?.id,
+      _id: brand._id ?? brand.id ?? current?._id,
+    } as Brand));
   };
 
   // Function to handle campaign creation success
   const handleCampaignCreated = async () => {
     await refreshCampaigns();
-    setActiveTab("campaigns"); // Switch to campaigns tab after creation
+    setActiveTab("promotions"); // Switch to promotions tab after creation
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center">
-        <Card className="p-8">
-          <div className="flex items-center space-x-3">
-            <Loader2 className="h-6 w-6 animate-spin" />
-            <span>Loading brand dashboard...</span>
+      <div className="min-h-screen bg-background">
+        <header className="border-b bg-card/50 sticky top-0 z-50">
+          <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Skeleton className="h-10 w-10 rounded-lg" />
+              <div className="space-y-1.5">
+                <Skeleton className="h-5 w-40" />
+                <Skeleton className="h-3 w-24" />
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Skeleton className="h-6 w-16 rounded-full" />
+              <Skeleton className="h-9 w-9 rounded-md" />
+              <Skeleton className="h-9 w-32 rounded-md" />
+            </div>
           </div>
-        </Card>
+        </header>
+        <main className="container mx-auto px-6 py-8 space-y-6">
+          <div className="grid grid-cols-4 gap-2">
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+            <Skeleton className="h-10 rounded-md" />
+          </div>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="p-6 space-y-3">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-3 w-32" />
+              </Card>
+            ))}
+          </div>
+          <Card className="p-6 space-y-4">
+            <Skeleton className="h-5 w-48" />
+            <Skeleton className="h-64 w-full rounded-md" />
+          </Card>
+        </main>
       </div>
     );
   }
 
   if (!brandData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Card className="p-8 text-center">
           <h2 className="text-lg font-semibold mb-2">Brand Not Found</h2>
           <p className="text-muted-foreground mb-4">
             The requested brand could not be found.
           </p>
-          <Button onClick={() => navigate("/")}>Return Home</Button>
+          <Button onClick={() => navigate("/brands")}>Back to Your Brands</Button>
         </Card>
       </div>
     );
   }
 
-  const isApproved = brandData.status === "approved";
+  const isApproved = brandData.status?.toLowerCase() === "approved";
+  const submissionDate = brandData.createdAt
+    ? new Date(brandData.createdAt)
+    : null;
+  const brandRefId = brandData.id ?? brandData._id ?? "";
   const formattedData = {
-    name: brandData.brand_name,
-    companyName: brandData.company_name,
+    name: brandData.brandName || "Untitled brand",
+    companyName: brandData.companyName,
     category: brandData.category,
     status: brandData.status,
-    submissionDate: new Date(brandData.created_at).toLocaleDateString(),
+    submissionDate:
+      submissionDate && !Number.isNaN(submissionDate.getTime())
+        ? submissionDate.toLocaleDateString()
+        : "N/A",
     estimatedApproval: "2-3 business days",
-    referenceNumber: `REF-${brandData.id.substring(0, 8).toUpperCase()}`,
-    contactEmail: brandData?.contact_email || "N/A",
-    contactPhone: brandData?.contact_phone || "N/A",
+    referenceNumber: brandRefId
+      ? `REF-${brandRefId.substring(0, 8).toUpperCase()}`
+      : "N/A",
+    // brandData.email may be a synthesized `brand-*@brandhub.local`
+    // placeholder for quick org-signup brands — resolveBrandEmail falls
+    // back to the real address stashed in contactName for those.
+    contactEmail: resolveBrandEmail(brandData),
+    contactPhone: brandData.phone,
     website: brandData.website,
     description: brandData.description,
-    logoUrl: brandData?.logo_url,
-    themeColor: brandData?.theme_color || "#3B82F6",
+    logoUrl: brandData.logo,
+    themeColor: brandData.themeColor || "#3B82F6",
   };
 
-  const PendingApprovalView = () => (
+  const brandColor = formattedData.themeColor;
+
+  // NOTE: these two are plain JSX values, NOT components — do not convert them
+  // back to `const X = () => (...)` rendered as `<X />`. A component defined
+  // during render gets a fresh identity every time this function runs, so
+  // React treats it as a different type and unmounts/remounts the whole
+  // subtree on ANY state change here. That silently resets all descendant
+  // component state, which broke the ESG statistics period picker: changing
+  // the date remounted EsgTab, its uncontrolled inner <Tabs> snapped back to
+  // defaultValue="impact" (an all-time view), and the picker looked inert.
+  const pendingApprovalView = (
     <div className="space-y-6">
       {/* Status Header */}
       <Card className="border-warning/20 bg-warning/5">
@@ -159,7 +366,7 @@ const BrandDashboard = () => {
               <Clock className="h-6 w-6 text-warning" />
             </div>
             <div>
-              <CardTitle className="text-xl text-warning">
+              <CardTitle className="text-xl text-amber-700">
                 Pending Approval
               </CardTitle>
               <CardDescription>
@@ -199,7 +406,7 @@ const BrandDashboard = () => {
                 </p>
                 <Badge
                   variant="secondary"
-                  className="bg-warning/10 text-warning"
+                  className="bg-warning/10 text-amber-700"
                 >
                   Under Review
                 </Badge>
@@ -213,14 +420,14 @@ const BrandDashboard = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <AlertCircle className="h-5 w-5 text-primary" />
+            <AlertCircle className="h-5 w-5" style={{ color: brandColor }} />
             What's Next?
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-3">
             <div className="flex items-start space-x-3">
-              <div className="h-2 w-2 rounded-full bg-primary mt-2"></div>
+              <div className="h-2 w-2 rounded-full mt-2" style={{ backgroundColor: brandColor }}></div>
               <div>
                 <p className="font-medium">Marketing Team Review</p>
                 <p className="text-sm text-muted-foreground">
@@ -268,11 +475,12 @@ const BrandDashboard = () => {
           <div className="space-y-3">
             <div className="flex items-center space-x-3">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">support@mintrewards.com</span>
-            </div>
-            <div className="flex items-center space-x-3">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">+1 (555) 123-4567</span>
+              <a
+                href="mailto:engineering@mymintrewards.com"
+                className="text-sm text-primary underline-offset-4 hover:underline"
+              >
+                engineering@mymintrewards.com
+              </a>
             </div>
             <div className="flex items-center space-x-3">
               <Clock className="h-4 w-4 text-muted-foreground" />
@@ -283,7 +491,7 @@ const BrandDashboard = () => {
       </Card>
 
       {/* Demo Button */}
-      <Card className="bg-gradient-to-r from-primary/5 to-accent/5">
+      <Card style={{ backgroundColor: brandColor + "0d" }}>
         <CardContent className="p-6">
           <div className="text-center space-y-3">
             <h3 className="font-semibold">Want to see what's coming?</h3>
@@ -292,16 +500,7 @@ const BrandDashboard = () => {
             </p>
             <Button
               variant="outline"
-              onClick={async () => {
-                // Update brand status to approved in database
-                // if () {
-                //   setBrandData((prev) => ({ ...prev, status: "approved" }));
-                //   toast({
-                //     title: "Preview Mode",
-                //     description: "Showing approved dashboard preview",
-                //   });
-                // }
-              }}
+              onClick={() => setIsPreviewMode(true)}
             >
               <Eye className="h-4 w-4 mr-2" />
               Preview Dashboard
@@ -312,10 +511,78 @@ const BrandDashboard = () => {
     </div>
   );
 
-  const ApprovedDashboardView = () => (
+  // Module gating — UX mirror of the backend's resolution order (see
+  // brandAuth.ts). Subscribed-missing modules render locked (upsell, the 402
+  // story); role-missing modules are hidden entirely (not the user's job).
+  const subscribedModules = getSubscribedModules();
+  const orgRole = getOrgRole();
+  const canManageSettings = orgRole === "owner" || orgRole === "admin";
+  const showReporting = hasModule("consumer-reporting");
+  const esgSubscribed = subscribedModules.includes("esg");
+  const showEsg = hasModule("esg");
+  const showLockedEsg = !esgSubscribed;
+  const mintTraceSubscribed = subscribedModules.includes("minttrace");
+  const showMintTrace = hasModule("minttrace");
+  const showLockedMintTrace = !mintTraceSubscribed;
+  const hasAnyModule = subscribedModules.length > 0;
+
+  const visibleTabCount =
+    (showReporting ? 2 : 0) +
+    (showEsg || showLockedEsg ? 1 : 0) +
+    (showMintTrace || showLockedMintTrace ? 1 : 0) +
+    1; // + Settings
+
+  const allowedTabs = new Set([
+    ...(showReporting ? ["overview", "promotions"] : []),
+    ...(showEsg ? ["esg"] : []),
+    ...(showMintTrace ? ["minttrace"] : []),
+    "settings",
+  ]);
+
+  const handleTabChange = (value: string) => {
+    if (!allowedTabs.has(value)) {
+      toast({
+        title: "You don't have access to that section",
+        description: "Ask your organisation's owner or admin for access.",
+      });
+      return;
+    }
+    setActiveTab(value);
+  };
+
+  const handleLockedModuleClick = (moduleName: string) => {
+    toast({
+      title: `${moduleName} is not part of your plan`,
+      description:
+        "Your organisation isn't subscribed to this module. Contact MintRewards to add it.",
+    });
+  };
+
+  // Plain JSX value, not a component — see the note on pendingApprovalView.
+  const approvedDashboardView = (
     <div className="space-y-6">
-      {/* Success Header */}
-      <Card className="border-success/20 bg-success/5">
+      {!hasAnyModule && (
+        <Card>
+          <CardContent className="p-10 text-center space-y-3">
+            <LayoutGrid className="h-8 w-8 mx-auto text-muted-foreground" aria-hidden="true" />
+            <h3 className="font-semibold">No active modules</h3>
+            <p className="text-sm text-muted-foreground max-w-md mx-auto">
+              Your organisation has no active module subscriptions yet. Once a
+              module is added to your plan, its tools will appear here.
+              Settings remain available below.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+      {/* {isPreviewMode && !isApproved && (
+        <div className="flex items-center justify-between rounded-lg border border-warning/30 bg-warning/10 px-4 py-3 text-sm text-amber-700">
+          <span className="font-medium">Preview mode — this is how your dashboard will look once approved.</span>
+          <Button variant="ghost" size="sm" className="text-amber-700 hover:text-amber-800 hover:bg-warning/20 h-auto py-1" onClick={() => setIsPreviewMode(false)}>
+            Exit Preview
+          </Button>
+        </div>
+      )} */}
+      {/* <Card className="border-success/20 bg-success/5">
         <CardHeader>
           <div className="flex items-center space-x-3">
             <div className="h-12 w-12 rounded-full bg-success/20 flex items-center justify-center">
@@ -331,43 +598,226 @@ const BrandDashboard = () => {
             </div>
           </div>
         </CardHeader>
-      </Card>
+      </Card> */}
 
       {/* Dashboard Tabs */}
       <Tabs
-        value={activeTab}
-        onValueChange={setActiveTab}
+        value={allowedTabs.has(activeTab) ? activeTab : "settings"}
+        onValueChange={handleTabChange}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-          <TabsTrigger value="deals">Deals</TabsTrigger>
+        <TabsList
+          className="grid w-full"
+          style={{
+            gridTemplateColumns: `repeat(${visibleTabCount}, minmax(0, 1fr))`,
+          }}
+        >
+          {showReporting && (
+            <>
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="promotions">Promotions</TabsTrigger>
+            </>
+          )}
+          {showEsg && <TabsTrigger value="esg">ESG</TabsTrigger>}
+          {showLockedEsg && (
+            <button
+              type="button"
+              onClick={() => handleLockedModuleClick("ESG")}
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground/60 cursor-pointer"
+              aria-label="ESG — not included in your plan"
+            >
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+              ESG
+            </button>
+          )}
+          {showMintTrace && <TabsTrigger value="minttrace">MintTrace</TabsTrigger>}
+          {showLockedMintTrace && (
+            <button
+              type="button"
+              onClick={() => handleLockedModuleClick("MintTrace")}
+              className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium text-muted-foreground/60 cursor-pointer"
+              aria-label="MintTrace — not included in your plan"
+            >
+              <Lock className="h-3.5 w-3.5" aria-hidden="true" />
+              MintTrace
+            </button>
+          )}
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="overview" className="space-y-6">
-          {/* Recent Activity */}
-          <OverviewTab campaigns={campaigns.length} />
-        </TabsContent>
+        {showReporting && (
+          <>
+            <TabsContent value="overview" className="space-y-6">
+              <OverviewTab
+                analytics={analytics}
+                loading={analyticsLoading}
+                error={analyticsError}
+                brandColor={brandColor}
+                campaigns={campaigns}
+                deals={deals}
+                campaignsUnavailable={campaignsError}
+                dealsUnavailable={dealsError}
+                campaignsLoaded={campaignsLoaded}
+                dealsLoaded={dealsLoaded}
+                // handleTabChange, not setActiveTab — it enforces module gating
+                // and toasts when a tab isn't available to this user.
+                onNavigate={handleTabChange}
+              />
+            </TabsContent>
 
-        <TabsContent value="campaigns">
-          <CampaignsTab
-            campaigns={campaigns}
-            onCampaignCreated={handleCampaignCreated}
-          />
-        </TabsContent>
+            <TabsContent value="promotions" className="space-y-4">
+              {(campaignsError || dealsError) && (
+                <div className="flex flex-col gap-2 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between">
+                  <span className="text-destructive">
+                    {campaignsError && dealsError
+                      ? "Failed to load campaigns and deals."
+                      : campaignsError
+                        ? "Failed to load campaigns."
+                        : "Failed to load deals."}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (campaignsError) refreshCampaigns();
+                      if (dealsError) refreshDeals();
+                    }}
+                  >
+                    Try again
+                  </Button>
+                </div>
+              )}
+              <PromotionsTab
+                campaigns={campaigns}
+                deals={deals}
+                logoUrl={formattedData.logoUrl}
+                brandColor={brandColor}
+                onCampaignCreated={handleCampaignCreated}
+                onCampaignUpdated={(updated) => {
+                  // PATCH responses carry the raw document (_id); campaign
+                  // state uses normalized ids — match on either.
+                  const updatedId = updated.id ?? updated._id;
+                  setCampaigns((current) =>
+                    current.map((c) =>
+                      c.id === updatedId ? { ...c, ...updated, id: c.id } : c,
+                    ),
+                  );
+                }}
+                onDealCreated={refreshDeals}
+              />
+            </TabsContent>
+          </>
+        )}
 
-        <TabsContent value="deals">
-          <DealsTab deals={deals} />
-        </TabsContent>
+        {showEsg && (
+          <TabsContent value="esg" className="space-y-6">
+            <div
+              className="flex flex-col gap-3 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+              style={{
+                borderColor: brandColor + "33",
+                backgroundColor: brandColor + "0a",
+              }}
+            >
+              <div>
+                <p className="text-sm font-semibold text-foreground">Statistics Period</p>
+                <p className="text-xs text-muted-foreground">
+                  All figures on this tab reflect this range. Impact totals are summed from
+                  whole monthly records, so the span they cover is shown alongside them.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant={!esgDateRange?.from && !esgDateRange?.to ? "default" : "outline"}
+                  aria-pressed={!esgDateRange?.from && !esgDateRange?.to}
+                  onClick={() => setEsgDateRange(undefined)}
+                >
+                  All time
+                </Button>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="justify-start gap-2 font-normal"
+                    >
+                      <CalendarIcon
+                        className="h-4 w-4"
+                        style={{ color: brandColor }}
+                      />
+                      {esgDateRange?.from ? (
+                        esgDateRange.to ? (
+                          <>
+                            {format(esgDateRange.from, "MMM d, yyyy")} –{" "}
+                            {format(esgDateRange.to, "MMM d, yyyy")}
+                          </>
+                        ) : (
+                          format(esgDateRange.from, "MMM d, yyyy")
+                        )
+                      ) : (
+                        "Select dates"
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <Calendar
+                      initialFocus
+                      mode="range"
+                      defaultMonth={esgDateRange?.from}
+                      selected={esgDateRange}
+                      onSelect={setEsgDateRange}
+                      numberOfMonths={2}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <EsgTab
+              analytics={analytics}
+              loading={analyticsLoading}
+              error={analyticsError}
+              brandColor={brandColor}
+              campaigns={campaigns}
+              deals={deals}
+              campaignsUnavailable={campaignsError}
+              dealsUnavailable={dealsError}
+              campaignsLoaded={campaignsLoaded}
+              dealsLoaded={dealsLoaded}
+              period={{
+                from: esgDateRange?.from ?? null,
+                to: esgDateRange?.to ?? null,
+              }}
+              periodAnalytics={esgPeriodAnalytics}
+              periodLoading={esgPeriodLoading}
+              periodError={esgPeriodError}
+            />
+          </TabsContent>
+        )}
+
+        {showMintTrace && (
+          <TabsContent value="minttrace">
+            <MintTraceTab brandColor={brandColor} />
+          </TabsContent>
+        )}
 
         <TabsContent value="settings">
           <SettingsTab
+            brandId={brandData.id ?? brandData._id ?? ""}
             name={formattedData.name}
+            companyName={brandData.companyName}
             category={formattedData.category}
+            registrationNumber={brandData.registrationNumber}
+            logo={brandData.logo}
+            contactName={brandData.contactName}
             contactEmail={formattedData.contactEmail}
             contactPhone={formattedData.contactPhone}
+            webLink={brandData.webLink ?? brandData.website}
+            appLink={brandData.appLink}
+            description={brandData.description}
+            address={brandData.address}
+            themeColor={brandData.themeColor}
+            brandColor={brandColor}
+            onSettingsUpdated={applyUpdatedBrand}
+            readOnly={!canManageSettings}
           />
         </TabsContent>
       </Tabs>
@@ -375,29 +825,64 @@ const BrandDashboard = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/20 to-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        {/* Brand color accent line */}
+        <div className="h-0.5 w-full" style={{ backgroundColor: brandColor }} />
         <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-primary-foreground" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold">{formattedData.name}</h1>
-                <p className="text-xs text-muted-foreground">Brand Dashboard</p>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex min-w-0 items-center space-x-4">
+              {formattedData.logoUrl && !logoFailed ? (
+                <img
+                  src={formattedData.logoUrl}
+                  alt={`${formattedData.name} logo`}
+                  className="h-10 w-10 flex-shrink-0 rounded-lg object-cover border"
+                  onError={() => setLogoFailed(true)}
+                />
+              ) : (
+                <div
+                  className="h-10 w-10 flex-shrink-0 rounded-lg flex items-center justify-center"
+                  style={{ backgroundColor: brandColor }}
+                >
+                  <Building2 className="h-6 w-6 text-white" aria-hidden="true" />
+                </div>
+              )}
+              <div className="min-w-0">
+                <h1
+                  className="truncate text-xl font-bold"
+                  title={formattedData.name}
+                >
+                  {formattedData.name}
+                </h1>
+                <p className="truncate text-xs text-muted-foreground">
+                  {formattedData.category || "Brand Dashboard"}
+                </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Badge variant={isApproved ? "default" : "secondary"}>
-                {brandData.status === "approved" ? "Active" : "Pending"}
+            <div className="flex flex-wrap items-center gap-3">
+              <Badge
+                variant="outline"
+                style={{
+                  backgroundColor: brandColor + "1a",
+                  color: brandColor,
+                  borderColor: brandColor + "33",
+                }}
+              >
+                {brandData.status?.toLowerCase() === "approved" ? "Active" : "Pending"}
               </Badge>
-              <Button variant="ghost" size="sm">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" onClick={() => navigate("/")}>
+              {/* <Button variant="outline" onClick={() => navigate("/")}>
                 Exit Dashboard
+              </Button> */}
+              <Button
+                variant="outline"
+                onClick={() => {
+                  brandAuth.clearToken();
+                  navigate("/brand/login");
+                }}
+              >
+                <LogOut className="h-4 w-4 mr-2" />
+                Logout
               </Button>
             </div>
           </div>
@@ -406,7 +891,7 @@ const BrandDashboard = () => {
 
       {/* Main Content */}
       <main className="container mx-auto px-6 py-8">
-        {isApproved ? <ApprovedDashboardView /> : <PendingApprovalView />}
+        {isApproved || isPreviewMode ? approvedDashboardView : pendingApprovalView}
       </main>
     </div>
   );

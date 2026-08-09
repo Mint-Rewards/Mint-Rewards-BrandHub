@@ -6,48 +6,39 @@ product
 
 ## Users
 
-Brand-side stakeholders at companies participating in the Mint Rewards recycling/sustainability program, viewing their own brand's analytics dashboard:
+Two overlapping audiences:
 
-- **Sustainability managers** — need precise, reportable environmental metrics (waste collected by material, CO₂ savings) for stakeholder reporting and goal tracking.
-- **Marketing teams** — need campaign and deal performance data to optimize rewards offerings and measure ROI.
-- **Executive leadership** — need high-level strategic views: sector benchmarking, growth projections, competitive positioning.
+**Brand/marketing managers** at companies partnering with MintRewards. They complete the registration flow, set up campaigns and deals, and check in on coupon usage and redemption rates. They want to know the partnership is working and that their brand looks credible in the platform.
 
-Context: used in office/desktop settings, periodically (weekly/monthly review cadence) rather than continuously. Users are reviewing their own brand's data only — there is no cross-brand or individual-user PII visible.
+**Enterprise sustainability teams** who need to demonstrate ESG impact. They care about CO₂ savings, waste collected, and how their brand compares to category benchmarks. They will screenshot this dashboard for board reports. Numbers must be trustworthy and contextualised.
+
+Both groups are task-oriented professionals, not power users. They come infrequently (not daily), expect the tool to remember where they were, and have low tolerance for confusion or decoration that slows them down.
 
 ## Product Purpose
 
-Mint Rewards Brand Hub is a sustainability analytics and brand management platform for companies in environmental recycling/rewards programs. It turns raw collection and engagement data into:
+BrandHub is the partner-facing management portal for MintRewards — a sustainability rewards platform that incentivises recycling through brand-sponsored points and discounts. Brands use BrandHub to register their company, manage reward campaigns, and track their sustainability contribution.
 
-- Environmental impact tracking (waste by material, CO₂ savings, equivalents like trees planted)
-- User community engagement insights (tiers, retention, growth) — fully anonymized/aggregated
-- Campaign and deal performance analytics
-- Sector benchmarking against category averages (confidential, non-identifiable competitor data)
-- Forward-looking projections (3-month / 6-month / year-end forecasts) for strategic planning
-
-Success looks like a brand manager opening a tab and immediately understanding "where do we stand and what should we do next" — without needing to interpret raw numbers themselves.
+Success looks like: a brand manager can register in under 10 minutes, understand their impact at a glance, and launch a campaign without needing support. An enterprise sustainability lead can pull a credible CO₂ and waste metric for a quarterly report in under 2 minutes.
 
 ## Brand Personality
 
-**Professional, data-forward, calm.** Precision and trustworthiness carry the design — this is a B2B analytics tool where credibility matters more than visual flair. The mint-green primary identity should feel grounded and confident (sustainability as serious business performance, not a lifestyle gimmick), with the purple accent reserved for deliberate emphasis.
+Credible, precise, purposeful.
 
-Tone: clear, declarative, confident. Numbers and trends are the hero, not decorative gradients or oversized hero stats.
+The voice is confident without being loud. It doesn't need to sell the sustainability mission — brands already opted in. It respects their time, shows its work, and lets the data speak. Not a cheerleader, not a dashboard that screams green.
 
 ## Anti-references
 
-- **Generic SaaS-cream dashboards** — the saturated AI-default look (warm near-white body bg, gradient-text hero metrics, identical icon+stat card grids repeated across every tab). This dashboard already has a mint-green/purple identity; lean into that instead of defaulting to neutral cream.
-- Gradient backgrounds on icon badges / stat cards as a substitute for real hierarchy (seen in the pre-refactor `StatCard`, now corrected to tinted flat badges — keep that direction).
-- Dense, cramped financial-terminal layouts — keep breathing room even though the content is data-heavy.
+- **Generic SaaS (blue, card-grid, hero metrics)** — the Stripe/Linear/intercom clone aesthetic: cool-blue primary, identical metric cards with big numbers and coloured icons, everything in cards, everything rounded, nothing distinctive. BrandHub should feel like it was built for this specific use case, not scaffolded from a template.
+- Greenwashing visual language (leaf icons everywhere, earth-tone soft gradients, stock-photo eco imagery). The platform's sustainability credentials come from the data, not the palette.
 
 ## Design Principles
 
-1. **Privacy-first by design** — every view must reflect that individual user data is never exposed; community/user metrics are always aggregated and anonymized. This isn't just a backend rule, it should read clearly in the UI (e.g., tier counts, not names).
-2. **Numbers are the hero, restraint is the style** — let the data carry visual weight through typography and layout, not gradients or decoration. Tinted flat accents (icon badges, trend indicators) over gradients/glass.
-3. **Each tab answers "so what?"** — Impact, Users, Sector, Projections etc. should each surface a clear takeaway or action, not just raw charts (benchmarks vs. average, growth opportunities, seasonal factors).
-4. **One consistent stat-card vocabulary** — StatCard, TrendStatCard, CenteredStat and similar primitives should stay visually consistent across all overview tabs so the dashboard reads as one system, not six different screens.
-5. **Calm, professional color use** — mint-green primary signals trust/sustainability credibility; purple accent and semantic colors (success/warning/destructive) are used deliberately for status and trends, not as default decoration.
+1. **Data earns trust** — every metric is shown in context: a number alone proves nothing; a number with a comparison, a trend, or a real-world equivalent is a fact. Never surface a bare KPI.
+2. **The tool disappears into the task** — standard affordances, consistent vocabulary, no invented UI patterns. Surprise is a bug here, not a feature.
+3. **Restrained palette, meaningful accent** — the green primary signals confirmation and current state, not decoration. If everything is green, nothing is.
+4. **Credibility over personality** — the interface should be able to survive a screenshot in a board deck. No playfulness that undermines executive trust.
+5. **Respect for infrequent users** — people return once a month. Clear wayfinding, persistent state, no reliance on muscle memory.
 
 ## Accessibility & Inclusion
 
-- Target **WCAG 2.1 AA** for contrast and interaction (this is the default for the dashboard's data-heavy, text-driven surfaces).
-- Body text and stat labels must meet ≥4.5:1 contrast against their backgrounds — particularly muted-gray text on tinted card backgrounds.
-- Respect `prefers-reduced-motion` for any chart/tab transitions or hover animations.
+Reasonable defaults. Aim for WCAG 2.1 AA on interactive and text elements without a formal audit commitment. Keyboard navigation on all form controls and dialogs. Sufficient contrast on all data labels.

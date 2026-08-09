@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm hover:shadow-md",
-        gradient: "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-lg hover:scale-[1.02] transition-all duration-300",
+        gradient: "bg-gradient-to-r from-primary to-accent text-primary-foreground hover:shadow-lg motion-safe:hover:scale-[1.02] transition-all duration-300",
         professional: "bg-foreground text-background hover:bg-foreground/90 shadow-sm hover:shadow-md",
         success: "bg-success text-success-foreground hover:bg-success/90 shadow-sm hover:shadow-md",
         warning: "bg-warning text-warning-foreground hover:bg-warning/90 shadow-sm hover:shadow-md",
