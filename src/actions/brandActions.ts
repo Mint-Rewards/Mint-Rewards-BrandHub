@@ -153,7 +153,7 @@ interface FetchBrandsResponse {
 
 const getApiBaseUrl = () =>
   import.meta.env.VITE_API_URL ??
-  "https://mint-rewards-mern-next-js.vercel.app/api";
+  "https://mint-rewards-backend.vercel.app/api";
 
 // The list endpoint's raw records aren't guaranteed to be camelCase (seen
 // in the wild as snake_case `created_at`); normalize the same way
