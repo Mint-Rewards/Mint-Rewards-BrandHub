@@ -1,6 +1,22 @@
+# Dependencies
 node_modules
-.env
 
+# Environment
+.env
+.env.local
+
+# Build output
+dist
+
+# Logs
+logs/
+*.log
+
+# IDE & OS
 .claude/
-./impeccable
-./graphify-out
+.DS_Store
+
+# Generated
+.impeccable/
+graphify-out/
+.vercel/
