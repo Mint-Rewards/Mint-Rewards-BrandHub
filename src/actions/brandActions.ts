@@ -543,6 +543,54 @@ export const createDeal = async (
   return data.deal;
 };
 
+/**
+ * Admin-side deal creation on behalf of a brand.
+ *
+ * Hits the admin resource `POST /brands/:id/deals` with the admin token — the
+ * BrandHub endpoint createDeal uses requires a brand session and a module
+ * subscription an admin doesn't have. Codes go through the same
+ * cleaning/generation path there, so `maxUses` is derived server-side and must
+ * not be sent. Admin-created deals default to `active`: the admin is the
+ * approver, so they don't queue for their own review.
+ */
+export const createDealAsAdmin = async (
+  brandId: string,
+  payload: {
+    title: string;
+    description?: string;
+    discountPercentage?: number | null;
+    discountAmount?: number | null;
+    codes?: string[];
+    generateCodes?: { count: number; prefix?: string };
+    startDate?: string | null;
+    endDate?: string | null;
+    minimumPurchase?: number | null;
+    status?: "active" | "pending";
+  },
+): Promise<Deal> => {
+  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}/deals`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...adminAuth.authHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await readJson<{
+    success?: boolean;
+    deal?: Deal;
+    message?: string;
+  }>(response);
+
+  if (!response.ok || !data.deal) {
+    throw new Error(data.message ?? "Failed to create deal");
+  }
+
+  const docId = String(data.deal._id ?? data.deal.id ?? "");
+  return { ...data.deal, id: docId, _id: docId, brandId };
+};
+
 export const updateBrandSettings = async (
   brandId: string,
   payload: Partial<{

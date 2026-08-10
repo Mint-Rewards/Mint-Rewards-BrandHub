@@ -35,12 +35,14 @@ import {
   Loader2,
   BarChart3,
   Pencil,
+  Plus,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import AdminEditBrandDialog from "@/components/AdminEditBrandDialog";
 import AdminEditCampaignDialog from "@/components/AdminEditCampaignDialog";
 import AdminEditDealDialog from "@/components/AdminEditDealDialog";
+import AdminCreateDealDialog from "@/components/AdminCreateDealDialog";
 import { useToast } from "@/hooks/use-toast";
 import { Brand, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
@@ -76,6 +78,7 @@ const AdminDashboard = () => {
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
   const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
+  const [isCreatingDeal, setIsCreatingDeal] = useState(false);
   const [campaignsDealsError, setCampaignsDealsError] = useState(false);
   // Tracks in-flight approve/reject calls per item so a rapid double-click
   // can't fire the same PATCH twice (or race two different outcomes).
@@ -243,6 +246,10 @@ const AdminDashboard = () => {
     setSelectedDeal((prev) =>
       prev && (prev.id ?? prev._id) === updatedId ? { ...prev, ...updated } : prev,
     );
+  };
+
+  const handleDealCreated = (created: Deal) => {
+    setDeals((prev) => [created, ...prev]);
   };
 
   const handleRejectBrand = (brandId: string) => {
@@ -842,9 +849,15 @@ const AdminDashboard = () => {
             {/* ── Deals Tab ── */}
             <TabsContent value="deals">
               <Card>
-                <CardHeader>
-                  <CardTitle>Deal Reviews</CardTitle>
-                  <CardDescription>Review and approve marketing deals</CardDescription>
+                <CardHeader className="flex flex-row items-start justify-between gap-4">
+                  <div>
+                    <CardTitle>Deal Reviews</CardTitle>
+                    <CardDescription>Review and approve marketing deals</CardDescription>
+                  </div>
+                  <Button size="sm" onClick={() => setIsCreatingDeal(true)}>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Create Deal
+                  </Button>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-col md:flex-row gap-4 mb-6">
@@ -1357,6 +1370,14 @@ const AdminDashboard = () => {
           if (!open) setEditingDeal(null);
         }}
         onDealUpdated={handleDealUpdated}
+      />
+
+      {/* ── Create Deal Dialog ── */}
+      <AdminCreateDealDialog
+        brands={brands}
+        open={isCreatingDeal}
+        onOpenChange={setIsCreatingDeal}
+        onDealCreated={handleDealCreated}
       />
     </div>
   );

@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/actions/brandActions.ts": {
-    "mtime": 1786396790.6832328,
-    "ast_hash": "7b789c60adb6c44980aeb40c70976af0",
+    "mtime": 1786397553.345394,
+    "ast_hash": "0da75ca50ce594b6c25541b170307f23",
     "semantic_hash": ""
   },
   "src/components/AdminProtectedRoute.tsx": {
@@ -430,8 +430,8 @@
     "semantic_hash": "09bd36c7dbd9b2c11bfbe4c97ff3ac51"
   },
   "src/pages/AdminDashboard.tsx": {
-    "mtime": 1786396840.4920263,
-    "ast_hash": "0c6d2d5772846c2375a952fdfae99b0b",
+    "mtime": 1786397614.457021,
+    "ast_hash": "7587aa2f8901a787e211ebda9640defd",
     "semantic_hash": ""
   },
   "src/pages/AdminLogin.tsx": {
@@ -967,6 +967,11 @@
   "src/lib/adminEditForm.ts": {
     "mtime": 1786396706.088166,
     "ast_hash": "ef27e2d97282d3fd2db3ff45f7d0ad22",
+    "semantic_hash": ""
+  },
+  "src/components/AdminCreateDealDialog.tsx": {
+    "mtime": 1786397592.3459258,
+    "ast_hash": "230303934c38591edee27360b96b9a55",
     "semantic_hash": ""
   }
 }
