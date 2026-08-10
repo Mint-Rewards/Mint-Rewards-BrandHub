@@ -136,7 +136,7 @@ export const registerOrg = async (
     body: formData,
   });
 
-  const data = (await response.json()) as RegisterOrgResponse;
+  const data = await readJson<RegisterOrgResponse>(response);
 
   if (!response.ok) {
     throw new Error(data.error ?? "Registration failed");
@@ -151,9 +151,60 @@ interface FetchBrandsResponse {
   message?: string;
 }
 
-const getApiBaseUrl = () =>
-  import.meta.env.VITE_API_URL ??
-  "https://mint-rewards-backend.vercel.app/api";
+// Exported because every caller must go through it. Reading
+// import.meta.env.VITE_API_URL directly builds "undefined/..." with no .env
+// present, which reads as a backend fault rather than missing configuration
+// (issue #43).
+//
+// This used to default to https://mint-rewards-backend.vercel.app/api when the
+// variable was missing or blank. That made a configuration mistake invisible in
+// the one case where it matters most: a developer running BrandHub with no .env
+// got a working-looking app that was reading and writing the PRODUCTION
+// database. Silently routing to prod is a worse outcome than not starting, so
+// this now throws — an unconfigured build fails on its first request with a
+// message naming the variable, instead of quietly succeeding against live data.
+//
+// Vite inlines import.meta.env at build time, so this is a build-time
+// misconfiguration surfacing at runtime; there is no way to recover by setting
+// the variable in the browser. The deployed BrandHub projects both define
+// VITE_API_URL, so no deployment depends on the removed fallback.
+export const getApiBaseUrl = (): string => {
+  // Truthiness, not `??`: an empty-string VITE_API_URL is missing configuration
+  // too, and `??` would let it through.
+  const raw = import.meta.env.VITE_API_URL?.trim();
+
+  if (!raw) {
+    throw new Error(
+      "VITE_API_URL is not set. BrandHub has no default backend — set it in " +
+        ".env (e.g. VITE_API_URL=https://mint-rewards-backend-dev.vercel.app/api) " +
+        "and restart the dev server. It must include the /api suffix.",
+    );
+  }
+
+  // A bare host or a pasted "localhost:4000" resolves relative to the current
+  // page, so every request would 404 against BrandHub's own origin rather than
+  // reaching a backend — the same silent-misconfiguration class as the old
+  // fallback, so it fails here too.
+  if (!/^https?:\/\//.test(raw)) {
+    throw new Error(
+      `VITE_API_URL must be an absolute http(s) URL including the /api suffix, got "${raw}".`,
+    );
+  }
+
+  return raw.replace(/\/+$/, "");
+};
+
+/**
+ * Read a JSON body without letting a non-JSON one mask the real failure.
+ *
+ * Every error path here used to parse before checking `response.ok`, so a 405,
+ * a 502 HTML error page or a proxy error threw a SyntaxError from the parse
+ * before the code that would have produced a useful message ever ran — the
+ * user saw "Unexpected end of JSON input" or "Unexpected token '<'" in a toast
+ * (issue #41). Degrading to {} lets the generic message through instead.
+ */
+const readJson = async <T>(response: Response): Promise<T> =>
+  (await response.json().catch(() => ({}))) as T;
 
 // The list endpoint's raw records aren't guaranteed to be camelCase (seen
 // in the wild as snake_case `created_at`); normalize the same way
@@ -172,7 +223,7 @@ export const fetchBrands = async (): Promise<Brand[]> => {
     throw new Error("Failed to fetch brands");
   }
 
-  const data = (await response.json()) as Brand[] | FetchBrandsResponse;
+  const data = await readJson<Brand[] | FetchBrandsResponse>(response);
 
   if (Array.isArray(data)) {
     return data.map(normalizeBrandDates);
@@ -233,6 +284,15 @@ const throwForBrandApiStatus = (response: Response): void => {
       throw new InsufficientPermissionError();
     case 404:
       throw new BrandNotFoundError();
+    default:
+      // Everything else — 500, 502, 429, 400 — used to fall through here, and
+      // the list actions then turned it into an empty array. A server failure
+      // rendered as "No deals yet", indistinguishable from a genuine empty
+      // state and sometimes shown right after the brand created a deal
+      // (issue #42). Throwing lets the dashboard's error banner engage.
+      throw new Error(
+        `Request failed (${response.status}). Please try again.`,
+      );
   }
 };
 
@@ -245,7 +305,7 @@ export const fetchOrgBrands = async (): Promise<OrgBrand[]> => {
   if (!response.ok) {
     throw new Error("Failed to fetch brands");
   }
-  const data = (await response.json()) as { brands?: OrgBrand[] };
+  const data = await readJson<{ brands?: OrgBrand[] }>(response);
   return data.brands ?? [];
 };
 
@@ -264,10 +324,10 @@ export const createOrgBrand = async (payload: {
     },
     body: JSON.stringify(payload),
   });
-  const data = (await response.json()) as {
+  const data = await readJson<{
     brand?: OrgBrand;
     error?: string;
-  };
+  }>(response);
   if (!response.ok || !data.brand) {
     throw new Error(data.error ?? "Failed to create brand");
   }
@@ -283,11 +343,11 @@ export const fetchBrandById = async (id: string): Promise<Brand> => {
     throw new BrandNotFoundError();
   }
 
-  const data = (await response.json()) as {
+  const data = await readJson<{
     brand?: Record<string, unknown>;
     error?: string;
     message?: string;
-  };
+  }>(response);
 
   if (!response.ok || !data.brand) {
     throw new Error(data.error ?? data.message ?? "Brand not found");
@@ -329,12 +389,11 @@ export const fetchCampaignsForBrand = async (
   );
 
   throwForBrandApiStatus(response);
-  if (!response.ok) return [];
 
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     campaigns?: Record<string, unknown>[];
-  };
+  }>(response);
 
   return (data.campaigns ?? []).map((c) => {
     const docId = String(c._id ?? c.id ?? "");
@@ -356,6 +415,12 @@ export const createCampaign = async (
     badge?: string;
     subtitle?: string;
     banner?: File | null;
+    // Required by the backend: a campaign with no codes cannot be redeemed in
+    // the app. `isSingleCode` shares one code with every user; otherwise each
+    // redeemer is handed a distinct code from the pool.
+    discountCodes: string[];
+    isSingleCode: boolean;
+    discountPercentage?: string;
   },
 ): Promise<Campaign> => {
   let body: BodyInit;
@@ -364,6 +429,13 @@ export const createCampaign = async (
   if (payload.banner instanceof File) {
     const fd = new FormData();
     fd.append("name", payload.name);
+    // FormData flattens values to strings; the backend parses this JSON array
+    // and the "true"/"false" literal back out.
+    fd.append("discountCodes", JSON.stringify(payload.discountCodes));
+    fd.append("isSingleCode", String(payload.isSingleCode));
+    if (payload.discountPercentage) {
+      fd.append("discountPercentage", payload.discountPercentage);
+    }
     if (payload.startDate) fd.append("startDate", payload.startDate);
     if (payload.endDate) fd.append("endDate", payload.endDate);
     if (payload.description) fd.append("description", payload.description);
@@ -394,11 +466,11 @@ export const createCampaign = async (
   );
 
   throwForBrandApiStatus(response);
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     campaign?: Campaign;
     message?: string;
-  };
+  }>(response);
 
   if (!response.ok || !data.campaign) {
     throw new Error(data.message ?? "Failed to create campaign");
@@ -413,11 +485,10 @@ export const fetchDealsForBrand = async (brandId: string): Promise<Deal[]> => {
     { headers: { ...brandAuth.authHeaders() } },
   );
   throwForBrandApiStatus(response);
-  if (!response.ok) return [];
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     deals?: Record<string, unknown>[];
-  };
+  }>(response);
   return (data.deals ?? []).map((d) => {
     const docId = String(d._id ?? d.id ?? "");
     return { ...(d as unknown as Deal), id: docId, _id: docId };
@@ -436,8 +507,12 @@ export const createDeal = async (
     discountAmount?: number | null;
     codes?: string[];
     generateCodes?: { count: number; prefix?: string };
+    codeMode?: "inventory" | "shared";
     startDate?: string | null;
     endDate?: string | null;
+    // Accepted ONLY with codeMode "shared", where it caps how many users may
+    // use the one code. An inventory deal derives it from the code count and
+    // the server rejects it outright.
     maxUses?: number | null;
     minimumPurchase?: number | null;
   },
@@ -455,11 +530,11 @@ export const createDeal = async (
   );
 
   throwForBrandApiStatus(response);
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     deal?: Deal;
     message?: string;
-  };
+  }>(response);
 
   if (!response.ok || !data.deal) {
     throw new Error(data.message ?? "Failed to create deal");
@@ -519,11 +594,11 @@ export const updateBrandSettings = async (
   });
 
   throwForBrandApiStatus(response);
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     brand?: Record<string, unknown>;
     message?: string;
-  };
+  }>(response);
 
   if (!response.ok || !data.brand) {
     throw new Error(data.message ?? "Failed to update settings");
@@ -555,11 +630,11 @@ export const fetchBrandAnalytics = async (
     { headers: { ...brandAuth.authHeaders() } },
   );
   throwForBrandApiStatus(response);
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     analytics?: BrandAnalytics;
     message?: string;
-  };
+  }>(response);
   if (!response.ok || !data.analytics) {
     throw new Error(data.message ?? "Failed to load analytics");
   }
@@ -579,11 +654,15 @@ export const fetchAllDeals = async (filters?: {
     `${getApiBaseUrl()}/brands/deals${qs ? `?${qs}` : ""}`,
     { headers: adminAuth.authHeaders() },
   );
-  if (!response.ok) return [];
-  const data = (await response.json()) as {
+  // Not an empty list: a failure here must reach AdminDashboard's error
+  // banner rather than read as "no deals"/"no campaigns" (issue #42).
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status}). Please try again.`);
+  }
+  const data = await readJson<{
     success?: boolean;
     deals?: Record<string, unknown>[];
-  };
+  }>(response);
   return (data.deals ?? []).map((d) => {
     const brand = d.brand;
     const brandId =
@@ -624,11 +703,11 @@ export const updateDeal = async (
       body: JSON.stringify(payload),
     },
   );
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     deal?: Deal;
     message?: string;
-  };
+  }>(response);
   if (!response.ok || !data.deal) {
     throw new Error(data.message ?? "Failed to update deal");
   }
@@ -650,6 +729,8 @@ export const updateBrandDeal = async (
     addCodes: string[] | { count: number; prefix?: string };
     startDate: string | null;
     endDate: string | null;
+    // Shared deals only — this is how their capacity is raised. On an inventory
+    // deal use addCodes instead; the server rejects maxUses there.
     maxUses: number | null;
     minimumPurchase: number | null;
     status: "active" | "inactive" | "expired";
@@ -667,11 +748,11 @@ export const updateBrandDeal = async (
     },
   );
   throwForBrandApiStatus(response);
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     deal?: Deal;
     message?: string;
-  };
+  }>(response);
   if (!response.ok || !data.deal) {
     throw new Error(data.message ?? "Failed to update deal");
   }
@@ -688,7 +769,7 @@ export const deleteDeal = async (
   );
   throwForBrandApiStatus(response);
   if (!response.ok) {
-    const data = (await response.json()) as { message?: string };
+    const data = await readJson<{ message?: string }>(response);
     throw new Error(data.message ?? "Failed to delete deal");
   }
 };
@@ -742,11 +823,11 @@ export const updateCampaign = async (
     `${getApiBaseUrl()}/brands/${brandId}/campaigns/${campaignId}`,
     { method: "PATCH", headers, body },
   );
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     campaign?: Campaign;
     message?: string;
-  };
+  }>(response);
   if (!response.ok || !data.campaign) {
     throw new Error(data.message ?? "Failed to update campaign");
   }
@@ -771,6 +852,8 @@ export const updateBrandCampaign = async (
     badge: string;
     subtitle: string;
     banner: File | null;
+    // Editable after creation, unlike the code inventory itself.
+    discountPercentage: string;
   }>,
 ): Promise<Campaign> => {
   let body: BodyInit;
@@ -802,11 +885,11 @@ export const updateBrandCampaign = async (
     { method: "PATCH", headers, body },
   );
   throwForBrandApiStatus(response);
-  const data = (await response.json()) as {
+  const data = await readJson<{
     success?: boolean;
     campaign?: Campaign;
     message?: string;
-  };
+  }>(response);
   if (!response.ok || !data.campaign) {
     throw new Error(data.message ?? "Failed to update campaign");
   }
@@ -823,7 +906,7 @@ export const deleteCampaign = async (
   );
   throwForBrandApiStatus(response);
   if (!response.ok) {
-    const data = (await response.json()) as { message?: string };
+    const data = await readJson<{ message?: string }>(response);
     throw new Error(data.message ?? "Failed to delete campaign");
   }
 };
@@ -841,11 +924,15 @@ export const fetchAllCampaigns = async (filters?: {
     `${getApiBaseUrl()}/brands/campaigns${qs ? `?${qs}` : ""}`,
     { headers: adminAuth.authHeaders() },
   );
-  if (!response.ok) return [];
-  const data = (await response.json()) as {
+  // Not an empty list: a failure here must reach AdminDashboard's error
+  // banner rather than read as "no deals"/"no campaigns" (issue #42).
+  if (!response.ok) {
+    throw new Error(`Request failed (${response.status}). Please try again.`);
+  }
+  const data = await readJson<{
     success?: boolean;
     campaigns?: Record<string, unknown>[];
-  };
+  }>(response);
   return (data.campaigns ?? []).map((c) => {
     const brand = c.brand;
     const brandId =
@@ -883,7 +970,7 @@ export const registerBrand = async (
     body: formDataPayload,
   });
 
-  const data = (await response.json()) as RegisterBrandResponse;
+  const data = await readJson<RegisterBrandResponse>(response);
 
   if (!response.ok) {
     throw new Error(data.message ?? "Registration failed");

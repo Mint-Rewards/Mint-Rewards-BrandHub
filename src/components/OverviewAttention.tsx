@@ -1,6 +1,7 @@
 import type { Campaign, Deal } from "@/types";
 import { CheckCircle2, ChevronRight } from "lucide-react";
 import { ENDING_SOON_DAYS, endsWithinDays, lifecycleOf } from "@/lib/metrics";
+import { dealCapacity } from "@/lib/dealCapacity";
 import {
   Card,
   CardContent,
@@ -71,8 +72,12 @@ const OverviewAttention: React.FC<{
   // codes used up is a historical fact, not something the brand can act on.
   const nearlyExhausted = dealList.filter((deal) => {
     if (lifecycleOf(deal) !== "live") return false;
-    if (deal.maxUses == null || deal.maxUses <= 0) return false;
-    return (deal.currentUses ?? 0) / deal.maxUses >= NEARLY_EXHAUSTED;
+    // Against real capacity, not maxUses: an inventory deal with 1 code and a
+    // stale maxUses of 100 is fully exhausted after one claim, and measuring it
+    // as 1% used hid exactly the deals the brand most needs to act on.
+    const capacity = dealCapacity(deal);
+    if (capacity === null || capacity <= 0) return false;
+    return (deal.currentUses ?? 0) / capacity >= NEARLY_EXHAUSTED;
   }).length;
 
   const items: AttentionItem[] = [

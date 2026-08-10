@@ -13,6 +13,7 @@ import { Shield, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { adminAuth } from "@/lib/adminAuth";
+import { getApiBaseUrl } from "@/actions/brandActions";
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -28,7 +29,7 @@ const AdminLogin = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL}/admin/login`,
+        `${getApiBaseUrl()}/admin/login`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
