@@ -152,16 +152,47 @@ interface FetchBrandsResponse {
 }
 
 // Exported because every caller must go through it. Reading
-// import.meta.env.VITE_API_URL directly skips the fallback, so with no .env
-// present that call builds "undefined/..." while the rest of the app works
-// against the hosted API — which reads as a backend fault rather than missing
-// configuration (issue #43).
+// import.meta.env.VITE_API_URL directly builds "undefined/..." with no .env
+// present, which reads as a backend fault rather than missing configuration
+// (issue #43).
 //
-// Truthiness, not `??`: an empty-string VITE_API_URL is missing configuration
-// too, and `??` would let it win over the fallback.
-export const getApiBaseUrl = () =>
-  import.meta.env.VITE_API_URL ||
-  "https://mint-rewards-backend.vercel.app/api";
+// This used to default to https://mint-rewards-backend.vercel.app/api when the
+// variable was missing or blank. That made a configuration mistake invisible in
+// the one case where it matters most: a developer running BrandHub with no .env
+// got a working-looking app that was reading and writing the PRODUCTION
+// database. Silently routing to prod is a worse outcome than not starting, so
+// this now throws — an unconfigured build fails on its first request with a
+// message naming the variable, instead of quietly succeeding against live data.
+//
+// Vite inlines import.meta.env at build time, so this is a build-time
+// misconfiguration surfacing at runtime; there is no way to recover by setting
+// the variable in the browser. The deployed BrandHub projects both define
+// VITE_API_URL, so no deployment depends on the removed fallback.
+export const getApiBaseUrl = (): string => {
+  // Truthiness, not `??`: an empty-string VITE_API_URL is missing configuration
+  // too, and `??` would let it through.
+  const raw = import.meta.env.VITE_API_URL?.trim();
+
+  if (!raw) {
+    throw new Error(
+      "VITE_API_URL is not set. BrandHub has no default backend — set it in " +
+        ".env (e.g. VITE_API_URL=https://mint-rewards-backend-dev.vercel.app/api) " +
+        "and restart the dev server. It must include the /api suffix.",
+    );
+  }
+
+  // A bare host or a pasted "localhost:4000" resolves relative to the current
+  // page, so every request would 404 against BrandHub's own origin rather than
+  // reaching a backend — the same silent-misconfiguration class as the old
+  // fallback, so it fails here too.
+  if (!/^https?:\/\//.test(raw)) {
+    throw new Error(
+      `VITE_API_URL must be an absolute http(s) URL including the /api suffix, got "${raw}".`,
+    );
+  }
+
+  return raw.replace(/\/+$/, "");
+};
 
 /**
  * Read a JSON body without letting a non-JSON one mask the real failure.
