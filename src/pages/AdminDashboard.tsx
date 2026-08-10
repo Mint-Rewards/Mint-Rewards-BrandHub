@@ -34,9 +34,11 @@ import {
   LogOut,
   Loader2,
   BarChart3,
+  Pencil,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
+import AdminEditBrandDialog from "@/components/AdminEditBrandDialog";
 import { useToast } from "@/hooks/use-toast";
 import { Brand, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
@@ -69,6 +71,7 @@ const AdminDashboard = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [rejectDialog, setRejectDialog] = useState<{ brandId: string; reason: string } | null>(null);
+  const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
   const [campaignsDealsError, setCampaignsDealsError] = useState(false);
   // Tracks in-flight approve/reject calls per item so a rapid double-click
   // can't fire the same PATCH twice (or race two different outcomes).
@@ -204,6 +207,18 @@ const AdminDashboard = () => {
       title: `Brand ${status === "APPROVED" ? "Approved" : "Rejected"}`,
       description: `Brand has been ${status === "APPROVED" ? "approved" : "rejected"} successfully.`,
     });
+  };
+
+  // Merge an admin-edited brand back into local state so the row and any open
+  // details dialog reflect the change without a refetch.
+  const handleBrandUpdated = (updated: Brand) => {
+    const updatedId = updated._id ?? updated.id;
+    setBrands((prev) =>
+      prev.map((b) => ((b._id ?? b.id) === updatedId ? { ...b, ...updated } : b)),
+    );
+    setSelectedBrand((prev) =>
+      prev && (prev._id ?? prev.id) === updatedId ? { ...prev, ...updated } : prev,
+    );
   };
 
   const handleRejectBrand = (brandId: string) => {
@@ -576,6 +591,16 @@ const AdminDashboard = () => {
                           >
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
+                          </Button>
+                          {/* Editing is available in every status, unlike
+                              approve/reject which is pending-only. */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingBrand(app)}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit
                           </Button>
                           {isPending(app.status) && (() => {
                             const brandId = (app.id ?? app._id) as string;
@@ -1091,8 +1116,27 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => selectedBrand && setEditingBrand(selectedBrand)}
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Details
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ── Edit Brand Dialog ── */}
+      <AdminEditBrandDialog
+        brand={editingBrand}
+        open={!!editingBrand}
+        onOpenChange={(open) => {
+          if (!open) setEditingBrand(null);
+        }}
+        onBrandUpdated={handleBrandUpdated}
+      />
 
       {/* ── Campaign Details Dialog ── */}
       <Dialog open={!!selectedCampaign} onOpenChange={() => setSelectedCampaign(null)}>

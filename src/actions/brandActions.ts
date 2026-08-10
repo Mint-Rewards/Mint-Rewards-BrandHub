@@ -607,6 +607,79 @@ export const updateBrandSettings = async (
   return data.brand as unknown as Brand;
 };
 
+export type AdminBrandUpdate = Partial<{
+  brandName: string;
+  companyName: string;
+  category: string;
+  email: string;
+  description: string;
+  webLink: string;
+  appLink: string;
+  phone: string;
+  address: string;
+  domain: string;
+  themeColor: string;
+  contactName: string;
+  logo: File | null;
+}>;
+
+/**
+ * Admin-side overwrite of a brand's profile/contact details.
+ *
+ * Same wire shape as updateBrandSettings (JSON, or multipart when a logo file
+ * is included) but against the admin resource `PATCH /brands/:id` with the
+ * admin token. Moderation (status/reason) stays on the approve/reject path in
+ * AdminDashboard — this only sends profile fields.
+ */
+export const updateBrandAsAdmin = async (
+  brandId: string,
+  payload: AdminBrandUpdate,
+): Promise<Brand> => {
+  let body: BodyInit;
+  let headers: Record<string, string>;
+
+  if (payload.logo instanceof File) {
+    const fd = new FormData();
+    for (const [key, value] of Object.entries(payload)) {
+      if (key === "logo" || value === null || value === undefined) continue;
+      fd.append(key, String(value));
+    }
+    fd.append("logo", payload.logo);
+    body = fd;
+    headers = { ...adminAuth.authHeaders() };
+  } else {
+    const { logo: _logo, ...rest } = payload;
+    const clean = Object.fromEntries(
+      Object.entries(rest).filter(([, v]) => v !== null && v !== undefined),
+    );
+    body = JSON.stringify(clean);
+    headers = {
+      "Content-Type": "application/json",
+      ...adminAuth.authHeaders(),
+    };
+  }
+
+  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}`, {
+    method: "PATCH",
+    headers,
+    body,
+  });
+
+  const data = await readJson<{
+    success?: boolean;
+    brand?: Record<string, unknown>;
+    message?: string;
+    error?: string;
+  }>(response);
+
+  if (!response.ok || !data.brand) {
+    // The admin route answers with `error`; other routes use `message`.
+    throw new Error(data.message ?? data.error ?? "Failed to update brand");
+  }
+
+  return normalizeBrandDates(data.brand as unknown as Brand);
+};
+
 // Format a Date as a local YYYY-MM-DD so the period sent to the backend
 // matches the day the user picked, without a UTC-midnight shift.
 const toDateParam = (date: Date): string => {
