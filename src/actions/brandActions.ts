@@ -543,6 +543,54 @@ export const createDeal = async (
   return data.deal;
 };
 
+/**
+ * Admin-side deal creation on behalf of a brand.
+ *
+ * Hits the admin resource `POST /brands/:id/deals` with the admin token — the
+ * BrandHub endpoint createDeal uses requires a brand session and a module
+ * subscription an admin doesn't have. Codes go through the same
+ * cleaning/generation path there, so `maxUses` is derived server-side and must
+ * not be sent. Admin-created deals default to `active`: the admin is the
+ * approver, so they don't queue for their own review.
+ */
+export const createDealAsAdmin = async (
+  brandId: string,
+  payload: {
+    title: string;
+    description?: string;
+    discountPercentage?: number | null;
+    discountAmount?: number | null;
+    codes?: string[];
+    generateCodes?: { count: number; prefix?: string };
+    startDate?: string | null;
+    endDate?: string | null;
+    minimumPurchase?: number | null;
+    status?: "active" | "pending";
+  },
+): Promise<Deal> => {
+  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}/deals`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...adminAuth.authHeaders(),
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const data = await readJson<{
+    success?: boolean;
+    deal?: Deal;
+    message?: string;
+  }>(response);
+
+  if (!response.ok || !data.deal) {
+    throw new Error(data.message ?? "Failed to create deal");
+  }
+
+  const docId = String(data.deal._id ?? data.deal.id ?? "");
+  return { ...data.deal, id: docId, _id: docId, brandId };
+};
+
 export const updateBrandSettings = async (
   brandId: string,
   payload: Partial<{
@@ -605,6 +653,79 @@ export const updateBrandSettings = async (
   }
 
   return data.brand as unknown as Brand;
+};
+
+export type AdminBrandUpdate = Partial<{
+  brandName: string;
+  companyName: string;
+  category: string;
+  email: string;
+  description: string;
+  webLink: string;
+  appLink: string;
+  phone: string;
+  address: string;
+  domain: string;
+  themeColor: string;
+  contactName: string;
+  logo: File | null;
+}>;
+
+/**
+ * Admin-side overwrite of a brand's profile/contact details.
+ *
+ * Same wire shape as updateBrandSettings (JSON, or multipart when a logo file
+ * is included) but against the admin resource `PATCH /brands/:id` with the
+ * admin token. Moderation (status/reason) stays on the approve/reject path in
+ * AdminDashboard — this only sends profile fields.
+ */
+export const updateBrandAsAdmin = async (
+  brandId: string,
+  payload: AdminBrandUpdate,
+): Promise<Brand> => {
+  let body: BodyInit;
+  let headers: Record<string, string>;
+
+  if (payload.logo instanceof File) {
+    const fd = new FormData();
+    for (const [key, value] of Object.entries(payload)) {
+      if (key === "logo" || value === null || value === undefined) continue;
+      fd.append(key, String(value));
+    }
+    fd.append("logo", payload.logo);
+    body = fd;
+    headers = { ...adminAuth.authHeaders() };
+  } else {
+    const { logo: _logo, ...rest } = payload;
+    const clean = Object.fromEntries(
+      Object.entries(rest).filter(([, v]) => v !== null && v !== undefined),
+    );
+    body = JSON.stringify(clean);
+    headers = {
+      "Content-Type": "application/json",
+      ...adminAuth.authHeaders(),
+    };
+  }
+
+  const response = await fetch(`${getApiBaseUrl()}/brands/${brandId}`, {
+    method: "PATCH",
+    headers,
+    body,
+  });
+
+  const data = await readJson<{
+    success?: boolean;
+    brand?: Record<string, unknown>;
+    message?: string;
+    error?: string;
+  }>(response);
+
+  if (!response.ok || !data.brand) {
+    // The admin route answers with `error`; other routes use `message`.
+    throw new Error(data.message ?? data.error ?? "Failed to update brand");
+  }
+
+  return normalizeBrandDates(data.brand as unknown as Brand);
 };
 
 // Format a Date as a local YYYY-MM-DD so the period sent to the backend
@@ -687,9 +808,11 @@ export const updateDeal = async (
     promoCode: string | null;
     startDate: string | null;
     endDate: string | null;
-    maxUses: number | null;
     minimumPurchase: number | null;
     status: "active" | "inactive" | "expired" | "rejected";
+    // No maxUses: it is server-derived from the code count, so the client must
+    // never send it — a client-set value above the real capacity is what makes
+    // a deal report "Sold Out" while the UI shows capacity left.
   }>,
 ): Promise<Deal> => {
   const response = await fetch(

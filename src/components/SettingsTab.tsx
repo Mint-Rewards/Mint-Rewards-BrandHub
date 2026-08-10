@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import { Settings, Loader2, Upload } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -31,7 +30,11 @@ import {
 import { toast } from "@/hooks/use-toast";
 import { updateBrandSettings } from "@/actions/brandActions";
 import { CountryPhoneInput } from "@/components/CountryPhoneInput";
-import { isValidPhone, toExternalHref } from "@/lib/validators";
+import { toExternalHref } from "@/lib/validators";
+import {
+  brandProfileSchema,
+  type BrandProfileFormData,
+} from "@/lib/brandProfileSchema";
 import {
   RECOMMENDED_LOGO_PX,
   MIN_LOGO_PX,
@@ -41,28 +44,9 @@ import {
 import { BRAND_CATEGORIES } from "@/lib/brandCategories";
 import type { Brand } from "@/types";
 
-const settingsSchema = z.object({
-  brandName: z.string().min(1, "Brand name is required"),
-  companyName: z.string().min(1, "Company name is required"),
-  category: z.string().min(1, "Category is required"),
-  contactName: z.string().optional(),
-  email: z.string().min(1, "Email is required").email("Enter a valid email"),
-  phone: z
-    .string()
-    .refine((value) => !value || isValidPhone(value) === null, "Enter a valid international phone number")
-    .optional(),
-  webLink: z.string().optional(),
-  appLink: z.string().optional(),
-  description: z.string().optional(),
-  address: z.string().min(1, "Address is required"),
-  themeColor: z
-    .string()
-    .regex(/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/, "Use a valid hex colour")
-    .optional()
-    .or(z.literal("")),
-});
+const settingsSchema = brandProfileSchema;
 
-type SettingsFormData = z.infer<typeof settingsSchema>;
+type SettingsFormData = BrandProfileFormData;
 
 const SettingsTab: React.FC<{
   brandId: string;
