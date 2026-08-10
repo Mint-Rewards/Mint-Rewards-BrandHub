@@ -43,6 +43,7 @@ import {
   type AdminBrandProfileFormData,
 } from "@/lib/brandProfileSchema";
 import { resolveBrandEmail, isPlaceholderBrandEmail } from "@/lib/brandEmail";
+import { pickDirtyValues } from "@/lib/adminEditForm";
 import type { Brand } from "@/types";
 
 const toFormValues = (brand: Brand): AdminBrandProfileFormData => ({
@@ -136,11 +137,10 @@ const AdminEditBrandDialog: React.FC<{
 
     // Only send what the admin actually touched, so an untouched field can
     // never overwrite the stored value (notably the placeholder email).
-    const dirty = form.formState.dirtyFields;
-    const payload: AdminBrandUpdate = {};
-    for (const key of Object.keys(data) as (keyof AdminBrandProfileFormData)[]) {
-      if (dirty[key]) payload[key] = data[key] ?? "";
-    }
+    const payload: AdminBrandUpdate = pickDirtyValues(
+      data,
+      form.formState.dirtyFields,
+    );
     if (logoFile) payload.logo = logoFile;
 
     if (Object.keys(payload).length === 0) {

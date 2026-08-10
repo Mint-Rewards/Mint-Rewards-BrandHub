@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/actions/brandActions.ts": {
-    "mtime": 1786394028.0461838,
-    "ast_hash": "1d490e0a2e2b7beac866eb9391054be2",
+    "mtime": 1786396790.6832328,
+    "ast_hash": "7b789c60adb6c44980aeb40c70976af0",
     "semantic_hash": ""
   },
   "src/components/AdminProtectedRoute.tsx": {
@@ -430,8 +430,8 @@
     "semantic_hash": "09bd36c7dbd9b2c11bfbe4c97ff3ac51"
   },
   "src/pages/AdminDashboard.tsx": {
-    "mtime": 1786394120.22961,
-    "ast_hash": "861a6d777a03af592232b9cc8f5b7210",
+    "mtime": 1786396840.4920263,
+    "ast_hash": "0c6d2d5772846c2375a952fdfae99b0b",
     "semantic_hash": ""
   },
   "src/pages/AdminLogin.tsx": {
@@ -945,13 +945,28 @@
     "semantic_hash": ""
   },
   "src/components/AdminEditBrandDialog.tsx": {
-    "mtime": 1786394075.2789447,
-    "ast_hash": "a252267af51585be430fa3064fd03507",
+    "mtime": 1786396800.1111643,
+    "ast_hash": "6e7be1685349e21c1a34f31bd59f1467",
     "semantic_hash": ""
   },
   "src/lib/brandProfileSchema.ts": {
     "mtime": 1786394000.3205678,
     "ast_hash": "7dcf095b3cdf0e9bb9c1737337ed3286",
+    "semantic_hash": ""
+  },
+  "src/components/AdminEditCampaignDialog.tsx": {
+    "mtime": 1786396743.8502326,
+    "ast_hash": "314d24f0a190ef32205cbcc0141c1a82",
+    "semantic_hash": ""
+  },
+  "src/components/AdminEditDealDialog.tsx": {
+    "mtime": 1786396784.9590554,
+    "ast_hash": "98edf4d0c29cf609977c73afc9e9d305",
+    "semantic_hash": ""
+  },
+  "src/lib/adminEditForm.ts": {
+    "mtime": 1786396706.088166,
+    "ast_hash": "ef27e2d97282d3fd2db3ff45f7d0ad22",
     "semantic_hash": ""
   }
 }

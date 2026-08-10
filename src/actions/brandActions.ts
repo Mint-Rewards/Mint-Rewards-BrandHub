@@ -760,9 +760,11 @@ export const updateDeal = async (
     promoCode: string | null;
     startDate: string | null;
     endDate: string | null;
-    maxUses: number | null;
     minimumPurchase: number | null;
     status: "active" | "inactive" | "expired" | "rejected";
+    // No maxUses: it is server-derived from the code count, so the client must
+    // never send it — a client-set value above the real capacity is what makes
+    // a deal report "Sold Out" while the UI shows capacity left.
   }>,
 ): Promise<Deal> => {
   const response = await fetch(

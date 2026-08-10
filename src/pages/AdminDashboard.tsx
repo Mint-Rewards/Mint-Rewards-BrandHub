@@ -39,6 +39,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import SiteHeader from "@/components/SiteHeader";
 import AdminEditBrandDialog from "@/components/AdminEditBrandDialog";
+import AdminEditCampaignDialog from "@/components/AdminEditCampaignDialog";
+import AdminEditDealDialog from "@/components/AdminEditDealDialog";
 import { useToast } from "@/hooks/use-toast";
 import { Brand, Campaign, Deal } from "@/types";
 import { adminAuth } from "@/lib/adminAuth";
@@ -72,6 +74,8 @@ const AdminDashboard = () => {
   const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [rejectDialog, setRejectDialog] = useState<{ brandId: string; reason: string } | null>(null);
   const [editingBrand, setEditingBrand] = useState<Brand | null>(null);
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
+  const [editingDeal, setEditingDeal] = useState<Deal | null>(null);
   const [campaignsDealsError, setCampaignsDealsError] = useState(false);
   // Tracks in-flight approve/reject calls per item so a rapid double-click
   // can't fire the same PATCH twice (or race two different outcomes).
@@ -218,6 +222,26 @@ const AdminDashboard = () => {
     );
     setSelectedBrand((prev) =>
       prev && (prev._id ?? prev.id) === updatedId ? { ...prev, ...updated } : prev,
+    );
+  };
+
+  const handleCampaignUpdated = (updated: Campaign) => {
+    const updatedId = updated.id ?? updated._id;
+    setCampaigns((prev) =>
+      prev.map((c) => ((c.id ?? c._id) === updatedId ? { ...c, ...updated } : c)),
+    );
+    setSelectedCampaign((prev) =>
+      prev && (prev.id ?? prev._id) === updatedId ? { ...prev, ...updated } : prev,
+    );
+  };
+
+  const handleDealUpdated = (updated: Deal) => {
+    const updatedId = updated.id ?? updated._id;
+    setDeals((prev) =>
+      prev.map((d) => ((d.id ?? d._id) === updatedId ? { ...d, ...updated } : d)),
+    );
+    setSelectedDeal((prev) =>
+      prev && (prev.id ?? prev._id) === updatedId ? { ...prev, ...updated } : prev,
     );
   };
 
@@ -745,6 +769,16 @@ const AdminDashboard = () => {
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
                           </Button>
+                          {/* Editing is available in every status, unlike
+                              approve/reject which is pending-only. */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingCampaign(campaign)}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit
+                          </Button>
                           {campaign.status?.toUpperCase() === "PENDING" && (() => {
                             const isBusy = pendingActions.has(`campaign:${campaign.id}`);
                             return (
@@ -893,6 +927,16 @@ const AdminDashboard = () => {
                           >
                             <Eye className="h-4 w-4 mr-2" />
                             View Details
+                          </Button>
+                          {/* Editing is available in every status, unlike
+                              approve/reject which is pending-only. */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setEditingDeal(deal)}
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            Edit
                           </Button>
                           {dealStatus === "pending" && (() => {
                             const isBusy = pendingActions.has(`deal:${deal.id}`);
@@ -1176,8 +1220,27 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => selectedCampaign && setEditingCampaign(selectedCampaign)}
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Details
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ── Edit Campaign Dialog ── */}
+      <AdminEditCampaignDialog
+        campaign={editingCampaign}
+        open={!!editingCampaign}
+        onOpenChange={(open) => {
+          if (!open) setEditingCampaign(null);
+        }}
+        onCampaignUpdated={handleCampaignUpdated}
+      />
 
       {/* ── Reject Brand Dialog ── */}
       <Dialog open={!!rejectDialog} onOpenChange={(open) => !open && setRejectDialog(null)}>
@@ -1274,8 +1337,27 @@ const AdminDashboard = () => {
               </div>
             </div>
           )}
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => selectedDeal && setEditingDeal(selectedDeal)}
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Details
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ── Edit Deal Dialog ── */}
+      <AdminEditDealDialog
+        deal={editingDeal}
+        open={!!editingDeal}
+        onOpenChange={(open) => {
+          if (!open) setEditingDeal(null);
+        }}
+        onDealUpdated={handleDealUpdated}
+      />
     </div>
   );
 };
